@@ -1,0 +1,9 @@
+apiDir: "../ExpertMicroservice-api/src/main/java"
+apiPackagePath: "com.oecci.expert"
+application:
+    baseURI: "/ExpertMicroservice"
+    className: "ExpertMicroserviceApplication"
+    name: "ExpertMicroservice"
+author: "Lenovo"
+clientDir: "../ExpertMicroservice-client/src/main/java"
+testDir: "../ExpertMicroservice-test/src/testIntegration/java"

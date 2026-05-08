@@ -1,0 +1,17 @@
+dependencies {
+	implementation project(":modules:ExpertMicroservice:ExpertMicroservice-api")
+
+	compileOnly group: "com.liferay.portal", name: "release.portal.api"
+
+	restBuilder group: "com.liferay", name: "com.liferay.portal.tools.rest.builder", version: "1.0.222"
+
+	// Liferay Custom Objects API — ObjectEntryLocalService, ObjectDefinitionLocalService
+	compileOnly group: "com.liferay", name: "com.liferay.object.api"
+
+	// Apache HTTP conservé pour CryptoneoApiClient (signature électronique externe)
+	compileOnly group: "org.apache.httpcomponents", name: "httpcore", version: "4.4.1"
+	compileOnly group: "org.apache.httpcomponents", name: "httpclient", version: "4.5"
+	implementation("org.apache.httpcomponents:httpmime:4.5")
+}
+
+group = "com.oecci.expert"

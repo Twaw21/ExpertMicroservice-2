@@ -1,0 +1,6 @@
+Bundle-Name: ExpertMicroservice-api
+Bundle-SymbolicName: com.oecci.expert.api
+Bundle-Version: 1.0.0
+Export-Package:\
+	com.oecci.expert.dto.v1_0,\
+	com.oecci.expert.resource.v1_0

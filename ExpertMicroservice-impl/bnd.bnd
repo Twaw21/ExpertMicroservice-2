@@ -1,0 +1,3 @@
+Bundle-Name: ExpertMicroservice-impl
+Bundle-SymbolicName: com.oecci.expert.impl
+Bundle-Version: 1.0.0

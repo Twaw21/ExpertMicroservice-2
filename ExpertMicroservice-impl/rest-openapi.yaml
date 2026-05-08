@@ -1,0 +1,432 @@
+info:
+    description: "ExpertMicroservice REST API"
+    license:
+        name: "Apache 2.0"
+        url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+    title: "ExpertMicroservice"
+    version: v1.0
+openapi: 3.0.1
+
+paths:
+  /oecci/expert/collaborateurs:
+    post:
+      description: Permet d�ajouter un nouveau collaborateur avec ses informations personnelles, son r�le et son statut.
+      operationId: createCollabos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCollaboRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/CreateCollaboRequest'
+      responses:
+        '201':
+          description: Inscription cree avec succes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+      tags: [ "Collaborateur" ]
+          
+  /oecci/expert/collaborateurs/readallby/{collaboID}/{pageSize}:
+    get:
+      summary: Recuperer la liste des collaborateurs pour un collaborateur
+      operationId: getAllCollabos
+      parameters:
+        - name: collaboID
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: L'ID du collaborateur qui consulte les autres collaborateurs
+        - name: pageSize
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Le nombre d'�l�ments � afficher sur une page
+      responses:
+        '201':
+          description: Lecture des collaborateurs effectuee avec succes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+      tags: [ "Collaborateur" ]
+
+  /oecci/expert/experts-comptables:
+    post:
+      summary: Cr�er un expert comptable individuel
+      description: Permet de cr�er un expert comptable ind�pendant, sans rattachement � un cabinet.
+      operationId: createExpertComptable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpertComptable'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/CreateExpertComptable'
+      responses:
+        '201':
+          description: Expert Comptable cr�� avec succ�s
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+      tags: [ "Expert_Comptable" ]
+      
+  /oecci/expert/experts-comptables/validation/{expertComptableID}:
+    post:
+      summary: Valider/Invalider l'inscription d'un expert comptable
+      operationId: validateExpertComptable
+      parameters:
+        - name: expertComptableID
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID de l'expert comptable � valider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatutRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/StatutRequest'
+      responses:
+        '201':
+          description: Changement de statut effectue avec succes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+      tags: [ "Expert_Comptable" ]
+
+  /oecci/expert/experts-comptables/readall/{pageSize}:
+    get:
+      summary: Recuperer la liste des experts comptables
+      operationId: getAllExperts
+      parameters:
+        - name: pageSize
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: le nombre d'�l�ments � retourner
+      responses:
+        '201':
+          description: Lecture des experts comptables effectuee avec succes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+      tags: [ "Expert_Comptable" ]
+
+  /oecci/expert/wallet/reload:
+    post:
+      description: Permet de recharger le wallet d'un expert comtable.
+      operationId: reloadWallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReloadWalletRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ReloadWalletRequest'
+      responses:
+        '201':
+          description: Rechargement effetu� avec avec succes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+      tags: [ "Expert_Comptable" ]
+
+  /oecci/expert/experts-comptables/load-visual/{expertComptableID}:
+    post:
+      summary: Charger le visuel de signature d'un expert comptable
+      operationId: loadSignVisual
+      parameters:
+        - name: expertComptableID
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID de l'expert comptable associ� au visuel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoadVisualRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/LoadVisualRequest'
+      responses:
+        '201':
+          description: Chargement du visuel effectue avec succes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+      tags: [ "Expert_Comptable" ]
+
+
+  /oecci/expert/transfert-client:
+    post:
+      description: Permet de transf�rer un client d'un expert comptable � un autre 
+      operationId: createTransfertClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateForwardRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/CreateForwardRequest'
+      responses:
+        '201':
+          description: Transfert cree avec succes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+      tags: [ "Transfert_Client" ]
+
+  /oecci/expert/transfert-client/validation/{demandeTransfertID}:
+    post:
+      summary: Valider/Invalider la demande de transfert d'un client
+      operationId: validateDemandeTransfertClient
+      parameters:
+        - name: demandeTransfertID
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID de la demande de transfert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatutRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/StatutRequest'
+      responses:
+        '201':
+          description: Changement de statut effectue avec succes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DataResult"
+      tags: [ "Transfert_Client" ]
+
+components:
+  schemas:
+    CreateCollaboRequest:
+      type: object
+      properties:
+        nom:
+          type: string
+          example: "Kone"
+        prenoms:
+          type: string
+          example: "Moussa"
+        email:
+          type: string
+          format: email
+          example: "moussa.kone@example.com"
+        contact:
+          type: string
+          example: "+2250707070707"
+        role:
+          type: string
+          enum: [admin, moderateur, assistant]
+          example: "admin"
+        statut:
+          type: boolean
+        creatorID:
+          type: integer
+          format: int64
+        creatorLevel:
+          type: string
+          enum: [admin, moderateur, assistant]
+          example: "admin"  
+      required:
+        - nom
+        - prenoms
+        - email
+        - role
+        - statut
+
+    CreateExpertComptable:
+      type: object
+      properties:
+        nom:
+          type: string
+          example: "Kouassi"
+        prenoms:
+          type: string
+          example: "Chantal"
+        email:
+          type: string
+          format: email
+          example: "chantal.kouassi@expertci.com"
+        adressePostale:
+          type: string
+          example: "01 BP 3590 Abidjan 01"
+        matricule:
+          type: string
+          example: "CEC-98721-B"
+        annee_inscription:
+          type: string
+          example: "2025-09-26T21:08:01Z"
+        contact:
+          type: string
+          example: "+2250707070707"
+        inscription_by:
+          type: string
+          enum: [by_admin, by_moderateur, by_assistant]
+        inscription_type:
+          type: string
+          enum: [individuel, cabinet, collaborateur]
+        nomCabinet:
+          type: string
+          example: "Cabinet SERAC"
+        numeroCabinet:
+          type: string
+        inscription_mode:
+          type: string
+          enum: [for_assoc, for_coord, for_adj, for_na]
+        expertAssoID:
+          type: integer
+          format: int64
+      required:
+        - nom
+        - prenoms
+        - email
+        - matricule
+        - inscription_type
+        - inscription_mode
+
+    CreateForwardRequest:
+      type: object
+      properties:
+        clientID:
+          type: integer
+          format: int64
+        expertExpediteurID:
+          type: integer
+          format: int64
+        expertDestinataireID:
+          type: integer
+          format: int64
+        motif:
+          type: string
+      required:
+        - expertExpediteurID
+        - expertDestinataireID
+        
+    StatutRequest:
+      type: object
+      properties:
+        motif_refus:
+          type: string
+          description: Motif de refus s'il y'en a
+        statut:
+          $ref: '#/components/schemas/Option'
+      required:
+      - statut
+      
+    Option:
+      type: object
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+      required:
+      - key
+      - name
+
+    ReloadWalletRequest:
+      type: object
+      properties:
+        expertComptableID:
+          type: integer
+          format: int64
+        paymentID:
+          type: integer
+          format: int64
+        amount:
+          type: integer
+          format: int64
+      required:
+        - walletID
+        - paymentID
+        - amount
+
+    LoadVisualRequest:
+      type: object
+      properties:
+        visualName:
+            type: string
+            description: Nom du fichier (.png)
+            example: "VIS_NOM_PRENOM.png"
+        visualContent:
+            type: string
+            format: byte
+            description: Contenu du visuel encode en base64
+      required:
+      - visualName
+      - visualContent
+        
+    DataResult:
+      type: object
+      description: Wrapper for standard API responses
+      properties:
+        designation:
+          type: string
+          description: Identifier or result message
+ 
