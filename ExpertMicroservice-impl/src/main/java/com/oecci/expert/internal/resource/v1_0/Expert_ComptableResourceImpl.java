@@ -2,6 +2,8 @@ package com.oecci.expert.internal.resource.v1_0;
 
 import com.liferay.document.library.kernel.exception.DuplicateFileEntryException;
 import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -9,6 +11,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -27,20 +30,14 @@ import com.oecci.expert.dto.v1_0.CreateExpertComptable.Inscription_mode;
 import com.oecci.expert.dto.v1_0.CreateExpertComptable.Inscription_type;
 import com.oecci.expert.dto.v1_0.StatutRequest;
 import com.oecci.expert.resource.v1_0.Expert_ComptableResource;
-import com.oecci.expert.utils.Constants;
-import com.oecci.expert.utils.DocumentHelper;
-import com.oecci.expert.utils.ObjectEntryHelper;
-import com.oecci.expert.utils.UserHelper;
-import com.oecci.expert.utils.Utils;
+import com.oecci.expert.utils.*;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Base64;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.osgi.service.component.annotations.Component;
@@ -95,6 +92,41 @@ public class Expert_ComptableResourceImpl
 //		long groupId   = Constants.DEV_OECCI_SITE_ID;
 		// groupId = 0 requis par Liferay pour les ObjectEntry de scope "company"
 		long groupId = 0;
+
+		User user = SecurityUtil.checkUser(_httpServletRequest, "getDemandeAttestationByExpertID");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular EXPERTS Shared Object", "Regular COLLABO ADMIN Shared Object"
+				, "Regular COLLABO ASSISTANT Shared Object", "Regular COLLABO MODERATOR Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+		if (!hasAccess) {
+			result = JSONFactoryUtil.createJSONObject();
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+		User technicalUser = null;
+
+		// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+		try{
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+			_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+		}
+		catch (Exception e) {
+			_log.error("[getExpertClients] Compte technique introuvable : " +
+					e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+					"Compte technique manquant. Contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
 		String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://"
 			+ PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
 
@@ -103,7 +135,6 @@ public class Expert_ComptableResourceImpl
 			"> Inscription type : " +
 				createExpertComptable.getInscription_type().getValue());
 
-		JSONObject result = JSONFactoryUtil.createJSONObject();
 
 		// ---- 1. Gestion du collaborateur (ASSOCIÉ / COORDINATEUR / ADJOINT) ----
 
@@ -334,7 +365,7 @@ public class Expert_ComptableResourceImpl
 		_log.info("> Starting by verify if expert comptable already exist");
 
 		List<ObjectEntry> expertEntries = _objectEntryHelper.searchByFilter(
-			userId, companyId, groupId, ERC_EXPERT_COMPTABLE,
+			technicalUser.getUserId(), companyId, groupId, ERC_EXPERT_COMPTABLE,
 			ObjectEntryHelper.buildEqFilter(
 				"numeroOrdre", createExpertComptable.getMatricule()));
 
@@ -414,7 +445,8 @@ public class Expert_ComptableResourceImpl
 		expertValues.put("etat", etatKey);
 
 		if (isExpertToCreate) {
-			expertValues.put("mDPTemporaire", randomPass);
+			String passEncrypted = SecurityUtil.encrypt(randomPass, Constants.CRYPTO_KEY);
+			expertValues.put("mDPTemporaire", passEncrypted);
 		}
 		expertValues.put(
 			"r_iDUserExpertComptable_userId", liferayUser.getUserId());
@@ -423,7 +455,7 @@ public class Expert_ComptableResourceImpl
 		if (isExpertToCreate) {
 			_log.info("> Creating EXPERT COMPTABLE entity...");
 			expertComptableEntry = _objectEntryHelper.addEntry(
-				userId, groupId, companyId, ERC_EXPERT_COMPTABLE, expertValues);
+				liferayUser.getUserId(), groupId, companyId, ERC_EXPERT_COMPTABLE, expertValues);
 		}
 		else {
 			_log.info(
@@ -431,7 +463,7 @@ public class Expert_ComptableResourceImpl
 					ObjectEntryHelper.getString(existingExpertEntry, "nom") +
 					" déjà enregistré. Mise à jour en cours...");
 			expertComptableEntry = _objectEntryHelper.updateEntry(
-				userId, groupId, companyId,
+					liferayUser.getUserId(), groupId, companyId,
 				existingExpertEntry.getObjectEntryId(), expertValues);
 		}
 
@@ -482,7 +514,7 @@ public class Expert_ComptableResourceImpl
 					expertComptableEntry.getObjectEntryId());
 
 				ObjectEntry walletEntry = _objectEntryHelper.addEntry(
-					userId, groupId, companyId, ERC_WALLET, walletValues);
+					liferayUser.getUserId(), groupId, companyId, ERC_WALLET, walletValues);
 
 				if (walletEntry == null) {
 					_log.info(
@@ -495,6 +527,8 @@ public class Expert_ComptableResourceImpl
 					result.put("data", "");
 					return Response.status(Response.Status.OK).entity(result).build();
 				}
+				_log.info(
+					">> Wallet for " + accountant_name + " well created ! ");
 			}
 			else {
 				_log.info(
@@ -504,90 +538,89 @@ public class Expert_ComptableResourceImpl
 		}
 
 		// ---- 6. Notification par email ----
+		if(liferayUser.getLastLoginDate() == null){
+			_log.info(">> Starting sending notification");
 
-		_log.info(">> Starting sending notification");
+			String templatePath = "/templates/email/demande_inscription_expert.ftl";
+			if (createExpertComptable.getInscription_by().name()
+					.equalsIgnoreCase(Inscription_by.BY_ADMIN.getValue())) {
+				templatePath = "/templates/email/approbation_expert.ftl";
+			}
 
-		String templatePath = "/templates/email/demande_inscription_expert.ftl";
-		if (createExpertComptable.getInscription_by().name()
-			.equalsIgnoreCase(Inscription_by.BY_ADMIN.getValue())) {
-			templatePath = "/templates/email/approbation_expert.ftl";
-		}
-
-		_log.info(
-			">> Sending email notification to : " +
-				ObjectEntryHelper.getString(expertComptableEntry, "email"));
-
-		Map<String, Object> templateVariables = new HashMap<>();
-		templateVariables.put(
-			"type_creation",
-			createExpertComptable.getInscription_type().getValue());
-		templateVariables.put("nom_expert_comptable", accountant_name);
-
-		if (createExpertComptable.getInscription_type().getValue()
-			.equalsIgnoreCase(Inscription_type.COLLABORATEUR.getValue())) {
-			templateVariables.put(
-				"statut_collaborateur",
-				_categorieKeyToName(categorieKey));
-		}
-		if (inscType.name().equalsIgnoreCase(
-				Inscription_type.CABINET.getValue())) {
-			templateVariables.put(
-				"nom_cabinet",
-				ObjectEntryHelper.getString(expertComptableEntry, "nomCabinet"));
-		}
-
-		templateVariables.put(
-			"adresse_cabinet",
-			ObjectEntryHelper.getString(expertComptableEntry, "adressePostale"));
-		templateVariables.put(
-			"numero_ordre",
-			ObjectEntryHelper.getString(expertComptableEntry, "numeroOrdre"));
-
-		if (createExpertComptable.getInscription_by().name()
-			.equalsIgnoreCase(Inscription_by.BY_ADMIN.getValue())) {
-			templateVariables.put(
-				"date_validation", Calendar.getInstance().getTime());
-			templateVariables.put(
-				"email_access",
-				ObjectEntryHelper.getString(expertComptableEntry, "email"));
-			templateVariables.put("mot_de_passe_temporaire", randomPass);
-			templateVariables.put(
-				"url_connexion", baseURL + "/web/oecci_expert");
-		}
-
-		String mail_content = Utils.processMailTemplate(
-			templatePath, this.getClass(), templateVariables);
-		_log.info("mail content updated : " + mail_content);
-
-		JSONObject notifPayload = JSONFactoryUtil.createJSONObject();
-		notifPayload.put(
-			"email",
-			ObjectEntryHelper.getString(expertComptableEntry, "email"));
-		notifPayload.put(
-			"subject",
-			"OECCI : Notification de demande d'inscription d'expert comptable");
-		notifPayload.put("content", mail_content);
-
-		try {
-			String notifLink = Constants.LIFERAY_SEND_NOTIFICATION_EMAIL_URL
-				.replace("[baseUrl]", baseURL);
 			_log.info(
-				"> headless URL to send expert comptable DEMANDE INSCRIPTION notification : " +
-					notifLink);
-			JSONObject notification = Utils.executeHttpRequest(
-				baseURL, notifLink, notifPayload, Constants.POST_REQUEST);
-			if (notification != null)
+					">> Sending email notification to : " +
+							ObjectEntryHelper.getString(expertComptableEntry, "email"));
+
+			Map<String, Object> templateVariables = new HashMap<>();
+			templateVariables.put(
+					"type_creation",
+					createExpertComptable.getInscription_type().getValue());
+			templateVariables.put("nom_expert_comptable", accountant_name);
+
+			if (createExpertComptable.getInscription_type().getValue()
+					.equalsIgnoreCase(Inscription_type.COLLABORATEUR.getValue())) {
+				templateVariables.put(
+						"statut_collaborateur",
+						_categorieKeyToName(categorieKey));
+			}
+			if (inscType.name().equalsIgnoreCase(
+					Inscription_type.CABINET.getValue())) {
+				templateVariables.put(
+						"nom_cabinet",
+						ObjectEntryHelper.getString(expertComptableEntry, "nomCabinet"));
+			}
+
+			templateVariables.put(
+					"adresse_cabinet",
+					ObjectEntryHelper.getString(expertComptableEntry, "adressePostale"));
+			templateVariables.put(
+					"numero_ordre",
+					ObjectEntryHelper.getString(expertComptableEntry, "numeroOrdre"));
+
+			if (createExpertComptable.getInscription_by().name()
+					.equalsIgnoreCase(Inscription_by.BY_ADMIN.getValue())) {
+				templateVariables.put(
+						"date_validation", Calendar.getInstance().getTime());
+				templateVariables.put(
+						"email_access",
+						ObjectEntryHelper.getString(expertComptableEntry, "email"));
+				templateVariables.put("mot_de_passe_temporaire", randomPass);
+				templateVariables.put(
+						"url_connexion", baseURL + "/web/oecci_expert");
+			}
+
+			String mail_content = Utils.processMailTemplate(
+					templatePath, this.getClass(), templateVariables);
+			_log.info("mail content updated : " + mail_content);
+
+			JSONObject notifPayload = JSONFactoryUtil.createJSONObject();
+			notifPayload.put(
+					"email",
+					ObjectEntryHelper.getString(expertComptableEntry, "email"));
+			notifPayload.put(
+					"subject",
+					"OECCI : Notification de demande d'inscription d'expert comptable");
+			notifPayload.put("content", mail_content);
+
+			try {
+				String notifLink = Constants.LIFERAY_SEND_NOTIFICATION_EMAIL_URL
+						.replace("[baseUrl]", baseURL);
 				_log.info(
-					"Notification return code : " +
-						notification.getInt("code"));
+						"> headless URL to send expert comptable DEMANDE INSCRIPTION notification : " +
+								notifLink);
+				JSONObject notification = Utils.executeHttpRequest(
+						baseURL, notifLink, notifPayload, Constants.POST_REQUEST);
+				if (notification != null)
+					_log.info(
+							"Notification return code : " +
+									notification.getInt("code"));
+			} catch (Exception e) {
+				_log.info(
+						">> Exception while sending notification : " +
+								e.getLocalizedMessage());
+				e.printStackTrace();
+			}
 		}
-		catch (Exception e) {
-			_log.info(
-				">> Exception while sending notification : " +
-					e.getLocalizedMessage());
-			e.printStackTrace();
-		}
-
 		result.put(
 			"message",
 			"La demande d'inscription de l'expert comptable " +
@@ -613,14 +646,46 @@ public class Expert_ComptableResourceImpl
 		long companyId = PortalUtil.getDefaultCompanyId();;
 //		long groupId   = Constants.DEV_OECCI_SITE_ID;
 		long groupId = 0;
-		
+		User user = SecurityUtil.checkUser(_httpServletRequest, "getDemandeAttestationByExpertID");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular EXPERTS Shared Object", "Regular COLLABO ADMIN Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+		if (!hasAccess) {
+			result = JSONFactoryUtil.createJSONObject();
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+
+		User technicalUser = null;
+
+		// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+		try{
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+			_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+		}
+		catch (Exception e) {
+			_log.error("[getExpertClients] Compte technique introuvable : " +
+					e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+					"Compte technique manquant. Contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
 		String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://"
 			+ PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
 
 		_log.info("> Base URL : " + baseURL);
 		_log.info(">> Verifying if expert comptable already exists... id=" + expertComptableID);
 
-		JSONObject result = JSONFactoryUtil.createJSONObject();
 
 		// 1. Récupérer l'expert comptable
 
@@ -655,7 +720,7 @@ public class Expert_ComptableResourceImpl
 		updateValues.put("etat", statutRequest.getStatut().getKey());
 
 		ObjectEntry updatedAccountantEntry = _objectEntryHelper.updateEntry(
-			userId, groupId, companyId,
+			technicalUser.getUserId(), groupId, companyId,
 			accountantEntry.getObjectEntryId(), updateValues);
 
 		if (updatedAccountantEntry == null) {
@@ -679,7 +744,11 @@ public class Expert_ComptableResourceImpl
 				_etatKeyToName(updatedEtatKey));
 
 		// 3. Créer le Wallet si ACTIF
+		String accountantEmail = ObjectEntryHelper.getString(
+				updatedAccountantEntry, "email");
 
+		User liferayUser = _userHelper.getUserByEmail(
+				companyId, accountantEmail);
 		if (Constants.VALIDATION_STATUT_ACTIF.equalsIgnoreCase(updatedEtatKey)) {
 			_log.info(
 				"> Before accountant's notification, we got to create his wallet.");
@@ -699,8 +768,9 @@ public class Expert_ComptableResourceImpl
 					"r_iDExpertWallet_c_expertComptableId",
 					updatedAccountantEntry.getObjectEntryId());
 
+				_log.info("Accountant found for wallet update : "+liferayUser.getFullName());
 				ObjectEntry walletEntry = _objectEntryHelper.addEntry(
-					userId, groupId, companyId, ERC_WALLET, walletValues);
+						liferayUser.getUserId(), groupId, companyId, ERC_WALLET, walletValues);
 
 				if (walletEntry == null) {
 					_log.info(
@@ -726,12 +796,6 @@ public class Expert_ComptableResourceImpl
 			// 4. Désactiver l'utilisateur Liferay si SUSPENDU
 
 			_log.info(">> Suspending Liferay user for accountant : " + accountant_name);
-
-			String accountantEmail = ObjectEntryHelper.getString(
-				updatedAccountantEntry, "email");
-
-			User liferayUser = _userHelper.getUserByEmail(
-				companyId, accountantEmail);
 
 			if (liferayUser == null) {
 				_log.info(
@@ -787,10 +851,12 @@ public class Expert_ComptableResourceImpl
 			templateVariables.put(
 				"email_access",
 				ObjectEntryHelper.getString(updatedAccountantEntry, "email"));
-			templateVariables.put(
-				"mot_de_passe_temporaire",
-				ObjectEntryHelper.getString(
-					updatedAccountantEntry, "mDPTemporaire"));
+
+			String encPass = ObjectEntryHelper.getString(updatedAccountantEntry, "mDPTemporaire");
+			String decPass = (encPass != null && !encPass.isEmpty())
+					? SecurityUtil.decrypt(encPass, Constants.CRYPTO_KEY)
+					: "";
+			templateVariables.put("mot_de_passe_temporaire", decPass);
 			templateVariables.put("url_connexion", redirection_link);
 		}
 		else if (Constants.VALIDATION_STATUT_REJET.equalsIgnoreCase(
@@ -906,11 +972,27 @@ public class Expert_ComptableResourceImpl
 
 		_log.info(">> EXPERT WALLET's update starting..");
 
-		long userId    = contextUser.getUserId();
-		long companyId = contextCompany.getCompanyId();
-		long groupId   = Constants.DEV_OECCI_SITE_ID;
-
+		User user = SecurityUtil.checkUser(_httpServletRequest, "reloadWallet");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular EXPERTS Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
 		JSONObject result = JSONFactoryUtil.createJSONObject();
+		if (!hasAccess) {
+			result = JSONFactoryUtil.createJSONObject();
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+
+		long userId    = user.getUserId();//contextUser.getUserId();
+//		long companyId = contextCompany.getCompanyId();
+		long companyId = PortalUtil.getDefaultCompanyId();;
+//		long groupId   = Constants.DEV_OECCI_SITE_ID;
+		long groupId = 0 ;//requis par Liferay pour les ObjectEntry de scope "company"
 
 		// 1. Vérifier que le paiement existe
 
@@ -1258,6 +1340,194 @@ public class Expert_ComptableResourceImpl
 		return Response.status(Response.Status.OK).entity(result).build();
 	}
 
+	@Override
+	public Response getExpertComptableById(Long expertComptableId, String fields, String nestedFields, Integer nestedFieldsDepth) throws Exception {
+		_log.info(">> getExpertComptableById — expertComptableId=" + expertComptableId);
+
+		User user = SecurityUtil.checkUser(_httpServletRequest, "getExpertComptableById");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular EXPERTS Shared Object", "Regular COLLABO ADMIN Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+		if (!hasAccess) {
+			result = JSONFactoryUtil.createJSONObject();
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+		try {
+			ObjectEntry entry = _objectEntryHelper.getEntryOrThrow(expertComptableId);
+
+			JSONObject data = JSONFactoryUtil.createJSONObject();
+			JSONObject entriesToJson = _objectEntryHelper.entriesToJson(Collections.singletonList(entry), fields
+					, nestedFields).getJSONObject(0);
+			_log.info("accountant get : "+entriesToJson);
+			result.put("code",    Constants.HTTP_SUCCESS);
+			result.put("message", "OK");
+			result.put("data",    entriesToJson);
+		} catch (IllegalArgumentException e) {
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Expert comptable introuvable : id=" + expertComptableId);
+		} catch (Exception e) {
+			_log.error("getExpertComptableById error", e);
+			result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", e.getMessage());
+			result.put("data",    JSONFactoryUtil.createJSONObject());
+		}
+		return Response.ok(result.toString()).build();
+
+	}
+
+	@Override
+	public Response getExpertComptablesByCategorie(String categorie, String etat, Integer page, Integer pageSize, String sort, String fields, String nestedFields, Integer nestedFieldsDepth) throws Exception {
+		_log.info(">> getExpertComptablesByCategorie — categorie=" + categorie + " etat=" + etat);
+		User user = SecurityUtil.checkUser(_httpServletRequest, "getExpertComptablesByCategorie");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular EXPERTS Shared Object", "Regular COLLABO ADMIN Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+		if (!hasAccess) {
+			result = JSONFactoryUtil.createJSONObject();
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+		try {
+
+			long companyId = contextCompany.getCompanyId();
+			long groupId   = 0L;
+
+			User technicalUser = null;
+
+			// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+			try{
+				technicalUser = _userHelper.getTechnicalUser(companyId);
+				_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+			}
+			catch (Exception e) {
+				_log.error("[getExpertClients] Compte technique introuvable : " +
+						e.getMessage(), e);
+				result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+				result.put("message",
+						"Compte technique manquant. Contacter l'administrateur.");
+				result.put("data", "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+
+			// Filtre composé : categorie [and etat]
+			String filter;
+			if (categorie != null && !categorie.isBlank() && etat != null && !etat.isBlank()) {
+				filter = ObjectEntryHelper.buildAndFilter(
+						ObjectEntryHelper.buildEqFilter("categorie", categorie),
+						ObjectEntryHelper.buildEqFilter("etat", etat));
+			} else if (categorie != null && !categorie.isBlank()) {
+				filter = ObjectEntryHelper.buildEqFilter("categorie", categorie);
+			} else if (etat != null && !etat.isBlank()) {
+				filter = ObjectEntryHelper.buildEqFilter("etat", etat);
+			} else {
+				filter = null;
+			}
+
+			Sort[] sorts = _objectEntryHelper.parseSorts(sort);
+
+			List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
+					technicalUser.getUserId(), companyId, groupId,
+					ERC_EXPERT_COMPTABLE,
+					filter,
+					sorts,
+					(long) (page != null ? page : -1),
+					(long) (pageSize != null ? pageSize : -1));
+			JSONArray entriesToJson = _objectEntryHelper.entriesToJson(entries, fields, nestedFields);
+			_log.info("acountant list get : "+entriesToJson.toString());
+
+			result.put("code",    Constants.HTTP_SUCCESS);
+			result.put("message", "OK");
+			result.put("data",   entriesToJson);
+			result.put("total",   entries.size());
+		} catch (Exception e) {
+			_log.error("getExpertComptablesByCategorie error", e);
+			result.put("code",    500);
+			result.put("message", e.getMessage());
+			result.put("data",    JSONFactoryUtil.createJSONObject());
+		}
+		return Response.ok(result.toString()).build();
+	}
+
+	@Override
+	public Response getExpertComptables(Integer page, Integer pageSize, String filter, String sort, String fields, String nestedFields, Integer nestedFieldsDepth) throws Exception {
+
+		_log.info(">> getExpertComptables (générique) — filter=" + filter);
+		User user = SecurityUtil.checkUser(_httpServletRequest, "getExpertComptables");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+		String[] roles = {"Regular EXPERTS Shared Object", "Regular COLLABO ADMIN Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+		if (!hasAccess) {
+			result = JSONFactoryUtil.createJSONObject();
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+		try {
+			long userId    = contextUser.getUserId();
+			long companyId = contextCompany.getCompanyId();
+			long groupId   = 0L;
+
+			User technicalUser = null;
+
+			// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+			try{
+				technicalUser = _userHelper.getTechnicalUser(companyId);
+				_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+			}
+			catch (Exception e) {
+				_log.error("[getExpertClients] Compte technique introuvable : " +
+						e.getMessage(), e);
+				result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+				result.put("message",
+						"Compte technique manquant. Contacter l'administrateur.");
+				result.put("data", "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+
+			Sort[] sorts = _objectEntryHelper.parseSorts(sort);
+
+			List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
+					technicalUser.getUserId(), companyId, groupId,
+					ERC_EXPERT_COMPTABLE,
+					filter,
+					sorts,
+					(long) (page != null ? page : -1),
+					(long) (pageSize != null ? pageSize : -1));
+
+			result.put("code",    Constants.HTTP_SUCCESS);
+			result.put("message", "OK");
+			JSONArray data = _objectEntryHelper.entriesToJson(entries, fields, nestedFields);
+			_log.info("entriesToJson : "+data.toString());
+			result.put("data",    data);
+			result.put("total",   entries.size());
+		} catch (Exception e) {
+			_log.error("getExpertComptables error", e);
+			result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", e.getMessage());
+			result.put("data",    JSONFactoryUtil.createJSONObject());
+		}
+		return Response.ok(result.toString()).build();
+	}
+
 	// -------------------------------------------------------------------------
 	// Helpers privés — conversion picklist key → display name
 	// -------------------------------------------------------------------------
@@ -1337,5 +1607,11 @@ public class Expert_ComptableResourceImpl
 
 	@Reference
 	private UserLocalService _userLocalService;
+
+	@Reference
+	ObjectEntryLocalService _objectEntryLocalService;
+
+	@Context
+	private HttpServletRequest _httpServletRequest;
 
 }

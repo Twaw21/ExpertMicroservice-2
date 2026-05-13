@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.dto.v1_0;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -11,16 +16,17 @@ import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.io.Serializable;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.annotation.Generated;
+
+import javax.validation.constraints.NotNull;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -30,13 +36,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @Generated("")
 @GraphQLName("CreateForwardRequest")
-@JsonFilter("Liferay.Vulcan")
-@Schema(
-	requiredProperties = {
-		"nom", "prenoms", "email", "matricule", "inscription_type",
-		"inscription_mode"
-	}
+@io.swagger.v3.oas.annotations.media.Schema(
+	requiredProperties = {"expertExpediteurID", "expertDestinataireID"}
 )
+@JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "CreateForwardRequest")
 public class CreateForwardRequest implements Serializable {
 
@@ -49,117 +52,171 @@ public class CreateForwardRequest implements Serializable {
 			CreateForwardRequest.class, json);
 	}
 
-	@Schema
+	@io.swagger.v3.oas.annotations.media.Schema
 	public Long getClientID() {
+		if (_clientIDSupplier != null) {
+			clientID = _clientIDSupplier.get();
+
+			_clientIDSupplier = null;
+		}
+
 		return clientID;
 	}
 
 	public void setClientID(Long clientID) {
 		this.clientID = clientID;
+
+		_clientIDSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setClientID(
 		UnsafeSupplier<Long, Exception> clientIDUnsafeSupplier) {
 
-		try {
-			clientID = clientIDUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_clientIDSupplier = () -> {
+			try {
+				return clientIDUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long clientID;
 
-	@Schema
+	@JsonIgnore
+	private Supplier<Long> _clientIDSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public Long getExpertDestinataireID() {
+		if (_expertDestinataireIDSupplier != null) {
+			expertDestinataireID = _expertDestinataireIDSupplier.get();
+
+			_expertDestinataireIDSupplier = null;
+		}
+
 		return expertDestinataireID;
 	}
 
 	public void setExpertDestinataireID(Long expertDestinataireID) {
 		this.expertDestinataireID = expertDestinataireID;
+
+		_expertDestinataireIDSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setExpertDestinataireID(
 		UnsafeSupplier<Long, Exception> expertDestinataireIDUnsafeSupplier) {
 
-		try {
-			expertDestinataireID = expertDestinataireIDUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_expertDestinataireIDSupplier = () -> {
+			try {
+				return expertDestinataireIDUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotNull
 	protected Long expertDestinataireID;
 
-	@Schema
+	@JsonIgnore
+	private Supplier<Long> _expertDestinataireIDSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public Long getExpertExpediteurID() {
+		if (_expertExpediteurIDSupplier != null) {
+			expertExpediteurID = _expertExpediteurIDSupplier.get();
+
+			_expertExpediteurIDSupplier = null;
+		}
+
 		return expertExpediteurID;
 	}
 
 	public void setExpertExpediteurID(Long expertExpediteurID) {
 		this.expertExpediteurID = expertExpediteurID;
+
+		_expertExpediteurIDSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setExpertExpediteurID(
 		UnsafeSupplier<Long, Exception> expertExpediteurIDUnsafeSupplier) {
 
-		try {
-			expertExpediteurID = expertExpediteurIDUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_expertExpediteurIDSupplier = () -> {
+			try {
+				return expertExpediteurIDUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotNull
 	protected Long expertExpediteurID;
 
-	@Schema
+	@JsonIgnore
+	private Supplier<Long> _expertExpediteurIDSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public String getMotif() {
+		if (_motifSupplier != null) {
+			motif = _motifSupplier.get();
+
+			_motifSupplier = null;
+		}
+
 		return motif;
 	}
 
 	public void setMotif(String motif) {
 		this.motif = motif;
+
+		_motifSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setMotif(
 		UnsafeSupplier<String, Exception> motifUnsafeSupplier) {
 
-		try {
-			motif = motifUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_motifSupplier = () -> {
+			try {
+				return motifUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String motif;
+
+	@JsonIgnore
+	private Supplier<String> _motifSupplier;
 
 	@Override
 	public boolean equals(Object object) {
@@ -189,6 +246,8 @@ public class CreateForwardRequest implements Serializable {
 
 		sb.append("{");
 
+		Long clientID = getClientID();
+
 		if (clientID != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -198,6 +257,8 @@ public class CreateForwardRequest implements Serializable {
 
 			sb.append(clientID);
 		}
+
+		Long expertDestinataireID = getExpertDestinataireID();
 
 		if (expertDestinataireID != null) {
 			if (sb.length() > 1) {
@@ -209,6 +270,8 @@ public class CreateForwardRequest implements Serializable {
 			sb.append(expertDestinataireID);
 		}
 
+		Long expertExpediteurID = getExpertExpediteurID();
+
 		if (expertExpediteurID != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -218,6 +281,8 @@ public class CreateForwardRequest implements Serializable {
 
 			sb.append(expertExpediteurID);
 		}
+
+		String motif = getMotif();
 
 		if (motif != null) {
 			if (sb.length() > 1) {
@@ -238,8 +303,8 @@ public class CreateForwardRequest implements Serializable {
 		return sb.toString();
 	}
 
-	@Schema(
-		accessMode = Schema.AccessMode.READ_ONLY,
+	@io.swagger.v3.oas.annotations.media.Schema(
+		accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY,
 		defaultValue = "com.oecci.expert.dto.v1_0.CreateForwardRequest",
 		name = "x-class-name"
 	)
@@ -285,7 +350,10 @@ public class CreateForwardRequest implements Serializable {
 				Object[] valueArray = (Object[])value;
 
 				for (int i = 0; i < valueArray.length; i++) {
-					if (valueArray[i] instanceof String) {
+					if (valueArray[i] instanceof Map) {
+						sb.append(_toJSON((Map<String, ?>)valueArray[i]));
+					}
+					else if (valueArray[i] instanceof String) {
 						sb.append("\"");
 						sb.append(valueArray[i]);
 						sb.append("\"");
@@ -328,4 +396,7 @@ public class CreateForwardRequest implements Serializable {
 		{"\\\\", "\\\"", "\\b", "\\f", "\\n", "\\r", "\\t"}
 	};
 
+	private Map<String, Serializable> _extendedProperties;
+
 }
+// LIFERAY-REST-BUILDER-HASH:-1704498125

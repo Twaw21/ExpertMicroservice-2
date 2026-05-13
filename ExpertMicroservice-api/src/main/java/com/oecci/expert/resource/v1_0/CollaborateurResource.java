@@ -1,7 +1,10 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.resource.v1_0;
 
-import com.liferay.portal.kernel.search.Sort;
-import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -10,9 +13,9 @@ import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.pagination.Pagination;
 
 import com.oecci.expert.dto.v1_0.CreateCollaboRequest;
-import com.oecci.expert.dto.v1_0.DataResult;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +26,7 @@ import javax.annotation.Generated;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -43,7 +47,24 @@ public interface CollaborateurResource {
 	public Response createCollabos(CreateCollaboRequest createCollaboRequest)
 		throws Exception;
 
-	public Response getAllCollabos(Long collaboID, Integer pageSize)
+	public String getAllCollabos(
+			Long collaboID, Integer nestedFieldsDepth,
+			com.liferay.portal.kernel.search.filter.Filter filter,
+			Pagination pagination,
+			com.liferay.portal.kernel.search.Sort[] sorts)
+		throws Exception;
+
+	public String getCollaborateurByUser(
+			Long liferayUserId, Integer nestedFieldsDepth,
+			Pagination pagination,
+			com.liferay.portal.kernel.search.Sort[] sorts)
+		throws Exception;
+
+	public String getCollaborateurs(
+			Integer nestedFieldsDepth,
+			com.liferay.portal.kernel.search.filter.Filter filter,
+			Pagination pagination,
+			com.liferay.portal.kernel.search.Sort[] sorts)
 		throws Exception;
 
 	public default void setContextAcceptLanguage(
@@ -68,7 +89,8 @@ public interface CollaborateurResource {
 		com.liferay.portal.kernel.model.User contextUser);
 
 	public void setExpressionConvert(
-		ExpressionConvert<Filter> expressionConvert);
+		ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
+			expressionConvert);
 
 	public void setFilterParserProvider(
 		FilterParserProvider filterParserProvider);
@@ -85,19 +107,23 @@ public interface CollaborateurResource {
 
 	public void setSortParserProvider(SortParserProvider sortParserProvider);
 
-	public default Filter toFilter(String filterString) {
+	public default com.liferay.portal.kernel.search.filter.Filter toFilter(
+		String filterString) {
+
 		return toFilter(
 			filterString, Collections.<String, List<String>>emptyMap());
 	}
 
-	public default Filter toFilter(
+	public default com.liferay.portal.kernel.search.filter.Filter toFilter(
 		String filterString, Map<String, List<String>> multivaluedMap) {
 
 		return null;
 	}
 
-	public default Sort[] toSorts(String sortsString) {
-		return new Sort[0];
+	public default com.liferay.portal.kernel.search.Sort[] toSorts(
+		String sortsString) {
+
+		return new com.liferay.portal.kernel.search.Sort[0];
 	}
 
 	@ProviderType
@@ -115,6 +141,8 @@ public interface CollaborateurResource {
 
 		public Builder preferredLocale(Locale preferredLocale);
 
+		public Builder uriInfo(UriInfo uriInfo);
+
 		public Builder user(com.liferay.portal.kernel.model.User user);
 
 	}
@@ -127,3 +155,4 @@ public interface CollaborateurResource {
 	}
 
 }
+// LIFERAY-REST-BUILDER-HASH:-1428337066

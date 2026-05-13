@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>ExpertMicroservice_-ExpertMicroservice-api</name>
-	<comment>Project ExpertMicroservice_-ExpertMicroservice-api created by Buildship.</comment>
+	<name>ExpertMicroservice-api</name>
+	<comment>Project ExpertMicroservice-api created by Buildship.</comment>
 	<projects>
 	</projects>
 	<buildSpec>

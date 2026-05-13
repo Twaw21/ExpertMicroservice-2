@@ -1,7 +1,10 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.resource.v1_0;
 
-import com.liferay.portal.kernel.search.Sort;
-import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -10,9 +13,9 @@ import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.pagination.Pagination;
 
 import com.oecci.expert.dto.v1_0.CreateForwardRequest;
-import com.oecci.expert.dto.v1_0.DataResult;
 import com.oecci.expert.dto.v1_0.StatutRequest;
 
 import java.util.Collections;
@@ -24,6 +27,7 @@ import javax.annotation.Generated;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -43,6 +47,20 @@ public interface Transfert_ClientResource {
 
 	public Response createTransfertClient(
 			CreateForwardRequest createForwardRequest)
+		throws Exception;
+
+	public String getDemandesTransfertByDestinataire(
+			Long Expert_ComptableId, Integer nestedFieldsDepth,
+			com.liferay.portal.kernel.search.filter.Filter filter,
+			Pagination pagination,
+			com.liferay.portal.kernel.search.Sort[] sorts)
+		throws Exception;
+
+	public String getDemandesTransfertClients(
+			Integer nestedFieldsDepth,
+			com.liferay.portal.kernel.search.filter.Filter filter,
+			Pagination pagination,
+			com.liferay.portal.kernel.search.Sort[] sorts)
 		throws Exception;
 
 	public Response validateDemandeTransfertClient(
@@ -71,7 +89,8 @@ public interface Transfert_ClientResource {
 		com.liferay.portal.kernel.model.User contextUser);
 
 	public void setExpressionConvert(
-		ExpressionConvert<Filter> expressionConvert);
+		ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
+			expressionConvert);
 
 	public void setFilterParserProvider(
 		FilterParserProvider filterParserProvider);
@@ -88,19 +107,23 @@ public interface Transfert_ClientResource {
 
 	public void setSortParserProvider(SortParserProvider sortParserProvider);
 
-	public default Filter toFilter(String filterString) {
+	public default com.liferay.portal.kernel.search.filter.Filter toFilter(
+		String filterString) {
+
 		return toFilter(
 			filterString, Collections.<String, List<String>>emptyMap());
 	}
 
-	public default Filter toFilter(
+	public default com.liferay.portal.kernel.search.filter.Filter toFilter(
 		String filterString, Map<String, List<String>> multivaluedMap) {
 
 		return null;
 	}
 
-	public default Sort[] toSorts(String sortsString) {
-		return new Sort[0];
+	public default com.liferay.portal.kernel.search.Sort[] toSorts(
+		String sortsString) {
+
+		return new com.liferay.portal.kernel.search.Sort[0];
 	}
 
 	@ProviderType
@@ -118,6 +141,8 @@ public interface Transfert_ClientResource {
 
 		public Builder preferredLocale(Locale preferredLocale);
 
+		public Builder uriInfo(UriInfo uriInfo);
+
 		public Builder user(com.liferay.portal.kernel.model.User user);
 
 	}
@@ -130,3 +155,4 @@ public interface Transfert_ClientResource {
 	}
 
 }
+// LIFERAY-REST-BUILDER-HASH:-1404449005

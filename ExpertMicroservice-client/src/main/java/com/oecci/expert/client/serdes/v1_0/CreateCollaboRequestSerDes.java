@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.client.serdes.v1_0;
 
 import com.oecci.expert.client.dto.v1_0.CreateCollaboRequest;
@@ -73,9 +78,7 @@ public class CreateCollaboRequestSerDes {
 			sb.append("\"creatorLevel\": ");
 
 			sb.append("\"");
-
 			sb.append(createCollaboRequest.getCreatorLevel());
-
 			sb.append("\"");
 		}
 
@@ -129,9 +132,7 @@ public class CreateCollaboRequestSerDes {
 			sb.append("\"role\": ");
 
 			sb.append("\"");
-
 			sb.append(createCollaboRequest.getRole());
-
 			sb.append("\"");
 		}
 
@@ -245,6 +246,36 @@ public class CreateCollaboRequestSerDes {
 		}
 
 		@Override
+		protected boolean parseMaps(String jsonParserFieldName) {
+			if (Objects.equals(jsonParserFieldName, "contact")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "creatorID")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "creatorLevel")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "email")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "nom")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "prenoms")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "role")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "statut")) {
+				return false;
+			}
+
+			return false;
+		}
+
+		@Override
 		protected void setField(
 			CreateCollaboRequest createCollaboRequest,
 			String jsonParserFieldName, Object jsonParserFieldValue) {
@@ -329,36 +360,7 @@ public class CreateCollaboRequestSerDes {
 
 			Object value = entry.getValue();
 
-			Class<?> valueClass = value.getClass();
-
-			if (value instanceof Map) {
-				sb.append(_toJSON((Map)value));
-			}
-			else if (valueClass.isArray()) {
-				Object[] values = (Object[])value;
-
-				sb.append("[");
-
-				for (int i = 0; i < values.length; i++) {
-					sb.append("\"");
-					sb.append(_escape(values[i]));
-					sb.append("\"");
-
-					if ((i + 1) < values.length) {
-						sb.append(", ");
-					}
-				}
-
-				sb.append("]");
-			}
-			else if (value instanceof String) {
-				sb.append("\"");
-				sb.append(_escape(entry.getValue()));
-				sb.append("\"");
-			}
-			else {
-				sb.append(String.valueOf(entry.getValue()));
-			}
+			sb.append(_toJSON(value));
 
 			if (iterator.hasNext()) {
 				sb.append(", ");
@@ -370,4 +372,41 @@ public class CreateCollaboRequestSerDes {
 		return sb.toString();
 	}
 
+	private static String _toJSON(Object value) {
+		if (value == null) {
+			return "null";
+		}
+
+		if (value instanceof Map) {
+			return _toJSON((Map)value);
+		}
+
+		Class<?> clazz = value.getClass();
+
+		if (clazz.isArray()) {
+			StringBuilder sb = new StringBuilder("[");
+
+			Object[] values = (Object[])value;
+
+			for (int i = 0; i < values.length; i++) {
+				sb.append(_toJSON(values[i]));
+
+				if ((i + 1) < values.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+
+			return sb.toString();
+		}
+
+		if (value instanceof String) {
+			return "\"" + _escape(value) + "\"";
+		}
+
+		return String.valueOf(value);
+	}
+
 }
+// LIFERAY-REST-BUILDER-HASH:1686312016

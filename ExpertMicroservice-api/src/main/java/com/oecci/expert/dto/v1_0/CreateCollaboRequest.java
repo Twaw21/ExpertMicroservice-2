@@ -1,7 +1,13 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.dto.v1_0;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -13,14 +19,13 @@ import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.io.Serializable;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.annotation.Generated;
 
@@ -36,8 +41,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @Generated("")
 @GraphQLName("CreateCollaboRequest")
+@io.swagger.v3.oas.annotations.media.Schema(
+	requiredProperties = {"nom", "prenoms", "email", "role", "statut"}
+)
 @JsonFilter("Liferay.Vulcan")
-@Schema(requiredProperties = {"nom", "prenoms", "email", "role", "statut"})
 @XmlRootElement(name = "CreateCollaboRequest")
 public class CreateCollaboRequest implements Serializable {
 
@@ -50,70 +57,105 @@ public class CreateCollaboRequest implements Serializable {
 			CreateCollaboRequest.class, json);
 	}
 
-	@Schema(example = "+2250707070707")
+	@io.swagger.v3.oas.annotations.media.Schema
 	public String getContact() {
+		if (_contactSupplier != null) {
+			contact = _contactSupplier.get();
+
+			_contactSupplier = null;
+		}
+
 		return contact;
 	}
 
 	public void setContact(String contact) {
 		this.contact = contact;
+
+		_contactSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setContact(
 		UnsafeSupplier<String, Exception> contactUnsafeSupplier) {
 
-		try {
-			contact = contactUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_contactSupplier = () -> {
+			try {
+				return contactUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String contact;
 
-	@Schema
+	@JsonIgnore
+	private Supplier<String> _contactSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public Long getCreatorID() {
+		if (_creatorIDSupplier != null) {
+			creatorID = _creatorIDSupplier.get();
+
+			_creatorIDSupplier = null;
+		}
+
 		return creatorID;
 	}
 
 	public void setCreatorID(Long creatorID) {
 		this.creatorID = creatorID;
+
+		_creatorIDSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setCreatorID(
 		UnsafeSupplier<Long, Exception> creatorIDUnsafeSupplier) {
 
-		try {
-			creatorID = creatorIDUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_creatorIDSupplier = () -> {
+			try {
+				return creatorIDUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long creatorID;
 
-	@Schema(example = "admin")
+	@JsonIgnore
+	private Supplier<Long> _creatorIDSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
+	@JsonGetter("creatorLevel")
 	@Valid
 	public CreatorLevel getCreatorLevel() {
+		if (_creatorLevelSupplier != null) {
+			creatorLevel = _creatorLevelSupplier.get();
+
+			_creatorLevelSupplier = null;
+		}
+
 		return creatorLevel;
 	}
 
 	@JsonIgnore
 	public String getCreatorLevelAsString() {
+		CreatorLevel creatorLevel = getCreatorLevel();
+
 		if (creatorLevel == null) {
 			return null;
 		}
@@ -123,49 +165,66 @@ public class CreateCollaboRequest implements Serializable {
 
 	public void setCreatorLevel(CreatorLevel creatorLevel) {
 		this.creatorLevel = creatorLevel;
+
+		_creatorLevelSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setCreatorLevel(
 		UnsafeSupplier<CreatorLevel, Exception> creatorLevelUnsafeSupplier) {
 
-		try {
-			creatorLevel = creatorLevelUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_creatorLevelSupplier = () -> {
+			try {
+				return creatorLevelUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected CreatorLevel creatorLevel;
 
-	@Schema(example = "moussa.kone@example.com")
+	@JsonIgnore
+	private Supplier<CreatorLevel> _creatorLevelSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public String getEmail() {
+		if (_emailSupplier != null) {
+			email = _emailSupplier.get();
+
+			_emailSupplier = null;
+		}
+
 		return email;
 	}
 
 	public void setEmail(String email) {
 		this.email = email;
+
+		_emailSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setEmail(
 		UnsafeSupplier<String, Exception> emailUnsafeSupplier) {
 
-		try {
-			email = emailUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_emailSupplier = () -> {
+			try {
+				return emailUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
@@ -173,26 +232,39 @@ public class CreateCollaboRequest implements Serializable {
 	@NotEmpty
 	protected String email;
 
-	@Schema(example = "Kone")
+	@JsonIgnore
+	private Supplier<String> _emailSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public String getNom() {
+		if (_nomSupplier != null) {
+			nom = _nomSupplier.get();
+
+			_nomSupplier = null;
+		}
+
 		return nom;
 	}
 
 	public void setNom(String nom) {
 		this.nom = nom;
+
+		_nomSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setNom(UnsafeSupplier<String, Exception> nomUnsafeSupplier) {
-		try {
-			nom = nomUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_nomSupplier = () -> {
+			try {
+				return nomUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
@@ -200,28 +272,41 @@ public class CreateCollaboRequest implements Serializable {
 	@NotEmpty
 	protected String nom;
 
-	@Schema(example = "Moussa")
+	@JsonIgnore
+	private Supplier<String> _nomSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public String getPrenoms() {
+		if (_prenomsSupplier != null) {
+			prenoms = _prenomsSupplier.get();
+
+			_prenomsSupplier = null;
+		}
+
 		return prenoms;
 	}
 
 	public void setPrenoms(String prenoms) {
 		this.prenoms = prenoms;
+
+		_prenomsSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setPrenoms(
 		UnsafeSupplier<String, Exception> prenomsUnsafeSupplier) {
 
-		try {
-			prenoms = prenomsUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_prenomsSupplier = () -> {
+			try {
+				return prenomsUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
@@ -229,14 +314,26 @@ public class CreateCollaboRequest implements Serializable {
 	@NotEmpty
 	protected String prenoms;
 
-	@Schema(example = "admin")
+	@JsonIgnore
+	private Supplier<String> _prenomsSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
+	@JsonGetter("role")
 	@Valid
 	public Role getRole() {
+		if (_roleSupplier != null) {
+			role = _roleSupplier.get();
+
+			_roleSupplier = null;
+		}
+
 		return role;
 	}
 
 	@JsonIgnore
 	public String getRoleAsString() {
+		Role role = getRole();
+
 		if (role == null) {
 			return null;
 		}
@@ -246,19 +343,23 @@ public class CreateCollaboRequest implements Serializable {
 
 	public void setRole(Role role) {
 		this.role = role;
+
+		_roleSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setRole(UnsafeSupplier<Role, Exception> roleUnsafeSupplier) {
-		try {
-			role = roleUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_roleSupplier = () -> {
+			try {
+				return roleUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
@@ -266,34 +367,50 @@ public class CreateCollaboRequest implements Serializable {
 	@NotNull
 	protected Role role;
 
-	@Schema
+	@JsonIgnore
+	private Supplier<Role> _roleSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public Boolean getStatut() {
+		if (_statutSupplier != null) {
+			statut = _statutSupplier.get();
+
+			_statutSupplier = null;
+		}
+
 		return statut;
 	}
 
 	public void setStatut(Boolean statut) {
 		this.statut = statut;
+
+		_statutSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setStatut(
 		UnsafeSupplier<Boolean, Exception> statutUnsafeSupplier) {
 
-		try {
-			statut = statutUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_statutSupplier = () -> {
+			try {
+				return statutUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	@NotNull
 	protected Boolean statut;
+
+	@JsonIgnore
+	private Supplier<Boolean> _statutSupplier;
 
 	@Override
 	public boolean equals(Object object) {
@@ -323,6 +440,8 @@ public class CreateCollaboRequest implements Serializable {
 
 		sb.append("{");
 
+		String contact = getContact();
+
 		if (contact != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -337,6 +456,8 @@ public class CreateCollaboRequest implements Serializable {
 			sb.append("\"");
 		}
 
+		Long creatorID = getCreatorID();
+
 		if (creatorID != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -347,6 +468,8 @@ public class CreateCollaboRequest implements Serializable {
 			sb.append(creatorID);
 		}
 
+		CreatorLevel creatorLevel = getCreatorLevel();
+
 		if (creatorLevel != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -355,11 +478,11 @@ public class CreateCollaboRequest implements Serializable {
 			sb.append("\"creatorLevel\": ");
 
 			sb.append("\"");
-
 			sb.append(creatorLevel);
-
 			sb.append("\"");
 		}
+
+		String email = getEmail();
 
 		if (email != null) {
 			if (sb.length() > 1) {
@@ -375,6 +498,8 @@ public class CreateCollaboRequest implements Serializable {
 			sb.append("\"");
 		}
 
+		String nom = getNom();
+
 		if (nom != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -388,6 +513,8 @@ public class CreateCollaboRequest implements Serializable {
 
 			sb.append("\"");
 		}
+
+		String prenoms = getPrenoms();
 
 		if (prenoms != null) {
 			if (sb.length() > 1) {
@@ -403,6 +530,8 @@ public class CreateCollaboRequest implements Serializable {
 			sb.append("\"");
 		}
 
+		Role role = getRole();
+
 		if (role != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -411,11 +540,11 @@ public class CreateCollaboRequest implements Serializable {
 			sb.append("\"role\": ");
 
 			sb.append("\"");
-
 			sb.append(role);
-
 			sb.append("\"");
 		}
+
+		Boolean statut = getStatut();
 
 		if (statut != null) {
 			if (sb.length() > 1) {
@@ -432,8 +561,8 @@ public class CreateCollaboRequest implements Serializable {
 		return sb.toString();
 	}
 
-	@Schema(
-		accessMode = Schema.AccessMode.READ_ONLY,
+	@io.swagger.v3.oas.annotations.media.Schema(
+		accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY,
 		defaultValue = "com.oecci.expert.dto.v1_0.CreateCollaboRequest",
 		name = "x-class-name"
 	)
@@ -555,7 +684,10 @@ public class CreateCollaboRequest implements Serializable {
 				Object[] valueArray = (Object[])value;
 
 				for (int i = 0; i < valueArray.length; i++) {
-					if (valueArray[i] instanceof String) {
+					if (valueArray[i] instanceof Map) {
+						sb.append(_toJSON((Map<String, ?>)valueArray[i]));
+					}
+					else if (valueArray[i] instanceof String) {
 						sb.append("\"");
 						sb.append(valueArray[i]);
 						sb.append("\"");
@@ -598,4 +730,7 @@ public class CreateCollaboRequest implements Serializable {
 		{"\\\\", "\\\"", "\\b", "\\f", "\\n", "\\r", "\\t"}
 	};
 
+	private Map<String, Serializable> _extendedProperties;
+
 }
+// LIFERAY-REST-BUILDER-HASH:653468964

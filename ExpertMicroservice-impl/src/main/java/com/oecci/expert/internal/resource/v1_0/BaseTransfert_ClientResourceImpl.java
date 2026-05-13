@@ -1,14 +1,20 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.internal.resource.v1_0;
 
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.GroupedModel;
-import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.servlet.ServletContextPool;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.sort.SortParserProvider;
@@ -17,10 +23,12 @@ import com.liferay.portal.vulcan.util.ActionUtil;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
 import com.oecci.expert.dto.v1_0.CreateForwardRequest;
-import com.oecci.expert.dto.v1_0.DataResult;
 import com.oecci.expert.dto.v1_0.StatutRequest;
 import com.oecci.expert.resource.v1_0.Transfert_ClientResource;
 
+import java.lang.reflect.Array;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +36,7 @@ import javax.annotation.Generated;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -46,7 +55,7 @@ public abstract class BaseTransfert_ClientResourceImpl
 	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/transfert-client' -d $'{"clientID": ___, "expertDestinataireID": ___, "expertExpediteurID": ___, "motif": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-		description = "Permet de transf�rer un client d'un expert comptable � un autre"
+		description = "Permet de transferer un client d'un expert comptable a un autre."
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
 		value = {
@@ -62,6 +71,256 @@ public abstract class BaseTransfert_ClientResourceImpl
 			CreateForwardRequest createForwardRequest)
 		throws Exception {
 
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/transfert-client/by-destinataire/{Expert_ComptableId}'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+		description = "Demandes de transfert par expert destinataire"
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "Expert_ComptableId"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Transfert_Client")
+		}
+	)
+	@javax.ws.rs.GET
+	@javax.ws.rs.Path(
+		"/oecci/expert/transfert-client/by-destinataire/{Expert_ComptableId}"
+	)
+	@javax.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public Response getDemandesTransfertByDestinataire(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("Expert_ComptableId")
+			Long Expert_ComptableId,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("page")
+			Integer page,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("pageSize")
+			Integer pageSize,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("filter")
+			String filter,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("sort")
+			String sort,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("fields")
+			String fields,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("nestedFields")
+			String nestedFields,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("nestedFieldsDepth")
+			Integer nestedFieldsDepth)
+		throws Exception {
+
+		return null;
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/transfert-client/by-expediteur/{Expert_ComptableId}'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+			description = "Demandes de transfert par expert expediteur"
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+			value = {
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+							name = "Expert_ComptableId"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "page"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "pageSize"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "filter"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "sort"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "fields"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "nestedFields"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "nestedFieldsDepth"
+					)
+			}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+			value = {
+					@io.swagger.v3.oas.annotations.tags.Tag(name = "Transfert_Client")
+			}
+	)
+	@javax.ws.rs.GET
+	@javax.ws.rs.Path(
+			"/oecci/expert/transfert-client/by-expediteur/{Expert_ComptableId}"
+	)
+	@javax.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public Response getDemandesTransfertByExpediteur(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("Expert_ComptableId")
+			Long Expert_ComptableId,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("page")
+			Integer page,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("pageSize")
+			Integer pageSize,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("filter")
+			String filter,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("sort")
+			String sort,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("fields")
+			String fields,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("nestedFields")
+			String nestedFields,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("nestedFieldsDepth")
+			Integer nestedFieldsDepth)
+		throws Exception {
+
+		return null;
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/transfert-client/list'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+		description = "Demandes de transfert - endpoint generique"
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Transfert_Client")
+		}
+	)
+	@javax.ws.rs.GET
+	@javax.ws.rs.Path("/oecci/expert/transfert-client/list")
+	@javax.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public Response getDemandesTransfertClients(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("page")
+			Integer page,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("pageSize")
+			Integer pageSize,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("filter")
+			String filter,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("sort")
+			String sort,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("fields")
+			String fields,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("nestedFields")
+			String nestedFields,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("nestedFieldsDepth")
+			Integer nestedFieldsDepth)
+		throws Exception {
+
 		return null;
 	}
 
@@ -70,6 +329,9 @@ public abstract class BaseTransfert_ClientResourceImpl
 	 *
 	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/transfert-client/validation/{demandeTransfertID}' -d $'{"motif_refus": ___, "statut": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
+	@io.swagger.v3.oas.annotations.Operation(
+		description = "Valider ou invalider la demande de transfert d'un client"
+	)
 	@io.swagger.v3.oas.annotations.Parameters(
 		value = {
 			@io.swagger.v3.oas.annotations.Parameter(
@@ -98,7 +360,9 @@ public abstract class BaseTransfert_ClientResourceImpl
 			StatutRequest statutRequest)
 		throws Exception {
 
-		return null;
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
 	}
 
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
@@ -113,6 +377,13 @@ public abstract class BaseTransfert_ClientResourceImpl
 
 	public void setContextHttpServletRequest(
 		HttpServletRequest contextHttpServletRequest) {
+
+		if ((contextHttpServletRequest != null) &&
+			(contextHttpServletRequest.getAttribute(WebKeys.CTX) == null)) {
+
+			contextHttpServletRequest.setAttribute(
+				WebKeys.CTX, ServletContextPool.get(StringPool.BLANK));
+		}
 
 		this.contextHttpServletRequest = contextHttpServletRequest;
 	}
@@ -134,7 +405,8 @@ public abstract class BaseTransfert_ClientResourceImpl
 	}
 
 	public void setExpressionConvert(
-		ExpressionConvert<Filter> expressionConvert) {
+		ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
+			expressionConvert) {
 
 		this.expressionConvert = expressionConvert;
 	}
@@ -170,7 +442,9 @@ public abstract class BaseTransfert_ClientResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-		String actionName, GroupedModel groupedModel, String methodName) {
+		String actionName,
+		com.liferay.portal.kernel.model.GroupedModel groupedModel,
+		String methodName) {
 
 		return ActionUtil.addAction(
 			actionName, getClass(), groupedModel, methodName,
@@ -204,21 +478,21 @@ public abstract class BaseTransfert_ClientResourceImpl
 	}
 
 	protected <T, R, E extends Throwable> List<R> transform(
-		java.util.Collection<T> collection,
-		UnsafeFunction<T, R, E> unsafeFunction) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		return TransformUtil.transform(collection, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> R[] transform(
-		T[] array, UnsafeFunction<T, R, E> unsafeFunction, Class<? extends R> clazz) {
+		T[] array, UnsafeFunction<T, R, E> unsafeFunction,
+		Class<? extends R> clazz) {
 
 		return TransformUtil.transform(array, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> R[] transformToArray(
-		java.util.Collection<T> collection,
-		UnsafeFunction<T, R, E> unsafeFunction, Class<? extends R> clazz) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
+		Class<? extends R> clazz) {
 
 		return TransformUtil.transformToArray(
 			collection, unsafeFunction, clazz);
@@ -230,24 +504,35 @@ public abstract class BaseTransfert_ClientResourceImpl
 		return TransformUtil.transformToList(array, unsafeFunction);
 	}
 
+	protected <T, R, E extends Throwable> long[] transformToLongArray(
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
+
+		try {
+			return unsafeTransformToLongArray(collection, unsafeFunction);
+		}
+		catch (Throwable throwable) {
+			throw new RuntimeException(throwable);
+		}
+	}
+
 	protected <T, R, E extends Throwable> List<R> unsafeTransform(
-			java.util.Collection<T> collection,
-			UnsafeFunction<T, R, E> unsafeFunction)
+			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction)
 		throws E {
 
 		return TransformUtil.unsafeTransform(collection, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> R[] unsafeTransform(
-			T[] array, UnsafeFunction<T, R, E> unsafeFunction, Class<? extends R> clazz)
+			T[] array, UnsafeFunction<T, R, E> unsafeFunction,
+			Class<? extends R> clazz)
 		throws E {
 
 		return TransformUtil.unsafeTransform(array, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> R[] unsafeTransformToArray(
-			java.util.Collection<T> collection,
-			UnsafeFunction<T, R, E> unsafeFunction, Class<? extends R> clazz)
+			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
+			Class<? extends R> clazz)
 		throws E {
 
 		return TransformUtil.unsafeTransformToArray(
@@ -261,6 +546,14 @@ public abstract class BaseTransfert_ClientResourceImpl
 		return TransformUtil.unsafeTransformToList(array, unsafeFunction);
 	}
 
+	protected <T, R, E extends Throwable> long[] unsafeTransformToLongArray(
+			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction)
+		throws E {
+
+		return (long[])_unsafeTransformToPrimitiveArray(
+			collection, unsafeFunction, long[].class);
+	}
+
 	protected AcceptLanguage contextAcceptLanguage;
 	protected com.liferay.portal.kernel.model.Company contextCompany;
 	protected HttpServletRequest contextHttpServletRequest;
@@ -268,7 +561,8 @@ public abstract class BaseTransfert_ClientResourceImpl
 	protected Object contextScopeChecker;
 	protected UriInfo contextUriInfo;
 	protected com.liferay.portal.kernel.model.User contextUser;
-	protected ExpressionConvert<Filter> expressionConvert;
+	protected ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
+		expressionConvert;
 	protected FilterParserProvider filterParserProvider;
 	protected GroupLocalService groupLocalService;
 	protected ResourceActionLocalService resourceActionLocalService;
@@ -276,7 +570,25 @@ public abstract class BaseTransfert_ClientResourceImpl
 	protected RoleLocalService roleLocalService;
 	protected SortParserProvider sortParserProvider;
 
+	private <T, R, E extends Throwable> Object _unsafeTransformToPrimitiveArray(
+			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
+			Class<?> clazz)
+		throws E {
+
+		List<R> list = unsafeTransform(collection, unsafeFunction);
+
+		Object array = clazz.cast(
+			Array.newInstance(clazz.getComponentType(), list.size()));
+
+		for (int i = 0; i < list.size(); i++) {
+			Array.set(array, i, list.get(i));
+		}
+
+		return array;
+	}
+
 	private static final com.liferay.portal.kernel.log.Log _log =
 		LogFactoryUtil.getLog(BaseTransfert_ClientResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:625365355

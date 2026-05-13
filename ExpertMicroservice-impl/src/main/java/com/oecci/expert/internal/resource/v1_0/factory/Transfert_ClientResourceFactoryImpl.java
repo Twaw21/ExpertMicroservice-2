@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.internal.resource.v1_0.factory;
 
 import com.liferay.portal.kernel.model.Company;
@@ -39,6 +44,8 @@ import javax.annotation.Generated;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.ws.rs.core.UriInfo;
+
 import org.osgi.service.component.ComponentServiceObjects;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -66,11 +73,16 @@ public class Transfert_ClientResourceFactoryImpl
 					throw new IllegalArgumentException("User is not set");
 				}
 
-				return _transfert_ClientResourceProxyProviderFunction.apply(
+				Function<InvocationHandler, Transfert_ClientResource>
+					transfert_ClientResourceProxyProviderFunction =
+						ResourceProxyProviderFunctionHolder.
+							_transfert_ClientResourceProxyProviderFunction;
+
+				return transfert_ClientResourceProxyProviderFunction.apply(
 					(proxy, method, arguments) -> _invoke(
 						method, arguments, _checkPermissions,
 						_httpServletRequest, _httpServletResponse,
-						_preferredLocale, _user));
+						_preferredLocale, _uriInfo, _user));
 			}
 
 			@Override
@@ -110,6 +122,13 @@ public class Transfert_ClientResourceFactoryImpl
 			}
 
 			@Override
+			public Transfert_ClientResource.Builder uriInfo(UriInfo uriInfo) {
+				_uriInfo = uriInfo;
+
+				return this;
+			}
+
+			@Override
 			public Transfert_ClientResource.Builder user(User user) {
 				_user = user;
 
@@ -120,6 +139,7 @@ public class Transfert_ClientResourceFactoryImpl
 			private HttpServletRequest _httpServletRequest;
 			private HttpServletResponse _httpServletResponse;
 			private Locale _preferredLocale;
+			private UriInfo _uriInfo;
 			private User _user;
 
 		};
@@ -157,7 +177,7 @@ public class Transfert_ClientResourceFactoryImpl
 			Method method, Object[] arguments, boolean checkPermissions,
 			HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse, Locale preferredLocale,
-			User user)
+			UriInfo uriInfo, User user)
 		throws Throwable {
 
 		String name = PrincipalThreadLocal.getName();
@@ -190,6 +210,7 @@ public class Transfert_ClientResourceFactoryImpl
 			httpServletRequest);
 		transfert_ClientResource.setContextHttpServletResponse(
 			httpServletResponse);
+		transfert_ClientResource.setContextUriInfo(uriInfo);
 		transfert_ClientResource.setContextUser(user);
 		transfert_ClientResource.setExpressionConvert(_expressionConvert);
 		transfert_ClientResource.setFilterParserProvider(_filterParserProvider);
@@ -215,10 +236,6 @@ public class Transfert_ClientResourceFactoryImpl
 			PermissionThreadLocal.setPermissionChecker(permissionChecker);
 		}
 	}
-
-	private static final Function<InvocationHandler, Transfert_ClientResource>
-		_transfert_ClientResourceProxyProviderFunction =
-			_getProxyProviderFunction();
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
@@ -255,6 +272,15 @@ public class Transfert_ClientResourceFactoryImpl
 
 	@Reference
 	private UserLocalService _userLocalService;
+
+	private static class ResourceProxyProviderFunctionHolder {
+
+		private static final Function
+			<InvocationHandler, Transfert_ClientResource>
+				_transfert_ClientResourceProxyProviderFunction =
+					_getProxyProviderFunction();
+
+	}
 
 	private class AcceptLanguageImpl implements AcceptLanguage {
 
@@ -307,3 +333,4 @@ public class Transfert_ClientResourceFactoryImpl
 	}
 
 }
+// LIFERAY-REST-BUILDER-HASH:110184453

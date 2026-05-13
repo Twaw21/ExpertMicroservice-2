@@ -1,3 +1,10 @@
 Bundle-Name: ExpertMicroservice-impl
 Bundle-SymbolicName: com.oecci.expert.impl
 Bundle-Version: 1.0.0
+
+-includeresource:\
+    @httpmime-4.5.jar
+
+Import-Package:\
+    !com.liferay.petra.sql.dsl.query,\
+    *

@@ -1,7 +1,10 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.resource.v1_0;
 
-import com.liferay.portal.kernel.search.Sort;
-import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -10,6 +13,7 @@ import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.pagination.Pagination;
 
 import com.oecci.expert.dto.v1_0.CreateExpertComptable;
 import com.oecci.expert.dto.v1_0.LoadVisualRequest;
@@ -25,6 +29,7 @@ import javax.annotation.Generated;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -43,20 +48,37 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface Expert_ComptableResource {
 
 	public Response createExpertComptable(
-			CreateExpertComptable createExpertComptable)
+			CreateExpertComptable createExpert_Comptable)
 		throws Exception;
 
-	public Response validateExpertComptable(
-			Long expertComptableID, StatutRequest statutRequest)
+	public String getAllExperts(Integer expertPageSize) throws Exception;
+
+	public String getExpertComptableById(
+			Long Expert_ComptableId, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public Response getAllExperts(Integer pageSize) throws Exception;
+	public String getExpertComptables(
+			Integer nestedFieldsDepth,
+			com.liferay.portal.kernel.search.filter.Filter filter,
+			Pagination pagination,
+			com.liferay.portal.kernel.search.Sort[] sorts)
+		throws Exception;
+
+	public String getExpertComptablesByCategorie(
+			String categorie, String etat, Integer nestedFieldsDepth,
+			Pagination pagination,
+			com.liferay.portal.kernel.search.Sort[] sorts)
+		throws Exception;
+
+	public Response loadSignVisual(
+			Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+		throws Exception;
 
 	public Response reloadWallet(ReloadWalletRequest reloadWalletRequest)
 		throws Exception;
 
-	public Response loadSignVisual(
-			Long expertComptableID, LoadVisualRequest loadVisualRequest)
+	public Response validateExpertComptable(
+			Long Expert_ComptableID, StatutRequest statutRequest)
 		throws Exception;
 
 	public default void setContextAcceptLanguage(
@@ -81,7 +103,8 @@ public interface Expert_ComptableResource {
 		com.liferay.portal.kernel.model.User contextUser);
 
 	public void setExpressionConvert(
-		ExpressionConvert<Filter> expressionConvert);
+		ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
+			expressionConvert);
 
 	public void setFilterParserProvider(
 		FilterParserProvider filterParserProvider);
@@ -98,19 +121,23 @@ public interface Expert_ComptableResource {
 
 	public void setSortParserProvider(SortParserProvider sortParserProvider);
 
-	public default Filter toFilter(String filterString) {
+	public default com.liferay.portal.kernel.search.filter.Filter toFilter(
+		String filterString) {
+
 		return toFilter(
 			filterString, Collections.<String, List<String>>emptyMap());
 	}
 
-	public default Filter toFilter(
+	public default com.liferay.portal.kernel.search.filter.Filter toFilter(
 		String filterString, Map<String, List<String>> multivaluedMap) {
 
 		return null;
 	}
 
-	public default Sort[] toSorts(String sortsString) {
-		return new Sort[0];
+	public default com.liferay.portal.kernel.search.Sort[] toSorts(
+		String sortsString) {
+
+		return new com.liferay.portal.kernel.search.Sort[0];
 	}
 
 	@ProviderType
@@ -128,6 +155,8 @@ public interface Expert_ComptableResource {
 
 		public Builder preferredLocale(Locale preferredLocale);
 
+		public Builder uriInfo(UriInfo uriInfo);
+
 		public Builder user(com.liferay.portal.kernel.model.User user);
 
 	}
@@ -140,3 +169,4 @@ public interface Expert_ComptableResource {
 	}
 
 }
+// LIFERAY-REST-BUILDER-HASH:-2028556947

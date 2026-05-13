@@ -1,24 +1,38 @@
 package com.oecci.expert.utils;
 
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.rest.filter.factory.FilterFactory;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.petra.sql.dsl.expression.Predicate;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.OrderFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import com.liferay.portal.vulcan.pagination.Pagination;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -43,6 +57,7 @@ import org.osgi.service.component.annotations.Reference;
 public class ObjectEntryHelper {
 
 	private static final Log _log = LogFactoryUtil.getLog(ObjectEntryHelper.class);
+
 
 	/**
 	 * Cache thread-safe des IDs d'Object Definition par (companyId + ERC).
@@ -175,10 +190,11 @@ public class ObjectEntryHelper {
 	 */
 	public ObjectEntry getEntry(long objectEntryId) {
 		try {
+			_log.info(">> Getting entry by ID");
 			return _objectEntryLocalService.fetchObjectEntry(objectEntryId);
 		}
 		catch (Exception e) {
-			_log.warn(
+			_log.info(
 				"[ObjectEntryHelper] getEntry : objectEntryId=" +
 					objectEntryId + " introuvable — " + e.getMessage());
 			return null;
@@ -201,9 +217,84 @@ public class ObjectEntryHelper {
 	}
 
 	// -------------------------------------------------------------------------
+	// Permission helper — switch de PermissionChecker pour un userId donné
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Remplace temporairement le {@link PermissionChecker} du thread courant
+	 * par celui de l'utilisateur {@code userId} et retourne l'ancien checker
+	 * pour permettre sa restauration dans un bloc {@code finally}.
+	 *
+	 * <p><strong>Pourquoi c'est nécessaire :</strong><br>
+	 * {@code ObjectEntryLocalService.getValuesList} utilise
+	 * {@link PermissionThreadLocal} pour les vérifications d'accès, pas le
+	 * paramètre {@code userId}. Si le thread tourne sous les permissions de
+	 * l'utilisateur connecté sans droit VIEW, {@code getValuesList} retourne
+	 * une liste vide même si un {@code techUserId} omniadmin est passé.</p>
+	 *
+	 * <p><strong>Utilisation :</strong> passer {@code techUserId} pour un accès
+	 * total, ou {@code contextUser.getUserId()} pour un accès restreint aux
+	 * permissions de l'utilisateur connecté.</p>
+	 *
+	 * @param userId ID de l'utilisateur dont le checker doit être activé
+	 * @return le {@link PermissionChecker} précédent, à restaurer dans finally
+	 */
+	public PermissionChecker switchPermissionChecker(long userId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		PermissionChecker previous = PermissionThreadLocal.getPermissionChecker();
+
+		User user = userLocalService.getUser(userId);
+		PermissionChecker checker = PermissionCheckerFactoryUtil.create(user);
+		PermissionThreadLocal.setPermissionChecker(checker);
+
+		_log.info(
+			"[ObjectEntryHelper] switchPermissionChecker — userId=" + userId +
+				" isOmniadmin=" + checker.isOmniadmin());
+
+		return previous;
+	}
+
+	// -------------------------------------------------------------------------
 	// CRUD — Recherche par filtre OData
 	// -------------------------------------------------------------------------
 
+
+//	public List<ObjectEntry> searchByFilter(
+//			long userId, long companyId, long groupId,
+//			String erc, String filterString) throws Exception {
+//		return _searchByFilter(userId, companyId, groupId, erc, filterString, (OrderByExpression[]) null, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+//	}
+
+	public List<ObjectEntry> searchByFilter(
+			long userId, long companyId, long groupId,
+			String erc, String filterString) throws Exception {
+		return _searchByFilter(userId, companyId, groupId, erc, filterString, new Sort[]{}, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+	}
+
+	public List<ObjectEntry> searchByFilter(
+			long userId, long companyId, long groupId,
+			String erc, String filterString, Sort[] sorts, Long page, Long pageSize)
+			throws Exception {
+
+		int _page = (page != null && page > 0) ? page.intValue() : 1;
+		int start = (_page - 1) * pageSize.intValue();
+		int end = start + ((pageSize != null && pageSize > 0) ? pageSize.intValue() : 20);
+		return _searchByFilter(userId, companyId, groupId, erc, filterString, sorts != null ? sorts : null, start, end);
+	}
+
+/*	public List<ObjectEntry> searchByFilter(
+			long userId, long companyId, long groupId,
+			String erc, String filterString, OrderByExpression[] orderByExpressions, Long page, Long pageSize)
+					throws Exception {
+		
+		int _page = (page != null && page > 0) ? page.intValue() : 1;
+		int start = (_page - 1) * pageSize.intValue();
+		int end = start + ((pageSize != null && pageSize > 0) ? pageSize.intValue() : 20);
+//		return _searchByFilter(userId, companyId, groupId, erc, filterString, sorts != null ? sort : null, start, end);
+		return _searchByFilter(userId, companyId, groupId, erc, filterString, orderByExpressions, start, end);
+	}
+*/
 	/**
 	 * Recherche des entrées avec un filtre OData (équivalent des appels
 	 * GET /o/c/{object}/?filter=...).
@@ -226,27 +317,76 @@ public class ObjectEntryHelper {
 	 * @param filterString filtre OData validé
 	 * @return liste des ObjectEntry correspondantes
 	 */
-	public List<ObjectEntry> searchByFilter(
+	/**
+	 * Recherche des entrées avec un filtre OData.
+	 *
+	 * <p>Passer {@code techUserId} (compte technique omniadmin) pour un accès
+	 * complet indépendant des permissions VIEW, ou {@code contextUser.getUserId()}
+	 * pour restreindre les résultats aux permissions de l'utilisateur connecté.</p>
+	 *
+	 * @param userId       ID de l'utilisateur dont les permissions seront actives
+	 * @param companyId    ID de l'instance Liferay
+	 * @param groupId      ID du site (0 = scope company)
+	 * @param erc          ERC de l'Object Definition
+	 * @param filterString filtre OData validé (construit via {@link #buildEqFilter})
+	 * @return liste des ObjectEntry correspondantes
+	 */
+	private List<ObjectEntry> _searchByFilter(
 			long userId, long companyId, long groupId,
-			String erc, String filterString)
+			String erc, String filterString, Sort[] sorts, int start, int end)
 		throws Exception {
 
 		long odId = resolveObjectDefinitionId(companyId, erc);
 
 		_log.info(
 			"[ObjectEntryHelper] searchByFilter : erc=" + erc +
-				" filter='" + filterString + "'");
+				" filter='" + filterString + "' odId=" + odId);
 
-		List<ObjectEntry> allEntries =
-			_objectEntryLocalService.getObjectEntries(
-				groupId, odId, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+		ObjectDefinition od =
+			_objectDefinitionLocalService.getObjectDefinition(odId);
 
-		return _applyODataFilter(allEntries, filterString);
+		PermissionChecker previousChecker = switchPermissionChecker(userId);
+
+		try {
+			Predicate predicate = filterString != null ? _buildPredicate(filterString, od) : null;
+
+			List<Map<String, Serializable>> maps =
+				_objectEntryLocalService.getValuesList(
+						groupId,
+						companyId,
+						userId,
+						odId,
+						predicate,
+						null, // searchKeyword (pas de recherche plein texte)
+						start < 0 ? QueryUtil.ALL_POS : start, // begin (début de pagination, 0 = premier enregistrement)
+						end < 0  ? QueryUtil.ALL_POS : end, // end (fin de pagination, ALL_POS=-1 pour tout récupérer)
+						sorts);
+
+			return _resolveObjectEntries(maps, od);
+		}
+		catch (Exception e) {
+			_log.info(
+				"[ObjectEntryHelper] FilterFactory non supporté pour le filtre '" +
+					filterString + "' (erc=" + erc + ") — fallback getValuesList in-memory. " +
+					"Cause : " + e.getMessage());
+
+			List<Map<String, Serializable>> allMaps =
+				_objectEntryLocalService.getValuesList(
+					groupId, companyId, userId, odId,
+					null, null,
+					QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+
+			List<Map<String, Serializable>> filteredMaps =
+				_filterMaps(allMaps, filterString);
+
+			return _resolveObjectEntries(filteredMaps, od);
+		}
+		finally {
+			PermissionThreadLocal.setPermissionChecker(previousChecker);
+		}
 	}
 
-	/**
-	 * Variante paginée de searchByFilter.
-	 */
+	/** Variante paginée de {@link #searchByFilter(long, long, long, String, String)}. */
 	public List<ObjectEntry> searchByFilter(
 			long userId, long companyId, long groupId,
 			String erc, String filterString, int start, int end)
@@ -254,24 +394,409 @@ public class ObjectEntryHelper {
 
 		long odId = resolveObjectDefinitionId(companyId, erc);
 
-		List<ObjectEntry> allEntries =
-			_objectEntryLocalService.getObjectEntries(
-				groupId, odId, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+		_log.info(
+			"[ObjectEntryHelper] searchByFilter paginé : erc=" + erc +
+				" filter='" + filterString + "' start=" + start + " end=" + end);
 
-		List<ObjectEntry> filtered = _applyODataFilter(allEntries, filterString);
+		ObjectDefinition od =
+			_objectDefinitionLocalService.getObjectDefinition(odId);
 
-		if (start == QueryUtil.ALL_POS || end == QueryUtil.ALL_POS) {
-			return filtered;
+		PermissionChecker previousChecker = switchPermissionChecker(userId);
+
+		try {
+			Predicate predicate = _buildPredicate(filterString, od);
+
+			List<Map<String, Serializable>> maps =
+				_objectEntryLocalService.getValuesList(
+					groupId, companyId, userId, odId,
+					predicate, null,
+					start, end, null);
+
+			return _resolveObjectEntries(maps, od);
 		}
+		catch (Exception e) {
+			_log.info(
+				"[ObjectEntryHelper] FilterFactory non supporté pour le filtre '" +
+					filterString + "' (erc=" + erc + ") — fallback getValuesList in-memory paginé. " +
+					"Cause : " + e.getMessage());
 
-		int size = filtered.size();
+			List<Map<String, Serializable>> allMaps =
+				_objectEntryLocalService.getValuesList(
+					groupId, companyId, userId, odId,
+					null, null,
+					QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 
-		return filtered.subList(Math.min(start, size), Math.min(end, size));
+			List<Map<String, Serializable>> filteredMaps =
+				_filterMaps(allMaps, filterString);
+
+			List<ObjectEntry> filtered = _resolveObjectEntries(filteredMaps, od);
+
+			if (start == QueryUtil.ALL_POS || end == QueryUtil.ALL_POS) {
+				return filtered;
+			}
+
+			int size = filtered.size();
+
+			return filtered.subList(Math.min(start, size), Math.min(end, size));
+		}
+		finally {
+			PermissionThreadLocal.setPermissionChecker(previousChecker);
+		}
+	}
+
+	/**
+	 * Recherche avec filtre et tri.
+	 *
+	 * <p>Chemin optimal : filtre + tri poussés en base via {@code FilterFactory}
+	 * et {@code Sort[]}. Si {@code FilterFactory} rejette le filtre (champ FK
+	 * de relation non déclaré), fallback : filtre en mémoire scopé +
+	 * tri SQL via DynamicQuery.</p>
+	 *
+	 * @param sortField  Nom du champ Liferay headless (ex : {@code "createDate"})
+	 * @param ascending  {@code true} = ASC, {@code false} = DESC
+	 * @param start      Indice de début (inclusif), {@link QueryUtil#ALL_POS} pour tout
+	 * @param end        Indice de fin (exclusif), {@link QueryUtil#ALL_POS} pour tout
+	 */
+	/** Variante avec tri de {@link #searchByFilter(long, long, long, String, String)}. */
+	public List<ObjectEntry> searchByFilterSorted(
+			long userId, long companyId, long groupId,
+			String erc, String filterString,
+			String sortField, boolean ascending,
+			int start, int end)
+		throws Exception {
+
+		long odId = resolveObjectDefinitionId(companyId, erc);
+
+		_log.info(
+			"[ObjectEntryHelper] searchByFilterSorted : erc=" + erc +
+				" filter='" + filterString + "' sort=" + sortField +
+				" asc=" + ascending);
+
+		ObjectDefinition od =
+			_objectDefinitionLocalService.getObjectDefinition(odId);
+
+		PermissionChecker previousChecker = switchPermissionChecker(userId);
+
+		try {
+			// Chemin optimal : filtre + tri délégués à la base.
+			Predicate predicate = _buildPredicate(filterString, od);
+			Sort sort = new Sort(sortField, !ascending);
+
+			// start/end passés directement (ALL_POS = pas de borne).
+			List<Map<String, Serializable>> maps =
+				_objectEntryLocalService.getValuesList(
+					groupId, companyId, userId, odId,
+					predicate, null,
+					start, end, null);
+
+			return _resolveObjectEntries(maps, od);
+		}
+		catch (Exception e) {
+			// Fallback : tri SQL via DynamicQuery + filtre en mémoire scopé.
+			_log.info(
+				"[ObjectEntryHelper] FilterFactory non supporté pour le filtre '" +
+					filterString + "' (erc=" + erc + ") — fallback DynamicQuery+mémoire. " +
+					"Cause : " + e.getMessage());
+
+			DynamicQuery dq = _objectEntryLocalService.dynamicQuery();
+			dq.add(RestrictionsFactoryUtil.eq("objectDefinitionId", odId));
+
+			if (groupId > 0) {
+				dq.add(RestrictionsFactoryUtil.eq("groupId", groupId));
+			}
+
+			dq.addOrder(
+				ascending
+					? OrderFactoryUtil.asc(sortField)
+					: OrderFactoryUtil.desc(sortField));
+
+			// Pagination SQL dans le DynamicQuery si des bornes sont demandées.
+			@SuppressWarnings("unchecked")
+			List<ObjectEntry> sorted = (start == QueryUtil.ALL_POS || end == QueryUtil.ALL_POS)
+				? (List<ObjectEntry>) (List<?>) _objectEntryLocalService.dynamicQuery(dq)
+				: (List<ObjectEntry>) (List<?>) _objectEntryLocalService.dynamicQuery(dq, start, end);
+
+			List<ObjectEntry> filtered = _applyODataFilter(sorted, filterString);
+
+			if (start == QueryUtil.ALL_POS || end == QueryUtil.ALL_POS) {
+				return filtered;
+			}
+
+			int size = filtered.size();
+
+			return filtered.subList(Math.min(start, size), Math.min(end, size));
+		}
+		finally {
+			PermissionThreadLocal.setPermissionChecker(previousChecker);
+		}
 	}
 
 	// -------------------------------------------------------------------------
-	// Filtrage OData-lite en mémoire
-	// Supporte : eq, ne, and (parenthèses incluses)
+	// Helpers internes — résolution SQL
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Compile une chaîne de filtre OData en {@link Predicate} SQL via
+	 * {@link FilterFactory}. Retourne {@code null} si le filtre est vide
+	 * (= pas de restriction, équivalent au SELECT sans WHERE).
+	 */
+	private Predicate _buildPredicate(String filterString, ObjectDefinition od)
+		throws Exception {
+
+		if (filterString == null || filterString.trim().isEmpty()) {
+			return null;
+		}
+
+		return filterFactory.create(filterString.trim(), od);
+	}
+
+	/**
+	 * Résout une liste de {@link Map} (issue de {@code getValuesList}) en
+	 * {@link ObjectEntry} chargées via DynamicQuery.
+	 *
+	 * <p><strong>Pourquoi DynamicQuery et non {@code fetchObjectEntry} ?</strong><br>
+	 * {@code getValuesList} retourne les Maps de la table d'extension Liferay
+	 * (ex : {@code O_c_ExpertComptable}). La PK de cette table ({@code c_expertComptableId})
+	 * n'est pas nécessairement égale à l'{@code objectEntryId} de la table
+	 * {@code ObjectEntry}. Un appel à {@code fetchObjectEntry(c_expertComptableId)}
+	 * retournerait {@code null} si les deux séquences divergent.
+	 * DynamicQuery filtre directement sur {@code objectEntryId} du modèle
+	 * {@link ObjectEntry}, ce qui est fiable quel que soit le stockage.</p>
+	 *
+	 * <p>Les IDs candidats sont extraits depuis les Maps dans cet ordre :</p>
+	 * <ol>
+	 *   <li>Clé dérivée : {@code c_<objectName>Id} (ex : {@code "c_clientId"})</li>
+	 *   <li>{@code "id"}</li>
+	 *   <li>{@code "objectEntryId"}</li>
+	 * </ol>
+	 */
+	private List<ObjectEntry> _resolveObjectEntries(
+		List<Map<String, Serializable>> maps, ObjectDefinition od) {
+
+		if (maps == null || maps.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		String derivedIdKey = _resolveIdKey(od);
+
+		_log.info(
+			"[ObjectEntryHelper] _resolveObjectEntries — od='" + od.getName() +
+				"' derivedIdKey='" + derivedIdKey +
+				"' count=" + maps.size() +
+				"' mapKeys=" + maps.get(0).keySet());
+
+		// 1. Extraction des IDs depuis toutes les Maps
+		List<Long> ids = new ArrayList<>(maps.size());
+
+		for (Map<String, Serializable> map : maps) {
+			long id = _extractEntryId(map, derivedIdKey);
+
+			if (id > 0) {
+				ids.add(id);
+			}
+			else {
+				_log.info(
+					"[ObjectEntryHelper] _resolveObjectEntries — impossible d'extraire " +
+						"l'ID de la map (derivedKey='" + derivedIdKey +
+						"', mapKeys=" + map.keySet() + ")");
+			}
+		}
+
+		if (ids.isEmpty()) {
+			_log.info(
+				"[ObjectEntryHelper] _resolveObjectEntries — aucun ID valide extrait " +
+					"sur " + maps.size() + " map(s)");
+			return Collections.emptyList();
+		}
+
+		_log.info(
+			"[ObjectEntryHelper] _resolveObjectEntries — IDs extraits : " + ids);
+
+		// 2. Chargement des ObjectEntry en bulk via DynamicQuery
+		//    Fiable quelle que soit la relation PK extension ↔ objectEntryId
+		DynamicQuery dq = _objectEntryLocalService.dynamicQuery();
+
+		if (ids.size() == 1) {
+			dq.add(RestrictionsFactoryUtil.eq("objectEntryId", ids.get(0)));
+		}
+		else {
+			dq.add(RestrictionsFactoryUtil.in("objectEntryId", ids));
+		}
+
+		@SuppressWarnings("unchecked")
+		List<ObjectEntry> entries =
+			(List<ObjectEntry>) (List<?>) _objectEntryLocalService.dynamicQuery(dq);
+
+		_log.info(
+			"[ObjectEntryHelper] _resolveObjectEntries — " +
+				entries.size() + " ObjectEntry(s) résolue(s) pour " +
+				ids.size() + " ID(s)");
+
+		return entries;
+	}
+
+	/**
+	 * Extrait l'ID primaire depuis une map retournée par {@code getValuesList}.
+	 *
+	 * <p>Essaie les clés candidates dans l'ordre :</p>
+	 * <ol>
+	 *   <li>{@code derivedKey} — clé calculée (ex : {@code "c_clientId"})</li>
+	 *   <li>{@code "id"}</li>
+	 *   <li>{@code "objectEntryId"}</li>
+	 * </ol>
+	 *
+	 * <p>La conversion tient compte du type réel de la valeur dans la Map
+	 * ({@code Long}, {@code Integer}, {@code String}, etc.).</p>
+	 *
+	 * @return l'ID de l'entrée, ou {@code 0} si aucune clé ne correspond
+	 */
+	private long _extractEntryId(Map<String, Serializable> map, String derivedKey) {
+		for (String key : new String[]{derivedKey, "id", "objectEntryId"}) {
+			if (!map.containsKey(key)) {
+				continue;
+			}
+
+			Serializable val = map.get(key);
+
+			if (val == null) {
+				continue;
+			}
+
+			long id;
+
+			if (val instanceof Long) {
+				id = (Long) val;
+			}
+			else if (val instanceof Number) {
+				id = ((Number) val).longValue();
+			}
+			else {
+				id = GetterUtil.getLong(String.valueOf(val));
+			}
+
+			if (id > 0) {
+				_log.info(
+					"[ObjectEntryHelper] _extractEntryId — key='" + key +
+						"' type=" + val.getClass().getSimpleName() +
+						" → id=" + id);
+				return id;
+			}
+		}
+
+		return 0L;
+	}
+
+	/**
+	 * Reconstitue la clé ID telle que renvoyée par {@code getValuesList}.
+	 * Convention Liferay : {@code "C_ExerciceN"} → {@code "c_exerciceNId"}.
+	 */
+	private String _resolveIdKey(ObjectDefinition od) {
+		String idKey = od.getName() + "Id";
+
+		if (idKey.length() >= 3) {
+			idKey = idKey.substring(0, 3).toLowerCase() + idKey.substring(3);
+		}
+
+		return idKey;
+	}
+
+	// -------------------------------------------------------------------------
+	// Filtrage de Maps (retournées par getValuesList) en mémoire
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Filtre une liste de Maps (issues de {@code getValuesList}) selon un
+	 * filtre OData simple de la forme {@code fieldName eq 'value'} ou
+	 * {@code fieldName ne 'value'}.
+	 *
+	 * <p>Contrairement à {@link #_applyODataFilter} qui opère sur des
+	 * {@link ObjectEntry} et ne voit pas les champs de relation, cette méthode
+	 * opère directement sur les Maps qui contiennent TOUS les champs y compris
+	 * les FK de relation ({@code r_iDXxx_c_xxxId}).</p>
+	 *
+	 * <p>La comparaison est toujours textuelle ({@code String.valueOf(val)})
+	 * pour rester cohérent avec {@link #buildEqFilter} qui encadre toujours
+	 * la valeur entre apostrophes.</p>
+	 */
+	private List<Map<String, Serializable>> _filterMaps(
+		List<Map<String, Serializable>> maps, String filterString) {
+
+		if (maps == null || maps.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		if (filterString == null || filterString.trim().isEmpty()) {
+			return maps;
+		}
+
+		String trimmed = filterString.trim();
+
+		// Gestion AND récursive
+		List<String> andParts = _splitOnAnd(trimmed);
+
+		if (andParts.size() > 1) {
+			List<Map<String, Serializable>> result = maps;
+
+			for (String part : andParts) {
+				result = _filterMaps(result, part);
+			}
+
+			return result;
+		}
+
+		// Expression simple : fieldName eq 'value' ou fieldName ne 'value'
+		trimmed = _stripOuterParens(trimmed);
+
+		int eqIdx = trimmed.indexOf(" eq '");
+		int neIdx = trimmed.indexOf(" ne '");
+
+		if (eqIdx >= 0) {
+			String fieldName = trimmed.substring(0, eqIdx).trim();
+			String expected  = trimmed.substring(eqIdx + 5);
+
+			if (expected.endsWith("'")) {
+				expected = expected.substring(0, expected.length() - 1);
+			}
+
+			final String fField    = fieldName;
+			final String fExpected = expected;
+
+			return maps.stream()
+				.filter(map -> {
+					Object val = map.get(fField);
+					return val != null && fExpected.equals(String.valueOf(val));
+				})
+				.collect(Collectors.toList());
+		}
+
+		if (neIdx >= 0) {
+			String fieldName = trimmed.substring(0, neIdx).trim();
+			String expected  = trimmed.substring(neIdx + 5);
+
+			if (expected.endsWith("'")) {
+				expected = expected.substring(0, expected.length() - 1);
+			}
+
+			final String fField    = fieldName;
+			final String fExpected = expected;
+
+			return maps.stream()
+				.filter(map -> {
+					Object val = map.get(fField);
+					return val == null || !fExpected.equals(String.valueOf(val));
+				})
+				.collect(Collectors.toList());
+		}
+
+		_log.info(
+			"[ObjectEntryHelper] _filterMaps : expression non parseable '" +
+				filterString + "' — aucun filtrage appliqué.");
+
+		return maps;
+	}
+
+	// -------------------------------------------------------------------------
+	// Filtrage OData-lite en mémoire (conservé comme fallback interne)
 	// -------------------------------------------------------------------------
 
 	private List<ObjectEntry> _applyODataFilter(
@@ -404,7 +929,7 @@ public class ObjectEntryHelper {
 			return !_getValueAsString(entry, fieldName).equals(expected);
 		}
 
-		_log.warn(
+		_log.info(
 			"[ObjectEntryHelper] Expression OData non parseable, entrée " +
 				"incluse par défaut : '" + expr + "'");
 
@@ -529,7 +1054,37 @@ public class ObjectEntryHelper {
 	// Construction du ServiceContext
 	// -------------------------------------------------------------------------
 
-	private ServiceContext _buildServiceContext(
+	public ServiceContext createServiceContext(com.liferay.portal.kernel.model.User contextUser, Long userId, Long groupId) throws PortalException {
+		ServiceContext sc = ServiceContextThreadLocal.getServiceContext();
+		if (sc == null) {
+			_log.info("ServiceContext est null, création d'un nouveau ServiceContext");
+			sc = new ServiceContext();
+			sc.setAttribute("ip", "127.0.0.1");
+			_log.info("ServiceContext créé par défaut avec site groupId: ");
+		}
+
+		if(groupId == null ) {
+			groupId = contextUser.getGroupId() > 0 ? contextUser.getGroupId() : 0L;
+		}
+
+		//Group group = groupLocalService.getGroup(groupId);
+
+		_log.info(String.format("ContextUser : userId: %s - groupId: %s - group: %s", contextUser.getUserId(), contextUser.getGroupId(), contextUser.getGroup() != null ? contextUser.getGroup().getName() : null));
+		_log.info(String.format("USERID: %s - GROUPID: %s - COMPANY ID: %s", userId, groupId, sc.getCompanyId() ));
+
+		sc.setUserId(userId);
+		sc.setScopeGroupId(groupId);
+//		contextUser.setGroupId(groupId);
+		contextUser.setUserId(userId);
+
+		User user = userLocalService.getUser(userId);
+		PermissionChecker pc = PermissionCheckerFactoryUtil.create(user);
+		PermissionThreadLocal.setPermissionChecker(pc);
+
+		return sc;
+	}
+
+	public ServiceContext _buildServiceContext(
 		long userId, long groupId, long companyId) {
 
 		ServiceContext sc = new ServiceContext();
@@ -539,6 +1094,231 @@ public class ObjectEntryHelper {
 		return sc;
 	}
 
+
+	public <D> List<D> getFilteredObjectEntries(
+			long objectDefinitionId, String odataFilter, ServiceContext sc, Class<D> cls) {
+		try {
+			ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinition(objectDefinitionId);
+			_log.info("objectDefinition getFilteredObjectEntries: " + objectDefinition.getObjectDefinitionId());
+			return getObjectEntriesAndFilter(objectDefinition, odataFilter, sc, cls, null, 0, 0);
+		}
+		catch (PortalException ex) {
+			_log.error("Error while filtering object entries for ERC: " + objectDefinitionId + "not found", ex);
+			return Collections.emptyList();
+		}
+
+	}
+
+	public <D> List<D> getFilteredObjectEntries(
+			long objectDefinitionId, String odataFilter, ServiceContext sc, Class<D> cls, Sort[] sorts, int start, int end) {
+
+		try {
+			ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinition(objectDefinitionId);
+			return getObjectEntriesAndFilter(objectDefinition, odataFilter, sc, cls, sorts, start, end);
+		}
+		catch (PortalException ex) {
+			_log.error("Error while filtering object entries for ERC: " + objectDefinitionId + "not found", ex);
+			return Collections.emptyList();
+		}
+	}
+
+	public <D> List<D> getFilteredObjectEntries(
+			String objectDefinitionERC, String odataFilter, ServiceContext sc, Class<D> cls)  {
+
+		try {
+			ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinitionByExternalReferenceCode(objectDefinitionERC, sc.getCompanyId());
+			return getObjectEntriesAndFilter(objectDefinition, odataFilter, sc, cls, null, 0, 0);
+		}
+		catch (PortalException ex) {
+			_log.error("Error while filtering object entries for ERC: " + objectDefinitionERC + "not found", ex);
+			return Collections.emptyList();
+		}
+	}
+
+	public <D> List<D> getFilteredObjectEntries(
+			String objectDefinitionERC, String odataFilter, ServiceContext sc, Class<D> cls,  Sort[] sorts, int start, int end)  {
+		try {
+			ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinitionByExternalReferenceCode(objectDefinitionERC, sc.getCompanyId());
+			return getObjectEntriesAndFilter(objectDefinition, odataFilter, sc, cls, sorts, start, end);
+		}
+		catch (PortalException ex) {
+			_log.error("Error while filtering object entries for ERC: " + objectDefinitionERC + "not found", ex);
+			return Collections.emptyList();
+		}
+	}
+
+	private <D> List<D> getObjectEntriesAndFilter(
+			ObjectDefinition objectDefinition, String odataFilter, ServiceContext sc, Class<D> cls, Sort[] sorts, int start, int end) {
+
+		try {
+			// 1. Trouver la définition de l'objet via son ERC
+			//ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinition(objectDefinitionId);
+
+			if (objectDefinition == null) {
+				_log.info("Object Definition with ERC not found.");
+				return Collections.emptyList();
+			}
+
+			// 2. Convertir la chaîne de filtre OData en un objet Predicate interne
+			// C'est ici que l'erreur 'Incompatible types' peut survenir
+			Predicate predicate = filterFactory.create(odataFilter, objectDefinition);
+
+			//_log.info("SIZE : " + start);
+			//_log.info("END : " + end);
+			// 3. Exécuter la requête via objectEntryLocalService
+			// getValuesList est utilisé pour récupérer les données sous forme de Map
+			_log.info(String.format("===========> sc.getScopeGroupId() : %s - sc.getCompanyId() : %s - sc.getUserId() : %s", sc.getScopeGroupId(), sc.getCompanyId(), sc.getUserId()));
+			List<Map<String, Serializable>> results = _objectEntryLocalService.getValuesList(
+					sc.getScopeGroupId(),
+					sc.getCompanyId(),
+					sc.getUserId(),// PortalUtil.getDefaultUserId(companyId), // Utilisateur courant ou par défaut
+					objectDefinition.getObjectDefinitionId(),
+					predicate, // Le filtre appliqué
+					null, // searchKeyword (pas de recherche plein texte)
+					start == QueryUtil.ALL_POS ? QueryUtil.ALL_POS : start, // begin (début de pagination, 0 = premier enregistrement)
+					end == QueryUtil.ALL_POS ? QueryUtil.ALL_POS : end, // end (fin de pagination, ALL_POS=-1 pour tout récupérer)
+					null // sorts (pas de tri)
+			);
+
+			_log.info(String.format("===========> results : %s", results));
+
+			// --- Début de l'enrichissement pour l'ERC ---
+			List<Map<String, Serializable>> enrichedResults = new ArrayList<>();
+			String idKey = objectDefinition.getName() + "Id";
+			if (idKey != null && idKey.length() >= 3) {
+				// On passe les deux premiers caractères en minuscule ("C_" -> "c_")
+				// ET la première lettre du nom de l'objet (ex: "S" -> "s")
+				idKey = idKey.substring(0, 3).toLowerCase() + idKey.substring(3);
+			}
+
+			_log.info(String.format("===========> idKey: %s", idKey));
+			for (Map<String, Serializable> map : results) {
+				Map<String, Serializable> enrichedMap = new HashMap<>(map);
+
+				if (map.containsKey(idKey)) {
+					long objectEntryId = (long) map.get(idKey);
+					try {
+						ObjectEntry entry = _objectEntryLocalService.getObjectEntry(objectEntryId);
+						// On injecte l'ERC pour le DTO
+						enrichedMap.put("id", entry.getObjectEntryId());
+						enrichedMap.put("externalReferenceCode", entry.getExternalReferenceCode());
+						enrichedMap.put("createdAt", entry.getCreateDate());
+					} catch (PortalException e) {
+						_log.error("Impossible de trouver l'ObjectEntry pour l'ID: " + objectEntryId);
+					}
+				}
+				enrichedResults.add(enrichedMap);
+			}
+
+			//_log.error(String.format("===========> getFilteredObjectEntries idKey %s", idKey));
+			//_log.error(String.format("===========> getFilteredObjectEntries %s: - %s", cls, enrichedResults));
+			//_log.error(String.format("===========> DTOCONVERTER %s: - %s", cls, DTOConverter.convertObject(enrichedResults, cls)));
+			return DTOConverter.convertObject(enrichedResults, cls);
+
+		} catch (PortalException e) {
+			_log.error("Error while filtering object entries for ERC:  with filter: " + odataFilter, e);
+			// Gérer spécifiquement InvalidFilterException si nécessaire
+			return Collections.emptyList();
+		}
+	}
+
+
+	/**
+	 * Construit un JSON générique à partir d'une liste d'ObjectEntry.
+	 * Si des {@code fields} sont précisés, seuls ces champs sont inclus.
+	 *
+	 * <p>Les champs {@code nestedFields} et {@code nestedFieldsDepth} sont
+	 * transmis ici en tant que méta-informations dans la réponse ; leur
+	 * résolution profonde nécessite un appel complémentaire aux services
+	 * de relation Liferay (à implémenter selon les besoins du projet).</p>
+	 */
+	public JSONArray entriesToJson(
+			List<ObjectEntry> entries,
+			String fields,
+			String nestedFields) {
+		_log.info(">>>>> entriesToJson <<<<<");
+		JSONArray arr = JSONFactoryUtil.createJSONArray();
+
+		// Parse les champs à inclure
+		Set<String> fieldSet = new HashSet<>();
+		if (fields != null && !fields.isBlank()) {
+			for (String f : fields.split(",")) {
+				fieldSet.add(f.trim());
+			}
+		}
+
+		// Parse les nestedFields (champs de relation)
+		List<String> nestedFieldList = new ArrayList<>();
+		if (nestedFields != null && !nestedFields.isBlank()) {
+			for (String nf : nestedFields.split(",")) {
+				nestedFieldList.add(nf.trim());
+			}
+		}
+
+		for (ObjectEntry entry : entries) {
+			JSONObject obj = JSONFactoryUtil.createJSONObject();
+			obj.put("id", entry.getObjectEntryId());
+			obj.put("externalReferenceCode", entry.getExternalReferenceCode());
+
+			// Ajoute les valeurs normales
+			Map<String, Serializable> values = entry.getValues();
+			if (values != null) {
+				for (Map.Entry<String, Serializable> kv : values.entrySet()) {
+					if (fieldSet.isEmpty() || fieldSet.contains(kv.getKey())) {
+						obj.put(kv.getKey(), kv.getValue() != null ? kv.getValue().toString() : null);
+					}
+				}
+			}
+
+			// Traite les nestedFields (relations)
+			for (String nestedFieldName : nestedFieldList) {
+				_log.info("NestedFields readen : "+nestedFieldName);
+				// Récupère l'ID de l'entité liée via le champ de relation
+				long relatedEntryId = getLong(entry, nestedFieldName);
+
+				if (relatedEntryId != 0) {
+					// Récupère l'ObjectEntry liée
+					_log.info("nestedfield entry not null..");
+					ObjectEntry relatedEntry = null;
+					try {
+						_log.info(">> Getting entry by ID");
+						 relatedEntry = _objectEntryLocalService.fetchObjectEntry(relatedEntryId);
+					}
+					catch (Exception e) {
+						_log.info(
+								"[ObjectEntryHelper] getEntry : objectEntryId=" +
+										relatedEntryId + " introuvable — " + e.getMessage());
+						return null;
+					}
+					//ObjectEntry relatedEntry = getEntry(relatedEntryId);
+
+					if (relatedEntry != null) {
+						// Crée un JSONObject pour l'entité liée
+						_log.info("NestedField entry get ID : "+relatedEntry.getObjectEntryId());
+						JSONObject relatedObj = JSONFactoryUtil.createJSONObject();
+						relatedObj.put("id", relatedEntry.getObjectEntryId());
+						relatedObj.put("externalReferenceCode", relatedEntry.getExternalReferenceCode());
+
+						// Ajoute toutes les valeurs de l'entité liée
+						Map<String, Serializable> relatedValues = relatedEntry.getValues();
+						if (relatedValues != null) {
+							for (Map.Entry<String, Serializable> kv : relatedValues.entrySet()) {
+								relatedObj.put(kv.getKey(), kv.getValue() != null ? kv.getValue().toString() : null);
+							}
+						}
+
+						// Utilise le nom du champ de relation comme clé
+						obj.put(nestedFieldName, relatedObj);
+					} else
+						_log.info(">> NestedFields entry can not be get!!!");
+				}
+			}
+
+			arr.put(obj);
+		}
+		return arr;
+	}
+
 	// -------------------------------------------------------------------------
 	// Références OSGi
 	// -------------------------------------------------------------------------
@@ -546,7 +1326,30 @@ public class ObjectEntryHelper {
 	@Reference
 	private ObjectEntryLocalService _objectEntryLocalService;
 
+
 	@Reference
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
+	// Injecte la fabrique de filtre spécifique pour le stockage par défaut (SQL)
+	@Reference(target = "(filter.factory.key=" + ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT + ")")
+	private FilterFactory<Predicate> filterFactory;
+
+	@Reference
+	UserLocalService userLocalService;
+	/**
+	 * Convertit un paramètre "sort" de type "field:asc" ou "field:desc"
+	 * en tableau {@link Sort} Liferay.
+	 *
+	 * @param sortParam ex : {@code "dateCreated:desc"} ou {@code "nom:asc"}
+	 * @return tableau de Sort (vide si null/blank)
+	 */
+	public Sort[] parseSorts(String sortParam) {
+		if (sortParam == null || sortParam.isBlank()) {
+			return new Sort[]{};
+		}
+		String[] parts = sortParam.split(":");
+		String field   = parts[0].trim();
+		boolean desc   = parts.length > 1 && parts[1].trim().equalsIgnoreCase("desc");
+		return new Sort[]{ new Sort(field, desc) };
+	}
 }

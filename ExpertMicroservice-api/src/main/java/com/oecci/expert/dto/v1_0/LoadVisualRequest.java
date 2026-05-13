@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.dto.v1_0;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -11,14 +16,13 @@ import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.io.Serializable;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.annotation.Generated;
 
@@ -32,8 +36,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @Generated("")
 @GraphQLName("LoadVisualRequest")
+@io.swagger.v3.oas.annotations.media.Schema(
+	requiredProperties = {"visualName", "visualContent"}
+)
 @JsonFilter("Liferay.Vulcan")
-@Schema(requiredProperties = {"visualName", "visualContent"})
 @XmlRootElement(name = "LoadVisualRequest")
 public class LoadVisualRequest implements Serializable {
 
@@ -45,65 +51,89 @@ public class LoadVisualRequest implements Serializable {
 		return ObjectMapperUtil.unsafeReadValue(LoadVisualRequest.class, json);
 	}
 
-	@Schema(description = "Contenu du visuel encode en base64")
+	@io.swagger.v3.oas.annotations.media.Schema
 	public String getVisualContent() {
+		if (_visualContentSupplier != null) {
+			visualContent = _visualContentSupplier.get();
+
+			_visualContentSupplier = null;
+		}
+
 		return visualContent;
 	}
 
 	public void setVisualContent(String visualContent) {
 		this.visualContent = visualContent;
+
+		_visualContentSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setVisualContent(
 		UnsafeSupplier<String, Exception> visualContentUnsafeSupplier) {
 
-		try {
-			visualContent = visualContentUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_visualContentSupplier = () -> {
+			try {
+				return visualContentUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
-	@GraphQLField(description = "Contenu du visuel encode en base64")
+	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	@NotEmpty
 	protected String visualContent;
 
-	@Schema(
-		description = "Nom du fichier (.png)", example = "VIS_NOM_PRENOM.png"
-	)
+	@JsonIgnore
+	private Supplier<String> _visualContentSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public String getVisualName() {
+		if (_visualNameSupplier != null) {
+			visualName = _visualNameSupplier.get();
+
+			_visualNameSupplier = null;
+		}
+
 		return visualName;
 	}
 
 	public void setVisualName(String visualName) {
 		this.visualName = visualName;
+
+		_visualNameSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setVisualName(
 		UnsafeSupplier<String, Exception> visualNameUnsafeSupplier) {
 
-		try {
-			visualName = visualNameUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_visualNameSupplier = () -> {
+			try {
+				return visualNameUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
-	@GraphQLField(description = "Nom du fichier (.png)")
+	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	@NotEmpty
 	protected String visualName;
+
+	@JsonIgnore
+	private Supplier<String> _visualNameSupplier;
 
 	@Override
 	public boolean equals(Object object) {
@@ -132,6 +162,8 @@ public class LoadVisualRequest implements Serializable {
 
 		sb.append("{");
 
+		String visualContent = getVisualContent();
+
 		if (visualContent != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -145,6 +177,8 @@ public class LoadVisualRequest implements Serializable {
 
 			sb.append("\"");
 		}
+
+		String visualName = getVisualName();
 
 		if (visualName != null) {
 			if (sb.length() > 1) {
@@ -165,8 +199,8 @@ public class LoadVisualRequest implements Serializable {
 		return sb.toString();
 	}
 
-	@Schema(
-		accessMode = Schema.AccessMode.READ_ONLY,
+	@io.swagger.v3.oas.annotations.media.Schema(
+		accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY,
 		defaultValue = "com.oecci.expert.dto.v1_0.LoadVisualRequest",
 		name = "x-class-name"
 	)
@@ -212,7 +246,10 @@ public class LoadVisualRequest implements Serializable {
 				Object[] valueArray = (Object[])value;
 
 				for (int i = 0; i < valueArray.length; i++) {
-					if (valueArray[i] instanceof String) {
+					if (valueArray[i] instanceof Map) {
+						sb.append(_toJSON((Map<String, ?>)valueArray[i]));
+					}
+					else if (valueArray[i] instanceof String) {
 						sb.append("\"");
 						sb.append(valueArray[i]);
 						sb.append("\"");
@@ -255,4 +292,7 @@ public class LoadVisualRequest implements Serializable {
 		{"\\\\", "\\\"", "\\b", "\\f", "\\n", "\\r", "\\t"}
 	};
 
+	private Map<String, Serializable> _extendedProperties;
+
 }
+// LIFERAY-REST-BUILDER-HASH:1282501556

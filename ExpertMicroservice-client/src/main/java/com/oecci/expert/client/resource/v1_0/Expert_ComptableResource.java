@@ -1,16 +1,24 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.client.resource.v1_0;
 
-import com.oecci.expert.client.dto.v1_0.CreateExpertComptable;
-import com.oecci.expert.client.dto.v1_0.DataResult;
+import com.oecci.expert.client.dto.v1_0.CreateExpert_Comptable;
 import com.oecci.expert.client.dto.v1_0.LoadVisualRequest;
 import com.oecci.expert.client.dto.v1_0.ReloadWalletRequest;
 import com.oecci.expert.client.dto.v1_0.StatutRequest;
 import com.oecci.expert.client.http.HttpInvoker;
+import com.oecci.expert.client.pagination.Pagination;
 import com.oecci.expert.client.problem.Problem;
+
+import java.net.URL;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,40 +35,69 @@ public interface Expert_ComptableResource {
 		return new Builder();
 	}
 
-	public DataResult createExpertComptable(
-			CreateExpertComptable createExpertComptable)
+	public void createExpertComptable(
+			CreateExpert_Comptable createExpert_Comptable)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse createExpertComptableHttpResponse(
-			CreateExpertComptable createExpertComptable)
+			CreateExpert_Comptable createExpert_Comptable)
 		throws Exception;
 
-	public DataResult validateExpertComptable(
-			Long expertComptableID, StatutRequest statutRequest)
+	public String getAllExperts(Integer expertPageSize) throws Exception;
+
+	public HttpInvoker.HttpResponse getAllExpertsHttpResponse(
+			Integer expertPageSize)
 		throws Exception;
 
-	public HttpInvoker.HttpResponse validateExpertComptableHttpResponse(
-			Long expertComptableID, StatutRequest statutRequest)
+	public String getExpertComptableById(
+			Long Expert_ComptableId, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public DataResult getAllExperts(Integer pageSize) throws Exception;
-
-	public HttpInvoker.HttpResponse getAllExpertsHttpResponse(Integer pageSize)
+	public HttpInvoker.HttpResponse getExpertComptableByIdHttpResponse(
+			Long Expert_ComptableId, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public DataResult reloadWallet(ReloadWalletRequest reloadWalletRequest)
+	public String getExpertComptables(
+			Integer nestedFieldsDepth, String filterString,
+			Pagination pagination, String sortString)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse getExpertComptablesHttpResponse(
+			Integer nestedFieldsDepth, String filterString,
+			Pagination pagination, String sortString)
+		throws Exception;
+
+	public String getExpertComptablesByCategorie(
+			String categorie, String etat, Integer nestedFieldsDepth,
+			Pagination pagination, String sortString)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse getExpertComptablesByCategorieHttpResponse(
+			String categorie, String etat, Integer nestedFieldsDepth,
+			Pagination pagination, String sortString)
+		throws Exception;
+
+	public void loadSignVisual(
+			Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse loadSignVisualHttpResponse(
+			Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+		throws Exception;
+
+	public void reloadWallet(ReloadWalletRequest reloadWalletRequest)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse reloadWalletHttpResponse(
 			ReloadWalletRequest reloadWalletRequest)
 		throws Exception;
 
-	public DataResult loadSignVisual(
-			Long expertComptableID, LoadVisualRequest loadVisualRequest)
+	public void validateExpertComptable(
+			Long Expert_ComptableID, StatutRequest statutRequest)
 		throws Exception;
 
-	public HttpInvoker.HttpResponse loadSignVisualHttpResponse(
-			Long expertComptableID, LoadVisualRequest loadVisualRequest)
+	public HttpInvoker.HttpResponse validateExpertComptableHttpResponse(
+			Long Expert_ComptableID, StatutRequest statutRequest)
 		throws Exception;
 
 	public static class Builder {
@@ -70,6 +107,10 @@ public interface Expert_ComptableResource {
 			_password = password;
 
 			return this;
+		}
+
+		public Builder bearerToken(String token) {
+			return header("Authorization", "Bearer " + token);
 		}
 
 		public Expert_ComptableResource build() {
@@ -82,12 +123,38 @@ public interface Expert_ComptableResource {
 			return this;
 		}
 
+		public Builder endpoint(String address, String scheme) {
+			String[] addressParts = address.split(":");
+
+			String host = addressParts[0];
+
+			int port = 443;
+
+			if (addressParts.length > 1) {
+				String portString = addressParts[1];
+
+				try {
+					port = Integer.parseInt(portString);
+				}
+				catch (NumberFormatException numberFormatException) {
+					throw new IllegalArgumentException(
+						"Unable to parse port from " + portString);
+				}
+			}
+
+			return endpoint(host, port, scheme);
+		}
+
 		public Builder endpoint(String host, int port, String scheme) {
 			_host = host;
 			_port = port;
 			_scheme = scheme;
 
 			return this;
+		}
+
+		public Builder endpoint(URL url) {
+			return endpoint(url.getHost(), url.getPort(), url.getProtocol());
 		}
 
 		public Builder header(String key, String value) {
@@ -131,8 +198,8 @@ public interface Expert_ComptableResource {
 		private Map<String, String> _headers = new LinkedHashMap<>();
 		private String _host = "localhost";
 		private Locale _locale;
-		private String _login = "";
-		private String _password = "";
+		private String _login;
+		private String _password;
 		private Map<String, String> _parameters = new LinkedHashMap<>();
 		private int _port = 8080;
 		private String _scheme = "http";
@@ -142,12 +209,12 @@ public interface Expert_ComptableResource {
 	public static class Expert_ComptableResourceImpl
 		implements Expert_ComptableResource {
 
-		public DataResult createExpertComptable(
-				CreateExpertComptable createExpertComptable)
+		public void createExpertComptable(
+				CreateExpert_Comptable createExpert_Comptable)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
-				createExpertComptableHttpResponse(createExpertComptable);
+				createExpertComptableHttpResponse(createExpert_Comptable);
 
 			String content = httpResponse.getContent();
 
@@ -163,7 +230,29 @@ public interface Expert_ComptableResource {
 					"HTTP response status code: " +
 						httpResponse.getStatusCode());
 
-				throw new Problem.ProblemException(Problem.toDTO(content));
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
 			}
 			else {
 				_logger.fine("HTTP response content: " + content);
@@ -173,28 +262,16 @@ public interface Expert_ComptableResource {
 					"HTTP response status code: " +
 						httpResponse.getStatusCode());
 			}
-
-			try {
-				return com.oecci.expert.client.serdes.v1_0.DataResultSerDes.
-					toDTO(content);
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
 		}
 
 		public HttpInvoker.HttpResponse createExpertComptableHttpResponse(
-				CreateExpertComptable createExpertComptable)
+				CreateExpert_Comptable createExpert_Comptable)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
 			httpInvoker.body(
-				createExpertComptable.toString(), "application/json");
+				createExpert_Comptable.toString(), "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(
@@ -220,101 +297,17 @@ public interface Expert_ComptableResource {
 					_builder._port + _builder._contextPath +
 						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables");
 
-			httpInvoker.userNameAndPassword(
-				_builder._login + ":" + _builder._password);
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
 
 			return httpInvoker.invoke();
 		}
 
-		public DataResult validateExpertComptable(
-				Long expertComptableID, StatutRequest statutRequest)
-			throws Exception {
-
-			HttpInvoker.HttpResponse httpResponse =
-				validateExpertComptableHttpResponse(
-					expertComptableID, statutRequest);
-
-			String content = httpResponse.getContent();
-
-			if ((httpResponse.getStatusCode() / 100) != 2) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response content: " + content);
-				_logger.log(
-					Level.WARNING,
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.log(
-					Level.WARNING,
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-			else {
-				_logger.fine("HTTP response content: " + content);
-				_logger.fine(
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.fine(
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-			}
-
-			try {
-				return com.oecci.expert.client.serdes.v1_0.DataResultSerDes.
-					toDTO(content);
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-		}
-
-		public HttpInvoker.HttpResponse validateExpertComptableHttpResponse(
-				Long expertComptableID, StatutRequest statutRequest)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			httpInvoker.body(statutRequest.toString(), "application/json");
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/validation/{expertComptableID}");
-
-			httpInvoker.path("expertComptableID", expertComptableID);
-
-			httpInvoker.userNameAndPassword(
-				_builder._login + ":" + _builder._password);
-
-			return httpInvoker.invoke();
-		}
-
-		public DataResult getAllExperts(Integer pageSize) throws Exception {
+		public String getAllExperts(Integer expertPageSize) throws Exception {
 			HttpInvoker.HttpResponse httpResponse = getAllExpertsHttpResponse(
-				pageSize);
+				expertPageSize);
 
 			String content = httpResponse.getContent();
 
@@ -330,7 +323,29 @@ public interface Expert_ComptableResource {
 					"HTTP response status code: " +
 						httpResponse.getStatusCode());
 
-				throw new Problem.ProblemException(Problem.toDTO(content));
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
 			}
 			else {
 				_logger.fine("HTTP response content: " + content);
@@ -342,8 +357,7 @@ public interface Expert_ComptableResource {
 			}
 
 			try {
-				return com.oecci.expert.client.serdes.v1_0.DataResultSerDes.
-					toDTO(content);
+				return content;
 			}
 			catch (Exception e) {
 				_logger.log(
@@ -355,7 +369,7 @@ public interface Expert_ComptableResource {
 		}
 
 		public HttpInvoker.HttpResponse getAllExpertsHttpResponse(
-				Integer pageSize)
+				Integer expertPageSize)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -382,17 +396,487 @@ public interface Expert_ComptableResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/readall/{pageSize}");
+						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/readall/{expertPageSize}");
 
-			httpInvoker.path("pageSize", pageSize);
+			httpInvoker.path("expertPageSize", expertPageSize);
 
-			httpInvoker.userNameAndPassword(
-				_builder._login + ":" + _builder._password);
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
 
 			return httpInvoker.invoke();
 		}
 
-		public DataResult reloadWallet(ReloadWalletRequest reloadWalletRequest)
+		public String getExpertComptableById(
+				Long Expert_ComptableId, Integer nestedFieldsDepth)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getExpertComptableByIdHttpResponse(
+					Expert_ComptableId, nestedFieldsDepth);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return content;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse getExpertComptableByIdHttpResponse(
+				Long Expert_ComptableId, Integer nestedFieldsDepth)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			if (nestedFieldsDepth != null) {
+				httpInvoker.parameter(
+					"nestedFieldsDepth", String.valueOf(nestedFieldsDepth));
+			}
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/{Expert_ComptableId}");
+
+			httpInvoker.path("Expert_ComptableId", Expert_ComptableId);
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
+		public String getExpertComptables(
+				Integer nestedFieldsDepth, String filterString,
+				Pagination pagination, String sortString)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getExpertComptablesHttpResponse(
+					nestedFieldsDepth, filterString, pagination, sortString);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return content;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse getExpertComptablesHttpResponse(
+				Integer nestedFieldsDepth, String filterString,
+				Pagination pagination, String sortString)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			if (nestedFieldsDepth != null) {
+				httpInvoker.parameter(
+					"nestedFieldsDepth", String.valueOf(nestedFieldsDepth));
+			}
+
+			if (filterString != null) {
+				httpInvoker.parameter("filter", filterString);
+			}
+
+			if (pagination != null) {
+				httpInvoker.parameter(
+					"page", String.valueOf(pagination.getPage()));
+				httpInvoker.parameter(
+					"pageSize", String.valueOf(pagination.getPageSize()));
+			}
+
+			if (sortString != null) {
+				httpInvoker.parameter("sort", sortString);
+			}
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert");
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
+		public String getExpertComptablesByCategorie(
+				String categorie, String etat, Integer nestedFieldsDepth,
+				Pagination pagination, String sortString)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getExpertComptablesByCategorieHttpResponse(
+					categorie, etat, nestedFieldsDepth, pagination, sortString);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return content;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				getExpertComptablesByCategorieHttpResponse(
+					String categorie, String etat, Integer nestedFieldsDepth,
+					Pagination pagination, String sortString)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			if (categorie != null) {
+				httpInvoker.parameter("categorie", String.valueOf(categorie));
+			}
+
+			if (etat != null) {
+				httpInvoker.parameter("etat", String.valueOf(etat));
+			}
+
+			if (nestedFieldsDepth != null) {
+				httpInvoker.parameter(
+					"nestedFieldsDepth", String.valueOf(nestedFieldsDepth));
+			}
+
+			if (pagination != null) {
+				httpInvoker.parameter(
+					"page", String.valueOf(pagination.getPage()));
+				httpInvoker.parameter(
+					"pageSize", String.valueOf(pagination.getPageSize()));
+			}
+
+			if (sortString != null) {
+				httpInvoker.parameter("sort", sortString);
+			}
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert/by-categorie");
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
+		public void loadSignVisual(
+				Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse = loadSignVisualHttpResponse(
+				Expert_ComptableID, loadVisualRequest);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+		}
+
+		public HttpInvoker.HttpResponse loadSignVisualHttpResponse(
+				Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(loadVisualRequest.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/load-visual/{Expert_ComptableID}");
+
+			httpInvoker.path("Expert_ComptableID", Expert_ComptableID);
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
+		public void reloadWallet(ReloadWalletRequest reloadWalletRequest)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse = reloadWalletHttpResponse(
@@ -412,7 +896,29 @@ public interface Expert_ComptableResource {
 					"HTTP response status code: " +
 						httpResponse.getStatusCode());
 
-				throw new Problem.ProblemException(Problem.toDTO(content));
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
 			}
 			else {
 				_logger.fine("HTTP response content: " + content);
@@ -421,18 +927,6 @@ public interface Expert_ComptableResource {
 				_logger.fine(
 					"HTTP response status code: " +
 						httpResponse.getStatusCode());
-			}
-
-			try {
-				return com.oecci.expert.client.serdes.v1_0.DataResultSerDes.
-					toDTO(content);
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
 			}
 		}
 
@@ -469,18 +963,21 @@ public interface Expert_ComptableResource {
 					_builder._port + _builder._contextPath +
 						"/o/ExpertMicroservice/v1.0/oecci/expert/wallet/reload");
 
-			httpInvoker.userNameAndPassword(
-				_builder._login + ":" + _builder._password);
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
 
 			return httpInvoker.invoke();
 		}
 
-		public DataResult loadSignVisual(
-				Long expertComptableID, LoadVisualRequest loadVisualRequest)
+		public void validateExpertComptable(
+				Long Expert_ComptableID, StatutRequest statutRequest)
 			throws Exception {
 
-			HttpInvoker.HttpResponse httpResponse = loadSignVisualHttpResponse(
-				expertComptableID, loadVisualRequest);
+			HttpInvoker.HttpResponse httpResponse =
+				validateExpertComptableHttpResponse(
+					Expert_ComptableID, statutRequest);
 
 			String content = httpResponse.getContent();
 
@@ -496,7 +993,29 @@ public interface Expert_ComptableResource {
 					"HTTP response status code: " +
 						httpResponse.getStatusCode());
 
-				throw new Problem.ProblemException(Problem.toDTO(content));
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
 			}
 			else {
 				_logger.fine("HTTP response content: " + content);
@@ -506,27 +1025,15 @@ public interface Expert_ComptableResource {
 					"HTTP response status code: " +
 						httpResponse.getStatusCode());
 			}
-
-			try {
-				return com.oecci.expert.client.serdes.v1_0.DataResultSerDes.
-					toDTO(content);
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
 		}
 
-		public HttpInvoker.HttpResponse loadSignVisualHttpResponse(
-				Long expertComptableID, LoadVisualRequest loadVisualRequest)
+		public HttpInvoker.HttpResponse validateExpertComptableHttpResponse(
+				Long Expert_ComptableID, StatutRequest statutRequest)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
-			httpInvoker.body(loadVisualRequest.toString(), "application/json");
+			httpInvoker.body(statutRequest.toString(), "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(
@@ -550,12 +1057,14 @@ public interface Expert_ComptableResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/load-visual/{expertComptableID}");
+						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/validation/{Expert_ComptableID}");
 
-			httpInvoker.path("expertComptableID", expertComptableID);
+			httpInvoker.path("Expert_ComptableID", Expert_ComptableID);
 
-			httpInvoker.userNameAndPassword(
-				_builder._login + ":" + _builder._password);
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
 
 			return httpInvoker.invoke();
 		}
@@ -572,3 +1081,4 @@ public interface Expert_ComptableResource {
 	}
 
 }
+// LIFERAY-REST-BUILDER-HASH:1028284098

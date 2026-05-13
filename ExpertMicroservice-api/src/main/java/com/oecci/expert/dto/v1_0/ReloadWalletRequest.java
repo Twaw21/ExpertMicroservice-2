@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.dto.v1_0;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -11,14 +16,13 @@ import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.io.Serializable;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.annotation.Generated;
 
@@ -32,8 +36,12 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @Generated("")
 @GraphQLName("ReloadWalletRequest")
+@io.swagger.v3.oas.annotations.media.Schema(
+	requiredProperties = {
+		"Expert_ComptableID", "walletID", "paymentID", "amount"
+	}
+)
 @JsonFilter("Liferay.Vulcan")
-@Schema(requiredProperties = {"walletID", "paymentID", "amount"})
 @XmlRootElement(name = "ReloadWalletRequest")
 public class ReloadWalletRequest implements Serializable {
 
@@ -46,28 +54,80 @@ public class ReloadWalletRequest implements Serializable {
 			ReloadWalletRequest.class, json);
 	}
 
-	@Schema
+	@io.swagger.v3.oas.annotations.media.Schema
+	public Long getExpert_ComptableID() {
+		if (_Expert_ComptableIDSupplier != null) {
+			Expert_ComptableID = _Expert_ComptableIDSupplier.get();
+
+			_Expert_ComptableIDSupplier = null;
+		}
+
+		return Expert_ComptableID;
+	}
+
+	public void setExpert_ComptableID(Long Expert_ComptableID) {
+		this.Expert_ComptableID = Expert_ComptableID;
+
+		_Expert_ComptableIDSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setExpert_ComptableID(
+		UnsafeSupplier<Long, Exception> Expert_ComptableIDUnsafeSupplier) {
+
+		_Expert_ComptableIDSupplier = () -> {
+			try {
+				return Expert_ComptableIDUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotNull
+	protected Long Expert_ComptableID;
+
+	@JsonIgnore
+	private Supplier<Long> _Expert_ComptableIDSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public Long getAmount() {
+		if (_amountSupplier != null) {
+			amount = _amountSupplier.get();
+
+			_amountSupplier = null;
+		}
+
 		return amount;
 	}
 
 	public void setAmount(Long amount) {
 		this.amount = amount;
+
+		_amountSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setAmount(
 		UnsafeSupplier<Long, Exception> amountUnsafeSupplier) {
 
-		try {
-			amount = amountUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_amountSupplier = () -> {
+			try {
+				return amountUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
@@ -75,62 +135,92 @@ public class ReloadWalletRequest implements Serializable {
 	@NotNull
 	protected Long amount;
 
-	@Schema
-	public Long getExpertComptableID() {
-		return expertComptableID;
-	}
-
-	public void setExpertComptableID(Long expertComptableID) {
-		this.expertComptableID = expertComptableID;
-	}
-
 	@JsonIgnore
-	public void setExpertComptableID(
-		UnsafeSupplier<Long, Exception> expertComptableIDUnsafeSupplier) {
+	private Supplier<Long> _amountSupplier;
 
-		try {
-			expertComptableID = expertComptableIDUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long expertComptableID;
-
-	@Schema
+	@io.swagger.v3.oas.annotations.media.Schema
 	public Long getPaymentID() {
+		if (_paymentIDSupplier != null) {
+			paymentID = _paymentIDSupplier.get();
+
+			_paymentIDSupplier = null;
+		}
+
 		return paymentID;
 	}
 
 	public void setPaymentID(Long paymentID) {
 		this.paymentID = paymentID;
+
+		_paymentIDSupplier = null;
 	}
 
 	@JsonIgnore
 	public void setPaymentID(
 		UnsafeSupplier<Long, Exception> paymentIDUnsafeSupplier) {
 
-		try {
-			paymentID = paymentIDUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_paymentIDSupplier = () -> {
+			try {
+				return paymentIDUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
 	}
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	@NotNull
 	protected Long paymentID;
+
+	@JsonIgnore
+	private Supplier<Long> _paymentIDSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
+	public Long getWalletID() {
+		if (_walletIDSupplier != null) {
+			walletID = _walletIDSupplier.get();
+
+			_walletIDSupplier = null;
+		}
+
+		return walletID;
+	}
+
+	public void setWalletID(Long walletID) {
+		this.walletID = walletID;
+
+		_walletIDSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setWalletID(
+		UnsafeSupplier<Long, Exception> walletIDUnsafeSupplier) {
+
+		_walletIDSupplier = () -> {
+			try {
+				return walletIDUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotNull
+	protected Long walletID;
+
+	@JsonIgnore
+	private Supplier<Long> _walletIDSupplier;
 
 	@Override
 	public boolean equals(Object object) {
@@ -159,6 +249,20 @@ public class ReloadWalletRequest implements Serializable {
 
 		sb.append("{");
 
+		Long Expert_ComptableID = getExpert_ComptableID();
+
+		if (Expert_ComptableID != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"Expert_ComptableID\": ");
+
+			sb.append(Expert_ComptableID);
+		}
+
+		Long amount = getAmount();
+
 		if (amount != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -169,15 +273,7 @@ public class ReloadWalletRequest implements Serializable {
 			sb.append(amount);
 		}
 
-		if (expertComptableID != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"expertComptableID\": ");
-
-			sb.append(expertComptableID);
-		}
+		Long paymentID = getPaymentID();
 
 		if (paymentID != null) {
 			if (sb.length() > 1) {
@@ -189,13 +285,25 @@ public class ReloadWalletRequest implements Serializable {
 			sb.append(paymentID);
 		}
 
+		Long walletID = getWalletID();
+
+		if (walletID != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"walletID\": ");
+
+			sb.append(walletID);
+		}
+
 		sb.append("}");
 
 		return sb.toString();
 	}
 
-	@Schema(
-		accessMode = Schema.AccessMode.READ_ONLY,
+	@io.swagger.v3.oas.annotations.media.Schema(
+		accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY,
 		defaultValue = "com.oecci.expert.dto.v1_0.ReloadWalletRequest",
 		name = "x-class-name"
 	)
@@ -241,7 +349,10 @@ public class ReloadWalletRequest implements Serializable {
 				Object[] valueArray = (Object[])value;
 
 				for (int i = 0; i < valueArray.length; i++) {
-					if (valueArray[i] instanceof String) {
+					if (valueArray[i] instanceof Map) {
+						sb.append(_toJSON((Map<String, ?>)valueArray[i]));
+					}
+					else if (valueArray[i] instanceof String) {
 						sb.append("\"");
 						sb.append(valueArray[i]);
 						sb.append("\"");
@@ -284,4 +395,7 @@ public class ReloadWalletRequest implements Serializable {
 		{"\\\\", "\\\"", "\\b", "\\f", "\\n", "\\r", "\\t"}
 	};
 
+	private Map<String, Serializable> _extendedProperties;
+
 }
+// LIFERAY-REST-BUILDER-HASH:-427465924

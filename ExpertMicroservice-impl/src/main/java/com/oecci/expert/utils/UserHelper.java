@@ -44,10 +44,9 @@ public class UserHelper {
 	private static final String _PWD_UPPER   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	private static final String _PWD_LOWER   = "abcdefghijklmnopqrstuvwxyz";
 	private static final String _PWD_DIGITS  = "0123456789";
-	private static final String _PWD_SPECIAL = "@#&*?";
-//	private static final String _PWD_SPECIAL = "@#!$&*-?";
+	private static final String _PWD_SPECIAL = "@#!$*-?";
 	private static final String _PWD_ALL     =
-		_PWD_UPPER + _PWD_LOWER + _PWD_DIGITS;//+ _PWD_SPECIAL;
+		_PWD_UPPER + _PWD_LOWER + _PWD_DIGITS + _PWD_SPECIAL;
 
 	/** Longueur totale > 10 (minimum Liferay). */
 	private static final int _PWD_LENGTH = 14;
@@ -91,6 +90,43 @@ public class UserHelper {
 	}
 
 	// -------------------------------------------------------------------------
+	// Compte technique
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Récupère le compte technique Liferay utilisé comme {@code creatorId}
+	 * pour les opérations de service (construction du {@link ServiceContext},
+	 * écriture d'ObjectEntry, upload de documents, etc.).
+	 *
+	 * <p>L'email du compte est centralisé dans {@link Constants#TECHNICAL_ADMIN_EMAIL}.
+	 * Cette méthode remplace l'appel {@code userLocalService.getUser(207867)}
+	 * précédemment hardcodé : l'ID numérique varie selon l'environnement
+	 * (dev / recette / prod), l'email est stable.</p>
+	 *
+	 * @param companyId ID de l'instance Liferay (portal instance)
+	 * @return l'utilisateur technique — jamais null
+	 * @throws Exception si le compte n'existe pas dans cette instance
+	 */
+	public User getTechnicalUser(long companyId) throws Exception {
+		User user = getUserByEmail(companyId, Constants.TECHNICAL_ADMIN_EMAIL);
+
+		if (user == null) {
+			throw new Exception(
+				"[UserHelper] Compte technique introuvable : email=" +
+					Constants.TECHNICAL_ADMIN_EMAIL +
+					" companyId=" + companyId +
+					" — vérifier que le compte existe dans l'instance Liferay.");
+		}
+
+		_log.info(
+			"[UserHelper] Compte technique résolu : email=" +
+				Constants.TECHNICAL_ADMIN_EMAIL +
+				" userId=" + user.getUserId());
+
+		return user;
+	}
+
+	// -------------------------------------------------------------------------
 	// Création d'utilisateur
 	// -------------------------------------------------------------------------
 
@@ -111,7 +147,6 @@ public class UserHelper {
 	 * @param groupIds       IDs des sites à rejoindre
 	 * @param organizationIds IDs des organisations à rejoindre
 	 * @param roleIds        IDs des rôles à attribuer
-	 * @param password       mot de passe temporaire généré via generatePolicyCompliantPassword()
 	 * @return l'utilisateur créé
 	 * @throws Exception si la création échoue (email déjà existant, etc.)
 	 */
@@ -119,11 +154,10 @@ public class UserHelper {
 			long creatorUserId, long companyId,
 			String email, String prenom, String nom,
 			String screenName, String jobTitle,
-			long[] groupIds, long[] organizationIds, long[] roleIds,
-			String password)
+			long[] groupIds, long[] organizationIds, long[] roleIds, String tempPassword)
 		throws Exception {
 
-		String tempPassword = password;
+		//String tempPassword = generateSecurePassword();
 
 		_log.info(
 			"[UserHelper] Création utilisateur : email=" + email +
@@ -167,14 +201,11 @@ public class UserHelper {
 
 	/**
 	 * Version simplifiée sans groupes/organisations (affectation faite séparément).
-	 *
-	 * @param password mot de passe temporaire généré via generatePolicyCompliantPassword()
 	 */
 	public User createUser(
 			long creatorUserId, long companyId,
 			String email, String prenom, String nom,
-			String screenName, String jobTitle,
-			String password)
+			String screenName, String jobTitle, String password)
 		throws Exception {
 
 		return createUser(
@@ -359,7 +390,6 @@ public class UserHelper {
 	 * </ul>
 	 *
 	 * <p>Utilisé comme fallback si la PasswordPolicy ne peut pas être lue.
-	 * Préférer {@link #(long)} lors de la création
 	 * d'un utilisateur Liferay.</p>
 	 *
 	 * @return mot de passe temporaire sécurisé, jamais null
@@ -371,10 +401,10 @@ public class UserHelper {
 		pwd[0] = _PWD_UPPER.charAt(_secureRandom.nextInt(_PWD_UPPER.length()));
 		pwd[1] = _PWD_LOWER.charAt(_secureRandom.nextInt(_PWD_LOWER.length()));
 		pwd[2] = _PWD_DIGITS.charAt(_secureRandom.nextInt(_PWD_DIGITS.length()));
-		//pwd[3] = _PWD_SPECIAL.charAt(_secureRandom.nextInt(_PWD_SPECIAL.length()));
+		pwd[3] = _PWD_SPECIAL.charAt(_secureRandom.nextInt(_PWD_SPECIAL.length()));
 
 		// Compléter les positions restantes avec le jeu complet
-		for (int i = 3; i < _PWD_LENGTH; i++) {
+		for (int i = 4; i < _PWD_LENGTH; i++) {
 			pwd[i] = _PWD_ALL.charAt(_secureRandom.nextInt(_PWD_ALL.length()));
 		}
 
@@ -432,5 +462,8 @@ public class UserHelper {
 
 	@Reference
 	private OrganizationLocalService _organizationLocalService;
+
+	@Reference
+	private PasswordPolicyLocalService _passwordPolicyLocalService;
 
 }

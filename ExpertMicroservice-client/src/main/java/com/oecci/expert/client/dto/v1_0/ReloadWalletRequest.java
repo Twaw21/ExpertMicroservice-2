@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.client.dto.v1_0;
 
 import com.oecci.expert.client.function.UnsafeSupplier;
@@ -20,6 +25,27 @@ public class ReloadWalletRequest implements Cloneable, Serializable {
 		return ReloadWalletRequestSerDes.toDTO(json);
 	}
 
+	public Long getExpert_ComptableID() {
+		return Expert_ComptableID;
+	}
+
+	public void setExpert_ComptableID(Long Expert_ComptableID) {
+		this.Expert_ComptableID = Expert_ComptableID;
+	}
+
+	public void setExpert_ComptableID(
+		UnsafeSupplier<Long, Exception> Expert_ComptableIDUnsafeSupplier) {
+
+		try {
+			Expert_ComptableID = Expert_ComptableIDUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Long Expert_ComptableID;
+
 	public Long getAmount() {
 		return amount;
 	}
@@ -41,27 +67,6 @@ public class ReloadWalletRequest implements Cloneable, Serializable {
 
 	protected Long amount;
 
-	public Long getExpertComptableID() {
-		return expertComptableID;
-	}
-
-	public void setExpertComptableID(Long expertComptableID) {
-		this.expertComptableID = expertComptableID;
-	}
-
-	public void setExpertComptableID(
-		UnsafeSupplier<Long, Exception> expertComptableIDUnsafeSupplier) {
-
-		try {
-			expertComptableID = expertComptableIDUnsafeSupplier.get();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	protected Long expertComptableID;
-
 	public Long getPaymentID() {
 		return paymentID;
 	}
@@ -82,6 +87,27 @@ public class ReloadWalletRequest implements Cloneable, Serializable {
 	}
 
 	protected Long paymentID;
+
+	public Long getWalletID() {
+		return walletID;
+	}
+
+	public void setWalletID(Long walletID) {
+		this.walletID = walletID;
+	}
+
+	public void setWalletID(
+		UnsafeSupplier<Long, Exception> walletIDUnsafeSupplier) {
+
+		try {
+			walletID = walletIDUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Long walletID;
 
 	@Override
 	public ReloadWalletRequest clone() throws CloneNotSupportedException {
@@ -115,3 +141,4 @@ public class ReloadWalletRequest implements Cloneable, Serializable {
 	}
 
 }
+// LIFERAY-REST-BUILDER-HASH:1665404988

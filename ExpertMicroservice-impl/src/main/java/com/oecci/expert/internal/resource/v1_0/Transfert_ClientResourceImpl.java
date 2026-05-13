@@ -6,15 +6,17 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.util.PropsUtil;
 import com.oecci.expert.dto.v1_0.CreateForwardRequest;
 import com.oecci.expert.dto.v1_0.StatutRequest;
 import com.oecci.expert.resource.v1_0.Transfert_ClientResource;
-import com.oecci.expert.utils.Constants;
-import com.oecci.expert.utils.ObjectEntryHelper;
-import com.oecci.expert.utils.UserHelper;
-import com.oecci.expert.utils.Utils;
+import com.oecci.expert.utils.*;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -26,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.osgi.service.component.annotations.Component;
@@ -56,6 +60,9 @@ public class Transfert_ClientResourceImpl
 	private static final String ERC_EXPERT_COMPTABLE  = Constants.ERC_EXPERT_COMPTABLE;
 	private static final String ERC_DEMANDE_TRANSFERT = Constants.ERC_DEMANDE_TRANSFERT;
 	private static final String ERC_INTERVENANT       = Constants.ERC_INTERVENANT;
+	
+	@Reference
+	UserLocalService userLocalService;
 
 	// -------------------------------------------------------------------------
 	// createTransfertClient
@@ -66,18 +73,37 @@ public class Transfert_ClientResourceImpl
 		throws Exception {
 
 		_log.info(">> Begining CLIENT FORWARDING creation...");
+		
+		long companyId = PortalUtil.getDefaultCompanyId();
+		User current_user = UserLocalServiceUtil.getUserById(contextUser.getUserId());
+		_log.info("[ currentUser ] >>>>: ID : " +current_user.getUserId()+ current_user.getFullName());
+		long groupId = 0;// requis par Liferay pour les ObjectEntry de scope "company"
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+		User technicalUser = null;
+		
+		// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+		try{
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+			_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+		
+		}
+		catch (Exception e) {
+			_log.error("[getExpertClients] Compte technique introuvable : " +
+				e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+				"Compte technique manquant. Contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
 
-		long userId    = contextUser.getUserId();
-		long companyId = contextCompany.getCompanyId();
-		long groupId   = Constants.DEV_OECCI_SITE_ID;
 		String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://"
 			+ PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
 
-		JSONObject result = JSONFactoryUtil.createJSONObject();
 
 		// 1. Vérifier la liaison Client ↔ Expert expéditeur
 
-		_log.info(">> Verifying CLIENT EXPERT COMPTABLE link...");
+		_log.info(">> Verifying CLIENT EXPERT COMPTABLE link..");
 
 		String clientFilter = ObjectEntryHelper.buildAndFilter(
 			ObjectEntryHelper.buildEqFilter("id", createForwardRequest.getClientID()),
@@ -86,7 +112,7 @@ public class Transfert_ClientResourceImpl
 				createForwardRequest.getExpertExpediteurID()));
 
 		List<ObjectEntry> clientEntries = _objectEntryHelper.searchByFilter(
-			userId, companyId, groupId, ERC_CLIENT, clientFilter);
+				technicalUser.getUserId(), companyId, groupId, ERC_CLIENT, clientFilter);
 
 		if (clientEntries.isEmpty()) {
 			_log.info(
@@ -191,8 +217,10 @@ public class Transfert_ClientResourceImpl
 				"r_iDClientTransfertClient_c_clientId",
 				clientEntry.getObjectEntryId()));
 
+//		List<ObjectEntry> existingTransferts = _objectEntryHelper.searchByFilter(
+//			userId, companyId, groupId, ERC_DEMANDE_TRANSFERT, transfertFilter);
 		List<ObjectEntry> existingTransferts = _objectEntryHelper.searchByFilter(
-			userId, companyId, groupId, ERC_DEMANDE_TRANSFERT, transfertFilter);
+				technicalUser.getUserId(), companyId, groupId, ERC_DEMANDE_TRANSFERT, transfertFilter);
 
 		boolean isToCreate = existingTransferts.isEmpty();
 		ObjectEntry existingTransfertEntry = isToCreate ?
@@ -223,9 +251,12 @@ public class Transfert_ClientResourceImpl
 		ObjectEntry transfertEntry;
 		if (isToCreate) {
 			_log.info("> Creating DEMANDE TRANSFERT CLIENT...");
+//			transfertEntry = _objectEntryHelper.addEntry(
+//				userId, groupId, companyId, ERC_DEMANDE_TRANSFERT,
+//				transfertValues);
 			transfertEntry = _objectEntryHelper.addEntry(
-				userId, groupId, companyId, ERC_DEMANDE_TRANSFERT,
-				transfertValues);
+					current_user.getUserId(), groupId, companyId, ERC_DEMANDE_TRANSFERT,
+					transfertValues);
 		}
 		else {
 			_log.info(
@@ -233,7 +264,7 @@ public class Transfert_ClientResourceImpl
 					existingTransfertEntry.getObjectEntryId() +
 					"\nMise à jour en cours...");
 			transfertEntry = _objectEntryHelper.updateEntry(
-				userId, groupId, companyId,
+				current_user.getUserId(), groupId, companyId,
 				existingTransfertEntry.getObjectEntryId(), transfertValues);
 		}
 
@@ -281,7 +312,7 @@ public class Transfert_ClientResourceImpl
 		_log.info("> Preparing template notification for CLIENT..");
 
 		List<ObjectEntry> intervenants = _objectEntryHelper.searchByFilter(
-			userId, companyId, groupId, ERC_INTERVENANT,
+			technicalUser.getUserId(), companyId, groupId, ERC_INTERVENANT,
 			ObjectEntryHelper.buildEqFilter(
 				"r_iDClientIntervenant_c_clientId",
 				clientEntry.getObjectEntryId()));
@@ -412,16 +443,33 @@ public class Transfert_ClientResourceImpl
 		throws Exception {
 
 		long userId    = contextUser.getUserId();
-		long companyId = contextCompany.getCompanyId();
-		long groupId   = Constants.DEV_OECCI_SITE_ID;
+		long companyId = PortalUtil.getDefaultCompanyId();
+		long groupId   = 0;
 		String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://"
 			+ PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
+		User technicalUser = null;
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+
+		// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+		try{
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+			_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+		}
+		catch (Exception e) {
+			_log.error("[getExpertClients] Compte technique introuvable : " +
+					e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+					"Compte technique manquant. Contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
 
 		_log.info(
 			">> Verifying if DEMANDE TRANSFERT CLIENT already exists... ID=" +
 				demandeTransfertID);
 
-		JSONObject result = JSONFactoryUtil.createJSONObject();
 
 		// 1. Récupérer la demande de transfert
 
@@ -492,8 +540,8 @@ public class Transfert_ClientResourceImpl
 				statutRequest.getMotif_refus() : "");
 
 		ObjectEntry updatedTransfertEntry = _objectEntryHelper.updateEntry(
-			userId, groupId, companyId, transfertEntry.getObjectEntryId(),
-			updateValues);
+				userId, groupId, companyId, transfertEntry.getObjectEntryId(),
+				updateValues);
 
 		if (updatedTransfertEntry == null) {
 			_log.info(
@@ -689,6 +737,184 @@ public class Transfert_ClientResourceImpl
 		return Response.status(Response.Status.OK).entity(result).build();
 	}
 
+
+@Override
+public Response getDemandesTransfertByDestinataire(
+			Long expertComptableId, Integer page, Integer pageSize,
+			String filter, String sort, String fields, String nestedFields,
+			Integer nestedFieldsDepth)
+			throws Exception {
+
+
+	User user = SecurityUtil.checkUser(_httpServletRequest, "getDemandesTransfertByDestinataire");
+	if (user == null) {
+		return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+	}
+	_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+	String[] roles = {"Regular EXPERTS Shared Object"};
+	boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+	JSONObject result = JSONFactoryUtil.createJSONObject();
+	if (!hasAccess) {
+		result = JSONFactoryUtil.createJSONObject();
+		result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+		result.put("message", "Vous n'avez les permissions nécessaires.");
+		result.put("data", "");
+		return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+	}
+
+
+	long userId    = contextUser.getUserId();
+	long companyId = PortalUtil.getDefaultCompanyId();
+	long groupId   = 0;
+	String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://"
+			+ PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
+	User technicalUser = null;
+
+	// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+	try{
+		technicalUser = _userHelper.getTechnicalUser(companyId);
+		_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+	}
+	catch (Exception e) {
+		_log.error("[getExpertClients] Compte technique introuvable : " +
+				e.getMessage(), e);
+		result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+		result.put("message",
+				"Compte technique manquant. Contacter l'administrateur.");
+		result.put("data", "");
+		return Response.status(Response.Status.OK).entity(result).build();
+	}
+
+
+	_log.info(">> getDemandesTransfertByDestinataire — expertComptableId=" + expertComptableId);
+
+	try {
+		String baseFilter = ObjectEntryHelper.buildEqFilter(
+				"r_iDExpertComptableDestinataire_c_expertComptableId",
+				expertComptableId);
+
+		String finalFilter = (filter != null && !filter.isBlank())
+				? ObjectEntryHelper.buildAndFilter(baseFilter, filter)
+				: baseFilter;
+
+		Sort[]   sorts    = _objectEntryHelper.parseSorts(sort);
+
+		List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
+				technicalUser.getUserId(), companyId, groupId,
+				Constants.ERC_DEMANDE_TRANSFERT,
+				finalFilter, sorts,
+				(long) (page != null ? page : -1),
+				(long) (pageSize != null ? pageSize : -1));
+
+		result.put("code",    Constants.HTTP_SUCCESS);
+		result.put("message", "OK");
+		result.put("data",    _objectEntryHelper.entriesToJson(entries, fields, nestedFields));
+		result.put("total",   entries.size());
+	} catch (Exception e) {
+		_log.error("getDemandesTransfertByDestinataire error", e);
+		result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+		result.put("message", e.getMessage());
+		result.put("data",    JSONFactoryUtil.createJSONObject());
+	}
+	return Response.status(Response.Status.OK).entity(result).build();
+
+}
+
+@Override
+public Response getDemandesTransfertByExpediteur(
+			Long expertComptableId, Integer page, Integer pageSize,
+			String filter, String sort, String fields, String nestedFields,
+			Integer nestedFieldsDepth)
+			throws Exception {
+
+
+	User user = SecurityUtil.checkUser(_httpServletRequest, "getDemandesTransfertByExpediteur");
+	if (user == null) {
+		return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+	}
+	_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+	String[] roles = {"Regular EXPERTS Shared Object"};
+	boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+	JSONObject result = JSONFactoryUtil.createJSONObject();
+	if (!hasAccess) {
+		result = JSONFactoryUtil.createJSONObject();
+		result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+		result.put("message", "Vous n'avez les permissions nécessaires.");
+		result.put("data", "");
+		return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+	}
+
+
+	long userId    = contextUser.getUserId();
+	long companyId = PortalUtil.getDefaultCompanyId();
+	long groupId   = 0;
+	String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://"
+			+ PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
+	User technicalUser = null;
+
+	// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+	try{
+		technicalUser = _userHelper.getTechnicalUser(companyId);
+		_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+	}
+	catch (Exception e) {
+		_log.error("[getExpertClients] Compte technique introuvable : " +
+				e.getMessage(), e);
+		result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+		result.put("message",
+				"Compte technique manquant. Contacter l'administrateur.");
+		result.put("data", "");
+		return Response.status(Response.Status.OK).entity(result).build();
+	}
+
+
+	_log.info(">> getDemandesTransfertByExpediteur — expertComptableId=" + expertComptableId);
+
+	try {
+		String baseFilter = ObjectEntryHelper.buildEqFilter(
+				"r_iDExpertComptableTransfertClient_c_expertComptableId",
+				expertComptableId);
+
+		String finalFilter = (filter != null && !filter.isBlank())
+				? ObjectEntryHelper.buildAndFilter(baseFilter, filter)
+				: baseFilter;
+
+		Sort[]   sorts    = _objectEntryHelper.parseSorts(sort);
+
+		List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
+				technicalUser.getUserId(), companyId, groupId,
+				Constants.ERC_DEMANDE_TRANSFERT,
+				finalFilter, sorts,
+				(long) (page != null ? page : -1),
+				(long) (pageSize != null ? pageSize : -1));
+
+		result.put("code",    Constants.HTTP_SUCCESS);
+		result.put("message", "OK");
+		result.put("data",    _objectEntryHelper.entriesToJson(entries, fields, nestedFields));
+		result.put("total",   entries.size());
+	} catch (Exception e) {
+		_log.error("getDemandesTransfertByExpediteur error", e);
+		result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+		result.put("message", e.getMessage());
+		result.put("data",    JSONFactoryUtil.createJSONObject());
+	}
+	return Response.status(Response.Status.OK).entity(result).build();
+
+}
+
+@Override
+public Response getDemandesTransfertClients(
+		Integer page, Integer pageSize, String filter, String sort,
+		String fields, String nestedFields, Integer nestedFieldsDepth)
+		throws Exception{
+
+	return Response.status(Response.Status.OK).entity(null).build();
+
+}
+
+
 	// -------------------------------------------------------------------------
 	// Helpers privés
 	// -------------------------------------------------------------------------
@@ -757,5 +983,12 @@ public class Transfert_ClientResourceImpl
 
 	@Reference
 	private ObjectEntryHelper _objectEntryHelper;
+	
+
+	@Reference
+	private UserHelper _userHelper;
+
+	@Context
+	private HttpServletRequest _httpServletRequest;
 
 }

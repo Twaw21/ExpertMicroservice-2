@@ -9,8 +9,11 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.util.PropsUtil;
@@ -27,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.osgi.service.component.annotations.Component;
@@ -72,13 +77,48 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 //		long groupId   = Constants.DEV_OECCI_SITE_ID;
 		long groupId = 0; //requis par Liferay pour les ObjectEntry de scope "company"
 
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+		User user = SecurityUtil.checkUser(_httpServletRequest, "createCollabos");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular COLLABO ADMIN Shared Object", "Regular COLLABO ASSISTANT Shared Object"
+				, "Regular COLLABO MODERATOR Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+		if (!hasAccess) {
+			result = JSONFactoryUtil.createJSONObject();
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+
+		User technicalUser = null;
+
+		// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+		try{
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+			_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+		}
+		catch (Exception e) {
+			_log.error("[getExpertClients] Compte technique introuvable : " +
+					e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+					"Compte technique manquant. Contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
 		String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://"
 			+ PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
 
 		_log.info("> Base URL : " + baseURL);
 		_log.info("> Starting by verify what profil want to create collabo..");
 
-		JSONObject result = JSONFactoryUtil.createJSONObject();
+		result = JSONFactoryUtil.createJSONObject();
 
 		// 1. Vérifier les droits du créateur
 
@@ -326,14 +366,14 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 			_log.info(
 				"COLLABO " + createCollaboRequest.getNom() + " n'existe pas. Creating...");
 			specificCollaboEntry = _objectEntryHelper.addEntry(
-				userId, groupId, companyId, erc, specificValues);
+				liferayUser.getUserId(), groupId, companyId, erc, specificValues);
 		}
 		else {
 			_log.info(
 				"Collabo existe. Updating ID=" +
 					existingSpecificEntry.getObjectEntryId());
 			specificCollaboEntry = _objectEntryHelper.updateEntry(
-				userId, groupId, companyId,
+				liferayUser.getUserId(), groupId, companyId,
 				existingSpecificEntry.getObjectEntryId(), specificValues);
 		}
 
@@ -351,7 +391,7 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 			result.put("data", "");
 			return Response.status(Response.Status.OK).entity(result).build();
 		}
-
+		_log.info("Affectation de l'utilisateur au site de l'ORDRE et et à son organisation");
 		// Affecter l'utilisateur au site de l'ordre des experts et à l'organisation
 
 		Group oecci_ordre_expert = GroupLocalServiceUtil.getGroup(
@@ -361,6 +401,16 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 		_userHelper.linkUserToSiteAndOrganization(
 			oecci_ordre_expert.getGroupId(), collab_org.getOrganizationId(),
 			liferayUser.getUserId());
+
+		_log.info("adding liferay user to GLOBAL ORDER ACCOUNTANT ORG");
+		OrganizationLocalServiceUtil.addUserOrganization(
+				liferayUser.getUserId(), OrganizationLocalServiceUtil.getOrganization(
+						Constants.DEV_ORDRE_EXPERT_ORGANIZATION));
+		_log.info(
+				">> User " + liferayUser.getUserId() +
+						" added too to GLOBAL ORDER ACCOUNTANT organization " +
+						OrganizationLocalServiceUtil.getOrganization(
+								Constants.DEV_ORDRE_EXPERT_ORGANIZATION));
 
 		// 4. Créer l'entrée Collaborateur (entité agrégée)
 
@@ -390,7 +440,7 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 
 		_log.info("> Creating COLLABORATEUR entity...");
 		ObjectEntry collaboEntry = _objectEntryHelper.addEntry(
-			userId, groupId, companyId, ERC_COLLABORATEUR, collaboValues);
+			liferayUser.getUserId(), groupId, companyId, ERC_COLLABORATEUR, collaboValues);
 
 		if (collaboEntry == null) {
 			String msg =
@@ -474,15 +524,33 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 	// getAllCollabos
 	// -------------------------------------------------------------------------
 
-	public Response getAllCollabos(Long collaboID, Integer pageSize)
+	public Response getAllCollabos(Long collaboID, Integer page,
+								   Integer pageSize, String filter,
+								   String sort, String fields, String nestedFields,
+								   Integer nestedFieldsDepth)
 		throws Exception {
 
 		_log.info(">> Begining COLLABO Reading...");
 
 		long userId    = contextUser.getUserId();
-		long companyId = contextCompany.getCompanyId();
-		long groupId   = Constants.DEV_OECCI_SITE_ID;
-
+		long companyId = PortalUtil.getDefaultCompanyId();
+		long groupId   = 0;
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+		User user = SecurityUtil.checkUser(_httpServletRequest, "getAllCollabos");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular COLLABO ADMIN Shared Object", "Regular COLLABO ASSISTANT Shared Object"
+				, "Regular COLLABO MODERATOR Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+		if (!hasAccess) {
+			result = JSONFactoryUtil.createJSONObject();
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
 		_log.info("> Starting by verify what profil want to read collabo..");
 
 		// 1. Récupérer le collaborateur lecteur
@@ -493,7 +561,6 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 		}
 		catch (Exception e) {
 			_log.info("Aucun collaborateur n'existe avec cet ID : " + collaboID + ".");
-			JSONObject result = JSONFactoryUtil.createJSONObject();
 			result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
 			result.put(
 				"message",
@@ -510,20 +577,31 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 
 		// 2. Rechercher les collaborateurs selon le rôle du lecteur
 
-		String filter;
+		//String filter;
 		if ("aDMIN".equals(readerType)) {
 			_log.info(">> Reader is an ADMIN..");
-			filter = ""; // tous les collaborateurs
+			filter = filter; // tous les collaborateurs
 		}
 		else if ("mODERATEUR".equals(readerType)) {
 			_log.info(">> Reader is a MODERATOR..");
-			filter = "collaborateurType ne 'aDMIN'";
+			filter += " and collaborateurType ne 'aDMIN'";
 		}
 		else {
 			_log.info(">> Reader is an ASSISTANT..");
-			filter = ObjectEntryHelper.buildEqFilter(
+			filter += ObjectEntryHelper.buildEqFilter(
 				"collaborateurType", "aSSISTANT");
 		}
+
+		// Construire le filtre pour récupérer les collaborateurs (sauf celui qui consulte)
+		filter = (filter != null && !filter.isBlank())
+				? filter + " and id ne '" + collaboID + "'"
+				: "id ne '" + collaboID + "'";
+
+		_log.info("final filter getting COLLABOs: "+filter);
+
+		ObjectEntryHelper objH = new ObjectEntryHelper();
+		Sort[] sorts = objH.parseSorts(sort);
+
 
 		List<ObjectEntry> collaboEntries = _objectEntryHelper.searchByFilter(
 			userId, companyId, groupId, ERC_COLLABORATEUR, filter,
@@ -531,7 +609,7 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 
 		if (collaboEntries.isEmpty()) {
 			_log.info("> Aucuns collaborateurs trouvés.");
-			JSONObject result = JSONFactoryUtil.createJSONObject();
+			result = JSONFactoryUtil.createJSONObject();
 			result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
 			result.put("message", "Aucuns collaborateurs trouvés.");
 			result.put("data", "");
@@ -548,7 +626,7 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 
 		_log.info(">> Collabos found. Count=" + collaboEntries.size());
 
-		JSONObject result = JSONFactoryUtil.createJSONObject();
+		result = JSONFactoryUtil.createJSONObject();
 		result.put("code", Constants.HTTP_SUCCESS);
 		result.put("message", "Les collaborateurs trouvés.");
 		result.put("data", itemsArray);
@@ -556,6 +634,241 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 		_log.info("> Returning response");
 		return Response.status(Response.Status.OK).entity(result).build();
 	}
+
+
+	// -------------------------------------------------------------------------
+	// getAllCollabos
+	// -------------------------------------------------------------------------
+
+	/*@Override
+	public Response getAllCollabos(
+			Long collaboID, Integer page, Integer pageSize, String filter,
+			String sort, String fields, String nestedFields,
+			Integer nestedFieldsDepth)
+			throws Exception {
+
+		_log.info(">> getAllCollabos — collaboID=" + collaboID);
+
+		User user = SecurityUtil.checkUser(_httpServletRequest, "getAllCollabos");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular COLLABO ADMIN Shared Object", "Regular EXPERTS Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+
+		if (!hasAccess) {
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+
+		try {
+			long userId = user.getUserId();
+			long companyId = contextCompany.getCompanyId();
+			long groupId = 0L;
+
+
+
+
+
+			// Construire le filtre pour récupérer les collaborateurs (sauf celui qui consulte)
+			String filterString = (filter != null && !filter.isBlank())
+					? filter + " and id ne '" + collaboID + "'"
+					: "id ne '" + collaboID + "'";
+
+			ObjectEntryHelper objH = new ObjectEntryHelper();
+			Sort[] sorts = objH.parseSorts(sort);
+
+			List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
+					userId, companyId, groupId,
+					ERC_COLLABORATEUR,
+					filterString,
+					sorts,
+					(long) (page != null ? page : -1),
+					(long) (pageSize != null ? pageSize : -1));
+
+			JSONArray data = _objectEntryHelper.entriesToJson(entries, fields, nestedFields, nestedFieldsDepth);
+			_log.info("entriesToJson : " + data.toString());
+
+			result.put("code", Constants.HTTP_SUCCESS);
+			result.put("message", "OK");
+			result.put("data", data);
+			result.put("total", entries.size());
+		} catch (Exception e) {
+			_log.error("getAllCollabos error", e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", e.getMessage());
+			result.put("data", JSONFactoryUtil.createJSONArray());
+		}
+		return Response.ok(result.toString()).build();
+	}
+*/
+	// -------------------------------------------------------------------------
+	// getCollaborateurByUser
+	// -------------------------------------------------------------------------
+
+	@Override
+	public Response getCollaborateurByUser(
+			Long liferayUserId, Integer page, Integer pageSize, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
+			throws Exception {
+
+		_log.info(">> getCollaborateurByUser — liferayUserId=" + liferayUserId);
+
+		User user = SecurityUtil.checkUser(_httpServletRequest, "getCollaborateurByUser");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular COLLABO ADMIN Shared Object", "Regular EXPERTS Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+
+		if (!hasAccess) {
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+		User technicalUser = null;
+		long userId = user.getUserId();
+		long companyId = contextCompany.getCompanyId();
+		long groupId = 0L;
+
+		// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+		try{
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+			_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+		}
+		catch (Exception e) {
+			_log.error("[getExpertClients] Compte technique introuvable : " +
+					e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+					"Compte technique manquant. Contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+		try {
+
+			String filter = ObjectEntryHelper.buildEqFilter(
+					"r_iDUserCollabo_userId", liferayUserId);
+
+			ObjectEntryHelper objH = new ObjectEntryHelper();
+			Sort[] sorts = objH.parseSorts(sort);
+
+			List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
+					technicalUser.getUserId(), companyId, groupId,
+					ERC_COLLABORATEUR,
+					filter,
+					sorts,
+					(long) (page != null ? page : -1),
+					(long) (pageSize != null ? pageSize : -1));
+
+			JSONArray data = _objectEntryHelper.entriesToJson(entries, fields, nestedFields);
+			_log.info("entriesToJson : " + data.toString());
+
+			result.put("code", Constants.HTTP_SUCCESS);
+			result.put("message", "OK");
+			result.put("data", data);
+			result.put("total", entries.size());
+		} catch (Exception e) {
+			_log.error("getCollaborateurByUser error", e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", e.getMessage());
+			result.put("data", JSONFactoryUtil.createJSONArray());
+		}
+		return Response.ok(result.toString()).build();
+	}
+
+	// -------------------------------------------------------------------------
+	// getCollaborateurs (générique)
+	// -------------------------------------------------------------------------
+
+	@Override
+	public Response getCollaborateurs(
+			Integer page, Integer pageSize, String filter, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
+			throws Exception {
+
+		_log.info(">> getCollaborateurs (générique) — filter=" + filter);
+
+		User user = SecurityUtil.checkUser(_httpServletRequest, "getCollaborateurs");
+		if (user == null) {
+			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+		}
+
+		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+		String[] roles = {"Regular COLLABO ADMIN Shared Object", "Regular COLLABO ASSISTANT Shared Object"
+				, "Regular COLLABO MODERATOR Shared Object"};
+		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+
+		if (!hasAccess) {
+			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+			result.put("message", "Vous n'avez les permissions nécessaires.");
+			result.put("data", "");
+			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+		}
+
+		try {
+			long userId = user.getUserId();
+			long companyId = contextCompany.getCompanyId();
+			long groupId = 0L;
+
+			User technicalUser = null;
+
+			// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+			try{
+				technicalUser = _userHelper.getTechnicalUser(companyId);
+				_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+			}
+			catch (Exception e) {
+				_log.error("[getExpertClients] Compte technique introuvable : " +
+						e.getMessage(), e);
+				result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+				result.put("message",
+						"Compte technique manquant. Contacter l'administrateur.");
+				result.put("data", "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+			ObjectEntryHelper objH = new ObjectEntryHelper();
+			Sort[] sorts = objH.parseSorts(sort);
+
+			List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
+					technicalUser.getUserId(), companyId, groupId,
+					ERC_COLLABORATEUR,
+					filter,
+					sorts,
+					(long) (page != null ? page : -1),
+					(long) (pageSize != null ? pageSize : -1));
+
+			JSONArray data = _objectEntryHelper.entriesToJson(entries, fields, nestedFields);
+			_log.info("entriesToJson : " + data.toString());
+
+			result.put("code", Constants.HTTP_SUCCESS);
+			result.put("message", "OK");
+			result.put("data", data);
+			result.put("total", entries.size());
+		} catch (Exception e) {
+			_log.error("getCollaborateurs error", e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", e.getMessage());
+			result.put("data", JSONFactoryUtil.createJSONArray());
+		}
+		return Response.ok(result.toString()).build();
+	}
+
 
 	// -------------------------------------------------------------------------
 	// Helpers privés
@@ -602,5 +915,12 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 
 	@Reference
 	private UserHelper _userHelper;
+
+	@Reference
+	private UserLocalService _userLocalService;
+
+	@Context
+	private HttpServletRequest _httpServletRequest;
+
 
 }

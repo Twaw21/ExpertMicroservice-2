@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.client.serdes.v1_0;
 
 import com.oecci.expert.client.dto.v1_0.ReloadWalletRequest;
@@ -41,6 +46,16 @@ public class ReloadWalletRequestSerDes {
 
 		sb.append("{");
 
+		if (reloadWalletRequest.getExpert_ComptableID() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"Expert_ComptableID\": ");
+
+			sb.append(reloadWalletRequest.getExpert_ComptableID());
+		}
+
 		if (reloadWalletRequest.getAmount() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -51,16 +66,6 @@ public class ReloadWalletRequestSerDes {
 			sb.append(reloadWalletRequest.getAmount());
 		}
 
-		if (reloadWalletRequest.getExpertComptableID() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"expertComptableID\": ");
-
-			sb.append(reloadWalletRequest.getExpertComptableID());
-		}
-
 		if (reloadWalletRequest.getPaymentID() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -69,6 +74,16 @@ public class ReloadWalletRequestSerDes {
 			sb.append("\"paymentID\": ");
 
 			sb.append(reloadWalletRequest.getPaymentID());
+		}
+
+		if (reloadWalletRequest.getWalletID() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"walletID\": ");
+
+			sb.append(reloadWalletRequest.getWalletID());
 		}
 
 		sb.append("}");
@@ -92,20 +107,20 @@ public class ReloadWalletRequestSerDes {
 
 		Map<String, String> map = new TreeMap<>();
 
+		if (reloadWalletRequest.getExpert_ComptableID() == null) {
+			map.put("Expert_ComptableID", null);
+		}
+		else {
+			map.put(
+				"Expert_ComptableID",
+				String.valueOf(reloadWalletRequest.getExpert_ComptableID()));
+		}
+
 		if (reloadWalletRequest.getAmount() == null) {
 			map.put("amount", null);
 		}
 		else {
 			map.put("amount", String.valueOf(reloadWalletRequest.getAmount()));
-		}
-
-		if (reloadWalletRequest.getExpertComptableID() == null) {
-			map.put("expertComptableID", null);
-		}
-		else {
-			map.put(
-				"expertComptableID",
-				String.valueOf(reloadWalletRequest.getExpertComptableID()));
 		}
 
 		if (reloadWalletRequest.getPaymentID() == null) {
@@ -115,6 +130,14 @@ public class ReloadWalletRequestSerDes {
 			map.put(
 				"paymentID",
 				String.valueOf(reloadWalletRequest.getPaymentID()));
+		}
+
+		if (reloadWalletRequest.getWalletID() == null) {
+			map.put("walletID", null);
+		}
+		else {
+			map.put(
+				"walletID", String.valueOf(reloadWalletRequest.getWalletID()));
 		}
 
 		return map;
@@ -134,25 +157,49 @@ public class ReloadWalletRequestSerDes {
 		}
 
 		@Override
+		protected boolean parseMaps(String jsonParserFieldName) {
+			if (Objects.equals(jsonParserFieldName, "Expert_ComptableID")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "amount")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "paymentID")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "walletID")) {
+				return false;
+			}
+
+			return false;
+		}
+
+		@Override
 		protected void setField(
 			ReloadWalletRequest reloadWalletRequest, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "amount")) {
+			if (Objects.equals(jsonParserFieldName, "Expert_ComptableID")) {
 				if (jsonParserFieldValue != null) {
-					reloadWalletRequest.setAmount(
+					reloadWalletRequest.setExpert_ComptableID(
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "expertComptableID")) {
+			else if (Objects.equals(jsonParserFieldName, "amount")) {
 				if (jsonParserFieldValue != null) {
-					reloadWalletRequest.setExpertComptableID(
+					reloadWalletRequest.setAmount(
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "paymentID")) {
 				if (jsonParserFieldValue != null) {
 					reloadWalletRequest.setPaymentID(
+						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "walletID")) {
+				if (jsonParserFieldValue != null) {
+					reloadWalletRequest.setWalletID(
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
@@ -188,36 +235,7 @@ public class ReloadWalletRequestSerDes {
 
 			Object value = entry.getValue();
 
-			Class<?> valueClass = value.getClass();
-
-			if (value instanceof Map) {
-				sb.append(_toJSON((Map)value));
-			}
-			else if (valueClass.isArray()) {
-				Object[] values = (Object[])value;
-
-				sb.append("[");
-
-				for (int i = 0; i < values.length; i++) {
-					sb.append("\"");
-					sb.append(_escape(values[i]));
-					sb.append("\"");
-
-					if ((i + 1) < values.length) {
-						sb.append(", ");
-					}
-				}
-
-				sb.append("]");
-			}
-			else if (value instanceof String) {
-				sb.append("\"");
-				sb.append(_escape(entry.getValue()));
-				sb.append("\"");
-			}
-			else {
-				sb.append(String.valueOf(entry.getValue()));
-			}
+			sb.append(_toJSON(value));
 
 			if (iterator.hasNext()) {
 				sb.append(", ");
@@ -229,4 +247,41 @@ public class ReloadWalletRequestSerDes {
 		return sb.toString();
 	}
 
+	private static String _toJSON(Object value) {
+		if (value == null) {
+			return "null";
+		}
+
+		if (value instanceof Map) {
+			return _toJSON((Map)value);
+		}
+
+		Class<?> clazz = value.getClass();
+
+		if (clazz.isArray()) {
+			StringBuilder sb = new StringBuilder("[");
+
+			Object[] values = (Object[])value;
+
+			for (int i = 0; i < values.length; i++) {
+				sb.append(_toJSON(values[i]));
+
+				if ((i + 1) < values.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+
+			return sb.toString();
+		}
+
+		if (value instanceof String) {
+			return "\"" + _escape(value) + "\"";
+		}
+
+		return String.valueOf(value);
+	}
+
 }
+// LIFERAY-REST-BUILDER-HASH:1644395048

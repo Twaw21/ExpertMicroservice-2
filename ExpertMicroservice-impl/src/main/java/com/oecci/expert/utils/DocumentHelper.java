@@ -16,8 +16,6 @@ import com.liferay.portal.kernel.util.MimeTypesUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
 
@@ -42,7 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 public class DocumentHelper {
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		DocumentHelper.class);
+			DocumentHelper.class);
 
 	// -------------------------------------------------------------------------
 	// Upload de fichier
@@ -63,12 +61,12 @@ public class DocumentHelper {
 	 */
 	public long uploadFile(
 			long userId, long repositoryId, String fileName, File file)
-		throws Exception {
+			throws Exception {
 
 		return uploadFile(
-			userId, repositoryId,
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			fileName, file);
+				userId, repositoryId,
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				fileName, file);
 	}
 
 	/**
@@ -85,12 +83,12 @@ public class DocumentHelper {
 	public long uploadFile(
 			long userId, long repositoryId, long folderId,
 			String fileName, File file)
-		throws Exception {
+			throws Exception {
 
 		_log.info(
-			"[DocumentHelper] uploadFile : fileName=" + fileName +
-				" repositoryId=" + repositoryId + " folderId=" + folderId +
-				" userId=" + userId);
+				"[DocumentHelper] uploadFile : fileName=" + fileName +
+						" repositoryId=" + repositoryId + " folderId=" + folderId +
+						" userId=" + userId);
 
 		String mimeType = MimeTypesUtil.getContentType(file);
 
@@ -98,19 +96,30 @@ public class DocumentHelper {
 		sc.setUserId(userId);
 		sc.setScopeGroupId(repositoryId);
 
-		try {
-			byte[] fileBytes = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
-			FileEntry fileEntry = _dlAppLocalService.addFileEntry(null, userId, repositoryId, folderId, fileName, mimeType
-					, fileBytes, null, null, sc);
+		try (FileInputStream fis = new FileInputStream(file)) {
+			FileEntry fileEntry = _dlAppLocalService.addFileEntry(
+					null,           // externalReferenceCode
+					userId,
+					repositoryId,
+					folderId,
+					fileName,
+					mimeType,
+					fileName,       // title
+					null,           // urlTitle
+					"",             // description
+					null,           // changeLog
+					fis,
+					file.length(),
+					null, // DisplayDate
+					null,           // expirationDate
+					null,           // reviewDate
+					sc);
 
 			_log.info(
-				"[DocumentHelper] Fichier uploadé avec succès — fileEntryId=" +
-					fileEntry.getFileEntryId());
+					"[DocumentHelper] Fichier uploadé avec succès — fileEntryId=" +
+							fileEntry.getFileEntryId());
 
 			return fileEntry.getFileEntryId();
-		} catch (Exception e) {
-			_log.info("(!) Updloading file to Doc&Media EXCEPTION : "+e.getLocalizedMessage());
-			return 0L;
 		}
 	}
 
@@ -160,8 +169,8 @@ public class DocumentHelper {
 		}
 		catch (Exception e) {
 			_log.error(
-				"[DocumentHelper] Erreur getFileAsBase64DataUri : " +
-					"fileEntryId=" + fileEntryId + " — " + e.getMessage(), e);
+					"[DocumentHelper] Erreur getFileAsBase64DataUri : " +
+							"fileEntryId=" + fileEntryId + " — " + e.getMessage(), e);
 			return null;
 		}
 	}
@@ -179,8 +188,8 @@ public class DocumentHelper {
 		}
 		catch (Exception e) {
 			_log.error(
-				"[DocumentHelper] Erreur getFileAsBase64 : fileEntryId=" +
-					fileEntryId + " — " + e.getMessage(), e);
+					"[DocumentHelper] Erreur getFileAsBase64 : fileEntryId=" +
+							fileEntryId + " — " + e.getMessage(), e);
 			return null;
 		}
 	}
@@ -203,35 +212,35 @@ public class DocumentHelper {
 	public long getOrCreateFolder(
 			long userId, long repositoryId, long parentFolderId,
 			String folderName)
-		throws Exception {
+			throws Exception {
 
 		try {
 			Folder folder = _dlAppLocalService.getFolder(
-				repositoryId, parentFolderId, folderName);
+					repositoryId, parentFolderId, folderName);
 
 			_log.info(
-				"[DocumentHelper] Dossier existant trouvé : " + folderName +
-					" (id=" + folder.getFolderId() + ")");
+					"[DocumentHelper] Dossier existant trouvé : " + folderName +
+							" (id=" + folder.getFolderId() + ")");
 
 			return folder.getFolderId();
 		}
 		catch (Exception e) {
 			// Le dossier n'existe pas, on le crée
 			_log.info(
-				"[DocumentHelper] Création du dossier : " + folderName);
+					"[DocumentHelper] Création du dossier : " + folderName);
 
 			ServiceContext sc = new ServiceContext();
 			sc.setUserId(userId);
 			sc.setScopeGroupId(repositoryId);
 
 			Folder folder = _dlAppLocalService.addFolder(
-				null,           // externalReferenceCode
-				userId,
-				repositoryId,
-				parentFolderId,
-				folderName,
-				"",             // description
-				sc);
+					null,           // externalReferenceCode
+					userId,
+					repositoryId,
+					parentFolderId,
+					folderName,
+					"",             // description
+					sc);
 
 			return folder.getFolderId();
 		}
@@ -258,8 +267,8 @@ public class DocumentHelper {
 
 		// Extraire uniquement le nom de fichier (supprime tout chemin)
 		String name = java.nio.file.Paths.get(rawFileName)
-			.getFileName()
-			.toString();
+				.getFileName()
+				.toString();
 
 		// Ne conserver que les caractères alphanumériques, tirets, underscores et point
 		name = name.replaceAll("[^a-zA-Z0-9.\\-_]", "_");

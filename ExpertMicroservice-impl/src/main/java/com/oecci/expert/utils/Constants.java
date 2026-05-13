@@ -13,6 +13,7 @@ public class Constants {
 	public static final Integer HTTP_RESOURCE_ALREADY_EXISTS = 2002;
 	public static final Integer HTTP_QUANTITY_ERROR = 3000;
 	public static final Integer HTTP_ERROR_DATA_MALFORMED = 4000;
+	public static final Integer HTTP_RESOURCE_FORBIDEN = 3003;
 
 	
 	public static final String DEMANDE_APPROUVE_STATUT = "aPPROBATIONDEMANDEINSCPRIPTION";
@@ -166,16 +167,17 @@ public class Constants {
 	
 //	public static final Long DEV_CLIENT_SITE_ID = 37105L;//local
 	public static final Long DEV_CLIENT_SITE_ID = 35135L;//dev
-	public static final Long DEV_ORDRE_EXPERT_SITE_ID = 56323L;//local
+	public static final Long DEV_ORDRE_EXPERT_SITE_ID = 56323L;//56321L local
 	public static final Long DEV_EXPERT_SITE_ID = 35140L;//dev
 	public static final Long DEV_OECCI_SITE_ID = 35144L;
 
+	public static final Long DEV_ORDRE_EXPERT_ORGANIZATION = 56321L;//56321L local
 	public static final long DEV_ORDRE_EXPERT_ADMIN_ORGANIZATION = 58489L;
 	public static final long DEV_ORDRE_EXPERT_MODRT_ORGANIZATION = 58493L;
 	public static final long DEV_ORDRE_EXPERT_ASSIST_ORGANIZATION = 58497L;
-	
+
 	public static final long DEV_ORDRE_EXPERT_ASSOCIE_ORGANIZATION = 56321L;
-	
+
 	public static final long DEV_EXPERT_ORGANIZATION = 35138L;
 	public static final long DEV_EXPERT_ASSOCIE_ORGANIZATION = 72728L;
 	public static final long DEV_EXPERT_COORDINATEUR_ORGANIZATION = 72732L;
@@ -208,8 +210,26 @@ public class Constants {
 
 	// Transfert client
 	public static final String ERC_CLIENT              = "aeae620e-6379-5e1e-0968-1eaf2e86ed11";
-	public static final String ERC_DEMANDE_TRANSFERT   = "be068483-fd58-c3d4-3857-5d7895195a62";
+	public static final String ERC_DEMANDE_TRANSFERT   = "20bb2346-6a08-a0de-5a94-381081b738ce";
 	public static final String ERC_INTERVENANT         = "e3f94abf-ccb7-f2f8-230f-dcbf2b7448d1";
 	public static final String CRYPTO_KEY = "hIhqkP8CgjQ56GtV5rQ09rEp8pFezzQEgECTN5JkWEk=";
+	
+	// -------------------------------------------------------------------------
+		// Comptes techniques
+		// -------------------------------------------------------------------------
 
+		/**
+		 * Email du compte technique utilisé comme creatorId pour les opérations
+		 * de service (ServiceContext, ObjectEntry, etc.) qui nécessitent un
+		 * utilisateur Liferay mais ne sont pas déclenchées par un utilisateur réel.
+		 *
+		 * <p>Ce compte doit exister dans l'instance Liferay cible.
+		 * Remplace l'ID hardcodé 207867 précédemment utilisé dans _doCreateClient.</p>
+		 */
+		public static final String TECHNICAL_ADMIN_EMAIL = "arouna@diginfactory.com";
+		//public static final String TECHNICAL_ADMIN_EMAIL = "devteam@diginfactory.com";
+		public static final String TECHNICAL_ADMIN_EMAIL_PREPROD = "devteam@diginfactory.com";
+
+
+	public static final String ERC_DEMANDE_VISA              = "4380b202-f551-91be-0aa8-901a2a63037e";
 }

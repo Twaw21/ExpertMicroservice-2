@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.oecci.expert.resource.v1_0.test;
 
 import com.liferay.petra.reflect.ReflectionUtil;
@@ -6,32 +11,32 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Company;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
-import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
+import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
+import com.liferay.portal.vulcan.util.TransformUtil;
 
-import com.oecci.expert.client.dto.v1_0.DataResult;
 import com.oecci.expert.client.http.HttpInvoker;
 import com.oecci.expert.client.pagination.Page;
 import com.oecci.expert.client.resource.v1_0.CollaborateurResource;
 
 import java.lang.reflect.Method;
 
-import java.text.DateFormat;
+import java.text.Format;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,8 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Generated;
 
@@ -68,7 +71,7 @@ public abstract class BaseCollaborateurResourceTestCase {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		_dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
+		_format = FastDateFormatFactoryUtil.getSimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 	}
 
@@ -82,10 +85,15 @@ public abstract class BaseCollaborateurResourceTestCase {
 
 		_collaborateurResource.setContextCompany(testCompany);
 
-		CollaborateurResource.Builder builder = CollaborateurResource.builder();
+		_testCompanyAdminUser = UserTestUtil.getAdminUser(
+			testCompany.getCompanyId());
 
-		collaborateurResource = builder.authentication(
-			"test@liferay.com", "test"
+		collaborateurResource = CollaborateurResource.builder(
+		).authentication(
+			_testCompanyAdminUser.getEmailAddress(),
+			PropsValues.DEFAULT_ADMIN_PASSWORD
+		).endpoint(
+			testCompany.getVirtualHostname(), 8080, "http"
 		).locale(
 			LocaleUtil.getDefault()
 		).build();
@@ -99,30 +107,22 @@ public abstract class BaseCollaborateurResourceTestCase {
 
 	@Test
 	public void testCreateCollabos() throws Exception {
-		Assert.assertTrue(true);
+		Assert.assertTrue(false);
 	}
 
 	@Test
 	public void testGetAllCollabos() throws Exception {
-		Collaborateur postCollaborateur =
-			testGetCollaborateur_addCollaborateur();
-
-		DataResult postDataResult = testGetAllCollabos_addDataResult(
-			postCollaborateur.getId(), randomDataResult());
-
-		DataResult getDataResult = collaborateurResource.getAllCollabos(
-			postCollaborateur.getId());
-
-		assertEquals(postDataResult, getDataResult);
-		assertValid(getDataResult);
+		Assert.assertTrue(false);
 	}
 
-	protected DataResult testGetAllCollabos_addDataResult(
-			long collaborateurId, DataResult dataResult)
-		throws Exception {
+	@Test
+	public void testGetCollaborateurByUser() throws Exception {
+		Assert.assertTrue(false);
+	}
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+	@Test
+	public void testGetCollaborateurs() throws Exception {
+		Assert.assertTrue(false);
 	}
 
 	protected void assertContains(
@@ -169,14 +169,6 @@ public abstract class BaseCollaborateurResourceTestCase {
 		}
 	}
 
-	protected void assertEquals(
-		DataResult dataResult1, DataResult dataResult2) {
-
-		Assert.assertTrue(
-			dataResult1 + " does not equal " + dataResult2,
-			equals(dataResult1, dataResult2));
-	}
-
 	protected void assertEqualsIgnoringOrder(
 		List<Object> collaborateurs1, List<Object> collaborateurs2) {
 
@@ -214,6 +206,12 @@ public abstract class BaseCollaborateurResourceTestCase {
 	}
 
 	protected void assertValid(Page<Object> page) {
+		assertValid(page, Collections.emptyMap());
+	}
+
+	protected void assertValid(
+		Page<Object> page, Map<String, Map<String, String>> expectedActions) {
+
 		boolean valid = false;
 
 		java.util.Collection<Object> collaborateurs = page.getItems();
@@ -228,35 +226,28 @@ public abstract class BaseCollaborateurResourceTestCase {
 		}
 
 		Assert.assertTrue(valid);
+
+		assertValid(page.getActions(), expectedActions);
 	}
 
-	protected void assertValid(DataResult dataResult) {
-		boolean valid = true;
+	protected void assertValid(
+		Map<String, Map<String, String>> actions1,
+		Map<String, Map<String, String>> actions2) {
 
-		for (String additionalAssertFieldName :
-				getAdditionalDataResultAssertFieldNames()) {
+		for (String key : actions2.keySet()) {
+			Map action = actions1.get(key);
 
-			if (Objects.equals("designation", additionalAssertFieldName)) {
-				if (dataResult.getDesignation() == null) {
-					valid = false;
-				}
+			Assert.assertNotNull(key + " does not contain an action", action);
 
-				continue;
-			}
+			Map<String, String> expectedAction = actions2.get(key);
 
-			throw new IllegalArgumentException(
-				"Invalid additional assert field name " +
-					additionalAssertFieldName);
+			Assert.assertEquals(
+				expectedAction.get("method"), action.get("method"));
+			Assert.assertEquals(expectedAction.get("href"), action.get("href"));
 		}
-
-		Assert.assertTrue(valid);
 	}
 
 	protected String[] getAdditionalAssertFieldNames() {
-		return new String[0];
-	}
-
-	protected String[] getAdditionalDataResultAssertFieldNames() {
 		return new String[0];
 	}
 
@@ -342,44 +333,23 @@ public abstract class BaseCollaborateurResourceTestCase {
 		return false;
 	}
 
-	protected boolean equals(DataResult dataResult1, DataResult dataResult2) {
-		if (dataResult1 == dataResult2) {
-			return true;
-		}
-
-		for (String additionalAssertFieldName :
-				getAdditionalDataResultAssertFieldNames()) {
-
-			if (Objects.equals("designation", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						dataResult1.getDesignation(),
-						dataResult2.getDesignation())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			throw new IllegalArgumentException(
-				"Invalid additional assert field name " +
-					additionalAssertFieldName);
-		}
-
-		return true;
-	}
-
 	protected java.lang.reflect.Field[] getDeclaredFields(Class clazz)
 		throws Exception {
 
-		Stream<java.lang.reflect.Field> stream = Stream.of(
-			ReflectionUtil.getDeclaredFields(clazz));
+		if (clazz.getClassLoader() == null) {
+			return new java.lang.reflect.Field[0];
+		}
 
-		return stream.filter(
-			field -> !field.isSynthetic()
-		).toArray(
-			java.lang.reflect.Field[]::new
-		);
+		return TransformUtil.transform(
+			ReflectionUtil.getDeclaredFields(clazz),
+			field -> {
+				if (field.isSynthetic()) {
+					return null;
+				}
+
+				return field;
+			},
+			java.lang.reflect.Field.class);
 	}
 
 	protected java.util.Collection<EntityField> getEntityFields()
@@ -396,6 +366,10 @@ public abstract class BaseCollaborateurResourceTestCase {
 		EntityModel entityModel = entityModelResource.getEntityModel(
 			new MultivaluedHashMap());
 
+		if (entityModel == null) {
+			return Collections.emptyList();
+		}
+
 		Map<String, EntityField> entityFieldsMap =
 			entityModel.getEntityFieldsMap();
 
@@ -405,18 +379,18 @@ public abstract class BaseCollaborateurResourceTestCase {
 	protected List<EntityField> getEntityFields(EntityField.Type type)
 		throws Exception {
 
-		java.util.Collection<EntityField> entityFields = getEntityFields();
+		return TransformUtil.transform(
+			getEntityFields(),
+			entityField -> {
+				if (!Objects.equals(entityField.getType(), type) ||
+					ArrayUtil.contains(
+						getIgnoredEntityFieldNames(), entityField.getName())) {
 
-		Stream<EntityField> stream = entityFields.stream();
+					return null;
+				}
 
-		return stream.filter(
-			entityField ->
-				Objects.equals(entityField.getType(), type) &&
-				!ArrayUtil.contains(
-					getIgnoredEntityFieldNames(), entityField.getName())
-		).collect(
-			Collectors.toList()
-		);
+				return entityField;
+			});
 	}
 
 	protected String getFilterString(
@@ -446,7 +420,8 @@ public abstract class BaseCollaborateurResourceTestCase {
 			"application/json");
 		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
 		httpInvoker.path("http://localhost:8080/o/graphql");
-		httpInvoker.userNameAndPassword("test@liferay.com:test");
+		httpInvoker.userNameAndPassword(
+			"test@liferay.com:" + PropsValues.DEFAULT_ADMIN_PASSWORD);
 
 		HttpInvoker.HttpResponse httpResponse = httpInvoker.invoke();
 
@@ -473,30 +448,22 @@ public abstract class BaseCollaborateurResourceTestCase {
 			invoke(queryGraphQLField.toString()));
 	}
 
-	protected DataResult randomDataResult() throws Exception {
-		return new DataResult() {
-			{
-				designation = RandomTestUtil.randomString();
-			}
-		};
-	}
-
 	protected CollaborateurResource collaborateurResource;
-	protected Group irrelevantGroup;
-	protected Company testCompany;
-	protected Group testGroup;
+	protected com.liferay.portal.kernel.model.Group irrelevantGroup;
+	protected com.liferay.portal.kernel.model.Company testCompany;
+	protected com.liferay.portal.kernel.model.Group testGroup;
 
 	protected static class BeanTestUtil {
 
 		public static void copyProperties(Object source, Object target)
 			throws Exception {
 
-			Class<?> sourceClass = _getSuperClass(source.getClass());
+			Class<?> sourceClass = source.getClass();
 
 			Class<?> targetClass = target.getClass();
 
 			for (java.lang.reflect.Field field :
-					sourceClass.getDeclaredFields()) {
+					_getAllDeclaredFields(sourceClass)) {
 
 				if (field.isSynthetic()) {
 					continue;
@@ -505,11 +472,16 @@ public abstract class BaseCollaborateurResourceTestCase {
 				Method getMethod = _getMethod(
 					sourceClass, field.getName(), "get");
 
-				Method setMethod = _getMethod(
-					targetClass, field.getName(), "set",
-					getMethod.getReturnType());
+				try {
+					Method setMethod = _getMethod(
+						targetClass, field.getName(), "set",
+						getMethod.getReturnType());
 
-				setMethod.invoke(target, getMethod.invoke(source));
+					setMethod.invoke(target, getMethod.invoke(source));
+				}
+				catch (Exception e) {
+					continue;
+				}
 			}
 		}
 
@@ -541,6 +513,24 @@ public abstract class BaseCollaborateurResourceTestCase {
 			setMethod.invoke(bean, _translateValue(parameterTypes[0], value));
 		}
 
+		private static List<java.lang.reflect.Field> _getAllDeclaredFields(
+			Class<?> clazz) {
+
+			List<java.lang.reflect.Field> fields = new ArrayList<>();
+
+			while ((clazz != null) && (clazz != Object.class)) {
+				for (java.lang.reflect.Field field :
+						clazz.getDeclaredFields()) {
+
+					fields.add(field);
+				}
+
+				clazz = clazz.getSuperclass();
+			}
+
+			return fields;
+		}
+
 		private static Method _getMethod(Class<?> clazz, String name) {
 			for (Method method : clazz.getMethods()) {
 				if (name.equals(method.getName()) &&
@@ -562,16 +552,6 @@ public abstract class BaseCollaborateurResourceTestCase {
 			return clazz.getMethod(
 				prefix + StringUtil.upperCaseFirstLetter(fieldName),
 				parameterTypes);
-		}
-
-		private static Class<?> _getSuperClass(Class<?> clazz) {
-			Class<?> superClass = clazz.getSuperclass();
-
-			if ((superClass == null) || (superClass == Object.class)) {
-				return clazz;
-			}
-
-			return superClass;
 		}
 
 		private static Object _translateValue(
@@ -669,10 +649,13 @@ public abstract class BaseCollaborateurResourceTestCase {
 	private static final com.liferay.portal.kernel.log.Log _log =
 		LogFactoryUtil.getLog(BaseCollaborateurResourceTestCase.class);
 
-	private static DateFormat _dateFormat;
+	private static Format _format;
+
+	private com.liferay.portal.kernel.model.User _testCompanyAdminUser;
 
 	@Inject
 	private com.oecci.expert.resource.v1_0.CollaborateurResource
 		_collaborateurResource;
 
 }
+// LIFERAY-REST-BUILDER-HASH:327956435
