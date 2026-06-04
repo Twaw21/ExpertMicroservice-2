@@ -24,6 +24,7 @@ import com.liferay.portal.vulcan.util.ActionUtil;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
 import com.oecci.expert.dto.v1_0.CreateDmdExtQuotVisaRequest;
+import com.oecci.expert.dto.v1_0.DataResult;
 import com.oecci.expert.dto.v1_0.StatutRequest;
 import com.oecci.expert.resource.v1_0.VisaResource;
 
@@ -38,6 +39,10 @@ import javax.annotation.Generated;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -47,8 +52,36 @@ import javax.ws.rs.core.UriInfo;
  */
 @Generated("")
 @javax.ws.rs.Path("/v1.0")
-public abstract class BaseVisaResourceImpl
-		implements VisaResource {
+public abstract class BaseVisaResourceImpl implements VisaResource {
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/canSignVisa/{expertId}'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "expertId"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
+	)
+	@javax.ws.rs.GET
+	@javax.ws.rs.Path("/oecci/expert/canSignVisa/{expertId}")
+	@Override
+	public Response canSignVisa(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("expertId")
+			Long expertId)
+		throws Exception {
+
+		return null;
+	}
 
 	/**
 	 * Invoke this method with the command line:
@@ -56,83 +89,22 @@ public abstract class BaseVisaResourceImpl
 	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/visa-quota-exts' -d $'{"expertID": ___, "motif": ___, "ordreExpertID": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Permet de demander l'extension du nombre de visa pouvant etre sign� par un expert"
+		description = "Permet de demander l'extension du nombre de visa pouvant etre signe par un expert"
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
+		value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
 	)
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
 	@javax.ws.rs.Path("/oecci/expert/visa-quota-exts")
 	@javax.ws.rs.POST
 	@javax.ws.rs.Produces({"application/json", "application/xml"})
-	@javax.ws.rs.Consumes({"application/json", "application/xml"})
 	@Override
 	public Response createDemandeExtensionQuotaVisa(
 			CreateDmdExtQuotVisaRequest createDmdExtQuotVisaRequest)
-			throws Exception {
+		throws Exception {
 
 		return null;
 	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/client/visa-quota-exts/validation/{demandeExtId}' -d $'{"motif_refus": ___, "statut": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
-	 */
-	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "demandeExtId"
-					)
-			}
-	)
-	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
-	)
-	@javax.ws.rs.Path("/oecci/client/visa-quota-exts/validation/{demandeExtId}")
-	@javax.ws.rs.POST
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
-	@javax.ws.rs.Consumes({"application/json", "application/xml"})
-	@Override
-	public Response validateDemandeExtQuotaVisa(@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-												@javax.validation.constraints.NotNull
-												@javax.ws.rs.PathParam("demandeExtId")
-												Long demandeExtId,
-												StatutRequest statutRequest)
-			throws Exception {
-
-		return null;
-	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/client-cga/canSignVisa/{expertId}'  -u 'test@liferay.com:test'
-	 */
-	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "expertId"
-					)
-			}
-	)
-	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
-	)
-	@javax.ws.rs.GET
-	@javax.ws.rs.Path("/oecci/client-cga/canSignVisa/{expertId}")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
-	@Override
-	public Response canSignVisa(@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-								@javax.validation.constraints.NotNull
-								@javax.ws.rs.PathParam("expertId")
-								Long expertId)
-			throws Exception {
-
-		return null;
-	}
-
 
 	/**
 	 * Invoke this method with the command line:
@@ -140,46 +112,45 @@ public abstract class BaseVisaResourceImpl
 	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Demandes de visa - endpoint generique"
+		description = "Demandes de visa - endpoint generique"
 	)
 	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "page"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "pageSize"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "filter"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "sort"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "fields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFieldsDepth"
-					)
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "DemandeVisa")}
+		value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/demande-visas")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response getDemandeVisas(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -203,7 +174,7 @@ public abstract class BaseVisaResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("nestedFieldsDepth")
 			Integer nestedFieldsDepth)
-			throws Exception {
+		throws Exception {
 
 		return null;
 	}
@@ -214,50 +185,49 @@ public abstract class BaseVisaResourceImpl
 	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas/by-date'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Demandes de visa par plage de dates"
+		description = "Demandes de visa par plage de dates"
 	)
 	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "dateDebut"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "dateFin"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "page"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "pageSize"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "sort"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "fields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFieldsDepth"
-					)
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "dateDebut"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "dateFin"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "DemandeVisa")}
+		value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/demande-visas/by-date")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response getDemandeVisasByDate(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -284,7 +254,7 @@ public abstract class BaseVisaResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("nestedFieldsDepth")
 			Integer nestedFieldsDepth)
-			throws Exception {
+		throws Exception {
 
 		return null;
 	}
@@ -295,46 +265,45 @@ public abstract class BaseVisaResourceImpl
 	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas/by-expert/{expertId}'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Demandes de visa par expert comptable"
+		description = "Demandes de visa par expert comptable"
 	)
 	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "expertId"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "page"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "pageSize"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "sort"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "fields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFieldsDepth"
-					)
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "expertId"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "DemandeVisa")}
+		value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/demande-visas/by-expert/{expertId}")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response getDemandeVisasByExpert(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -359,7 +328,103 @@ public abstract class BaseVisaResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("nestedFieldsDepth")
 			Integer nestedFieldsDepth)
+		throws Exception {
+
+		return null;
+	}
+
+
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas/by-expert/{expertId}'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+			description = "Demandes de visa par expert comptable"
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+			value = {
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+							name = "ordreExpertId"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "page"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "pageSize"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "statut"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "fields"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "nestedFields"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "nestedFieldsDepth"
+					)
+			}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+			value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
+	)
+	@javax.ws.rs.GET
+	@javax.ws.rs.Path("/oecci/expert/visa-quota-exts/demandes-extension-quota-visa")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Override
+	public Response getDemandesExtensionQuotaVisa(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@QueryParam("ordreExpertId") long   ordreExpertId,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@QueryParam("statut")        String statut,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@QueryParam("page")          @DefaultValue("1")  int page,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@QueryParam("pageSize")      @DefaultValue("20") int pageSize)
 			throws Exception {
+
+		return null;
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/client/visa-quota-exts/validation/{demandeExtId}' -d $'{"motif_refus": ___, "statut": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "demandeExtId"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
+	)
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
+	@javax.ws.rs.Path("/oecci/client/visa-quota-exts/validation/{demandeExtId}")
+	@javax.ws.rs.POST
+	@javax.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public Response validateDemandeExtQuotaVisa(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("demandeExtId")
+			Long demandeExtId,
+			StatutRequest statutRequest)
+		throws Exception {
 
 		return null;
 	}
@@ -369,26 +434,26 @@ public abstract class BaseVisaResourceImpl
 	}
 
 	public void setContextCompany(
-			com.liferay.portal.kernel.model.Company contextCompany) {
+		com.liferay.portal.kernel.model.Company contextCompany) {
 
 		this.contextCompany = contextCompany;
 	}
 
 	public void setContextHttpServletRequest(
-			HttpServletRequest contextHttpServletRequest) {
+		HttpServletRequest contextHttpServletRequest) {
 
 		if ((contextHttpServletRequest != null) &&
-				(contextHttpServletRequest.getAttribute(WebKeys.CTX) == null)) {
+			(contextHttpServletRequest.getAttribute(WebKeys.CTX) == null)) {
 
 			contextHttpServletRequest.setAttribute(
-					WebKeys.CTX, ServletContextPool.get(StringPool.BLANK));
+				WebKeys.CTX, ServletContextPool.get(null));
 		}
 
 		this.contextHttpServletRequest = contextHttpServletRequest;
 	}
 
 	public void setContextHttpServletResponse(
-			HttpServletResponse contextHttpServletResponse) {
+		HttpServletResponse contextHttpServletResponse) {
 
 		this.contextHttpServletResponse = contextHttpServletResponse;
 	}
@@ -398,20 +463,20 @@ public abstract class BaseVisaResourceImpl
 	}
 
 	public void setContextUser(
-			com.liferay.portal.kernel.model.User contextUser) {
+		com.liferay.portal.kernel.model.User contextUser) {
 
 		this.contextUser = contextUser;
 	}
 
 	public void setExpressionConvert(
-			ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
-					expressionConvert) {
+		ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
+			expressionConvert) {
 
 		this.expressionConvert = expressionConvert;
 	}
 
 	public void setFilterParserProvider(
-			FilterParserProvider filterParserProvider) {
+		FilterParserProvider filterParserProvider) {
 
 		this.filterParserProvider = filterParserProvider;
 	}
@@ -421,13 +486,13 @@ public abstract class BaseVisaResourceImpl
 	}
 
 	public void setResourceActionLocalService(
-			ResourceActionLocalService resourceActionLocalService) {
+		ResourceActionLocalService resourceActionLocalService) {
 
 		this.resourceActionLocalService = resourceActionLocalService;
 	}
 
 	public void setResourcePermissionLocalService(
-			ResourcePermissionLocalService resourcePermissionLocalService) {
+		ResourcePermissionLocalService resourcePermissionLocalService) {
 
 		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
@@ -441,70 +506,70 @@ public abstract class BaseVisaResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-			String actionName,
-			com.liferay.portal.kernel.model.GroupedModel groupedModel,
-			String methodName) {
+		String actionName,
+		com.liferay.portal.kernel.model.GroupedModel groupedModel,
+		String methodName) {
 
 		return ActionUtil.addAction(
-				actionName, getClass(), groupedModel, methodName,
-				contextScopeChecker, contextUriInfo);
+			actionName, getClass(), groupedModel, methodName,
+			contextScopeChecker, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
-			String actionName, Long id, String methodName, Long ownerId,
-			String permissionName, Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-				actionName, getClass(), id, methodName, contextScopeChecker,
-				ownerId, permissionName, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
-			String actionName, Long id, String methodName,
-			ModelResourcePermission modelResourcePermission) {
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
 
 		return ActionUtil.addAction(
-				actionName, getClass(), id, methodName, contextScopeChecker,
-				modelResourcePermission, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
-			String actionName, String methodName, String permissionName,
-			Long siteId) {
+		String actionName, String methodName, String permissionName,
+		Long siteId) {
 
 		return addAction(
-				actionName, siteId, methodName, null, permissionName, siteId);
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R, E extends Throwable> List<R> transform(
-			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		return TransformUtil.transform(collection, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> R[] transform(
-			T[] array, UnsafeFunction<T, R, E> unsafeFunction,
-			Class<? extends R> clazz) {
+		T[] array, UnsafeFunction<T, R, E> unsafeFunction,
+		Class<? extends R> clazz) {
 
 		return TransformUtil.transform(array, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> R[] transformToArray(
-			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
-			Class<? extends R> clazz) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
+		Class<? extends R> clazz) {
 
 		return TransformUtil.transformToArray(
-				collection, unsafeFunction, clazz);
+			collection, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> List<R> transformToList(
-			T[] array, UnsafeFunction<T, R, E> unsafeFunction) {
+		T[] array, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		return TransformUtil.transformToList(array, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> long[] transformToLongArray(
-			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		try {
 			return unsafeTransformToLongArray(collection, unsafeFunction);
@@ -516,7 +581,7 @@ public abstract class BaseVisaResourceImpl
 
 	protected <T, R, E extends Throwable> List<R> unsafeTransform(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransform(collection, unsafeFunction);
 	}
@@ -524,7 +589,7 @@ public abstract class BaseVisaResourceImpl
 	protected <T, R, E extends Throwable> R[] unsafeTransform(
 			T[] array, UnsafeFunction<T, R, E> unsafeFunction,
 			Class<? extends R> clazz)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransform(array, unsafeFunction, clazz);
 	}
@@ -532,25 +597,25 @@ public abstract class BaseVisaResourceImpl
 	protected <T, R, E extends Throwable> R[] unsafeTransformToArray(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
 			Class<? extends R> clazz)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransformToArray(
-				collection, unsafeFunction, clazz);
+			collection, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> List<R> unsafeTransformToList(
 			T[] array, UnsafeFunction<T, R, E> unsafeFunction)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransformToList(array, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> long[] unsafeTransformToLongArray(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction)
-			throws E {
+		throws E {
 
 		return (long[])_unsafeTransformToPrimitiveArray(
-				collection, unsafeFunction, long[].class);
+			collection, unsafeFunction, long[].class);
 	}
 
 	protected AcceptLanguage contextAcceptLanguage;
@@ -561,7 +626,7 @@ public abstract class BaseVisaResourceImpl
 	protected UriInfo contextUriInfo;
 	protected com.liferay.portal.kernel.model.User contextUser;
 	protected ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
-			expressionConvert;
+		expressionConvert;
 	protected FilterParserProvider filterParserProvider;
 	protected GroupLocalService groupLocalService;
 	protected ResourceActionLocalService resourceActionLocalService;
@@ -572,12 +637,12 @@ public abstract class BaseVisaResourceImpl
 	private <T, R, E extends Throwable> Object _unsafeTransformToPrimitiveArray(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
 			Class<?> clazz)
-			throws E {
+		throws E {
 
 		List<R> list = unsafeTransform(collection, unsafeFunction);
 
 		Object array = clazz.cast(
-				Array.newInstance(clazz.getComponentType(), list.size()));
+			Array.newInstance(clazz.getComponentType(), list.size()));
 
 		for (int i = 0; i < list.size(); i++) {
 			Array.set(array, i, list.get(i));
@@ -587,7 +652,7 @@ public abstract class BaseVisaResourceImpl
 	}
 
 	private static final com.liferay.portal.kernel.log.Log _log =
-			LogFactoryUtil.getLog(BaseVisaResourceImpl.class);
+		LogFactoryUtil.getLog(BaseVisaResourceImpl.class);
 
 }
-// LIFERAY-REST-BUILDER-HASH:405386187
+// LIFERAY-REST-BUILDER-HASH:-362028721

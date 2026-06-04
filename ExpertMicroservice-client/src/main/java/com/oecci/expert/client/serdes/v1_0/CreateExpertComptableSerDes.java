@@ -5,7 +5,7 @@
 
 package com.oecci.expert.client.serdes.v1_0;
 
-import com.oecci.expert.client.dto.v1_0.CreateExpert_Comptable;
+import com.oecci.expert.client.dto.v1_0.CreateExpertComptable;
 import com.oecci.expert.client.json.BaseJSONParser;
 
 import java.util.Iterator;
@@ -21,24 +21,24 @@ import javax.annotation.Generated;
  * @generated
  */
 @Generated("")
-public class CreateExpert_ComptableSerDes {
+public class CreateExpertComptableSerDes {
 
-	public static CreateExpert_Comptable toDTO(String json) {
-		CreateExpert_ComptableJSONParser createExpert_ComptableJSONParser =
-			new CreateExpert_ComptableJSONParser();
+	public static CreateExpertComptable toDTO(String json) {
+		CreateExpertComptableJSONParser createExpertComptableJSONParser =
+			new CreateExpertComptableJSONParser();
 
-		return createExpert_ComptableJSONParser.parseToDTO(json);
+		return createExpertComptableJSONParser.parseToDTO(json);
 	}
 
-	public static CreateExpert_Comptable[] toDTOs(String json) {
-		CreateExpert_ComptableJSONParser createExpert_ComptableJSONParser =
-			new CreateExpert_ComptableJSONParser();
+	public static CreateExpertComptable[] toDTOs(String json) {
+		CreateExpertComptableJSONParser createExpertComptableJSONParser =
+			new CreateExpertComptableJSONParser();
 
-		return createExpert_ComptableJSONParser.parseToDTOs(json);
+		return createExpertComptableJSONParser.parseToDTOs(json);
 	}
 
-	public static String toJSON(CreateExpert_Comptable createExpert_Comptable) {
-		if (createExpert_Comptable == null) {
+	public static String toJSON(CreateExpertComptable createExpertComptable) {
+		if (createExpertComptable == null) {
 			return "null";
 		}
 
@@ -46,7 +46,7 @@ public class CreateExpert_ComptableSerDes {
 
 		sb.append("{");
 
-		if (createExpert_Comptable.getAdressePostale() != null) {
+		if (createExpertComptable.getAdressePostale() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -55,12 +55,12 @@ public class CreateExpert_ComptableSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(createExpert_Comptable.getAdressePostale()));
+			sb.append(_escape(createExpertComptable.getAdressePostale()));
 
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getAnnee_inscription() != null) {
+		if (createExpertComptable.getAnnee_inscription() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -69,12 +69,12 @@ public class CreateExpert_ComptableSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(createExpert_Comptable.getAnnee_inscription()));
+			sb.append(_escape(createExpertComptable.getAnnee_inscription()));
 
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getContact() != null) {
+		if (createExpertComptable.getContact() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -83,12 +83,12 @@ public class CreateExpert_ComptableSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(createExpert_Comptable.getContact()));
+			sb.append(_escape(createExpertComptable.getContact()));
 
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getEmail() != null) {
+		if (createExpertComptable.getEmail() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -97,22 +97,22 @@ public class CreateExpert_ComptableSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(createExpert_Comptable.getEmail()));
+			sb.append(_escape(createExpertComptable.getEmail()));
 
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getExpertAssoID() != null) {
+		if (createExpertComptable.getExpertAssoID() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
 			sb.append("\"expertAssoID\": ");
 
-			sb.append(createExpert_Comptable.getExpertAssoID());
+			sb.append(createExpertComptable.getExpertAssoID());
 		}
 
-		if (createExpert_Comptable.getInscription_by() != null) {
+		if (createExpertComptable.getInscription_by() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -120,11 +120,11 @@ public class CreateExpert_ComptableSerDes {
 			sb.append("\"inscription_by\": ");
 
 			sb.append("\"");
-			sb.append(createExpert_Comptable.getInscription_by());
+			sb.append(createExpertComptable.getInscription_by());
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getInscription_mode() != null) {
+		if (createExpertComptable.getInscription_mode() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -132,11 +132,11 @@ public class CreateExpert_ComptableSerDes {
 			sb.append("\"inscription_mode\": ");
 
 			sb.append("\"");
-			sb.append(createExpert_Comptable.getInscription_mode());
+			sb.append(createExpertComptable.getInscription_mode());
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getInscription_type() != null) {
+		if (createExpertComptable.getInscription_type() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -144,11 +144,11 @@ public class CreateExpert_ComptableSerDes {
 			sb.append("\"inscription_type\": ");
 
 			sb.append("\"");
-			sb.append(createExpert_Comptable.getInscription_type());
+			sb.append(createExpertComptable.getInscription_type());
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getMatricule() != null) {
+		if (createExpertComptable.getMatricule() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -157,12 +157,12 @@ public class CreateExpert_ComptableSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(createExpert_Comptable.getMatricule()));
+			sb.append(_escape(createExpertComptable.getMatricule()));
 
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getNom() != null) {
+		if (createExpertComptable.getNom() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -171,12 +171,12 @@ public class CreateExpert_ComptableSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(createExpert_Comptable.getNom()));
+			sb.append(_escape(createExpertComptable.getNom()));
 
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getNomCabinet() != null) {
+		if (createExpertComptable.getNomCabinet() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -185,12 +185,12 @@ public class CreateExpert_ComptableSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(createExpert_Comptable.getNomCabinet()));
+			sb.append(_escape(createExpertComptable.getNomCabinet()));
 
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getNumeroCabinet() != null) {
+		if (createExpertComptable.getNumeroCabinet() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -199,12 +199,12 @@ public class CreateExpert_ComptableSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(createExpert_Comptable.getNumeroCabinet()));
+			sb.append(_escape(createExpertComptable.getNumeroCabinet()));
 
 			sb.append("\"");
 		}
 
-		if (createExpert_Comptable.getPrenoms() != null) {
+		if (createExpertComptable.getPrenoms() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
@@ -213,7 +213,7 @@ public class CreateExpert_ComptableSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(createExpert_Comptable.getPrenoms()));
+			sb.append(_escape(createExpertComptable.getPrenoms()));
 
 			sb.append("\"");
 		}
@@ -224,146 +224,146 @@ public class CreateExpert_ComptableSerDes {
 	}
 
 	public static Map<String, Object> toMap(String json) {
-		CreateExpert_ComptableJSONParser createExpert_ComptableJSONParser =
-			new CreateExpert_ComptableJSONParser();
+		CreateExpertComptableJSONParser createExpertComptableJSONParser =
+			new CreateExpertComptableJSONParser();
 
-		return createExpert_ComptableJSONParser.parseToMap(json);
+		return createExpertComptableJSONParser.parseToMap(json);
 	}
 
 	public static Map<String, String> toMap(
-		CreateExpert_Comptable createExpert_Comptable) {
+		CreateExpertComptable createExpertComptable) {
 
-		if (createExpert_Comptable == null) {
+		if (createExpertComptable == null) {
 			return null;
 		}
 
 		Map<String, String> map = new TreeMap<>();
 
-		if (createExpert_Comptable.getAdressePostale() == null) {
+		if (createExpertComptable.getAdressePostale() == null) {
 			map.put("adressePostale", null);
 		}
 		else {
 			map.put(
 				"adressePostale",
-				String.valueOf(createExpert_Comptable.getAdressePostale()));
+				String.valueOf(createExpertComptable.getAdressePostale()));
 		}
 
-		if (createExpert_Comptable.getAnnee_inscription() == null) {
+		if (createExpertComptable.getAnnee_inscription() == null) {
 			map.put("annee_inscription", null);
 		}
 		else {
 			map.put(
 				"annee_inscription",
-				String.valueOf(createExpert_Comptable.getAnnee_inscription()));
+				String.valueOf(createExpertComptable.getAnnee_inscription()));
 		}
 
-		if (createExpert_Comptable.getContact() == null) {
+		if (createExpertComptable.getContact() == null) {
 			map.put("contact", null);
 		}
 		else {
 			map.put(
-				"contact", String.valueOf(createExpert_Comptable.getContact()));
+				"contact", String.valueOf(createExpertComptable.getContact()));
 		}
 
-		if (createExpert_Comptable.getEmail() == null) {
+		if (createExpertComptable.getEmail() == null) {
 			map.put("email", null);
 		}
 		else {
-			map.put("email", String.valueOf(createExpert_Comptable.getEmail()));
+			map.put("email", String.valueOf(createExpertComptable.getEmail()));
 		}
 
-		if (createExpert_Comptable.getExpertAssoID() == null) {
+		if (createExpertComptable.getExpertAssoID() == null) {
 			map.put("expertAssoID", null);
 		}
 		else {
 			map.put(
 				"expertAssoID",
-				String.valueOf(createExpert_Comptable.getExpertAssoID()));
+				String.valueOf(createExpertComptable.getExpertAssoID()));
 		}
 
-		if (createExpert_Comptable.getInscription_by() == null) {
+		if (createExpertComptable.getInscription_by() == null) {
 			map.put("inscription_by", null);
 		}
 		else {
 			map.put(
 				"inscription_by",
-				String.valueOf(createExpert_Comptable.getInscription_by()));
+				String.valueOf(createExpertComptable.getInscription_by()));
 		}
 
-		if (createExpert_Comptable.getInscription_mode() == null) {
+		if (createExpertComptable.getInscription_mode() == null) {
 			map.put("inscription_mode", null);
 		}
 		else {
 			map.put(
 				"inscription_mode",
-				String.valueOf(createExpert_Comptable.getInscription_mode()));
+				String.valueOf(createExpertComptable.getInscription_mode()));
 		}
 
-		if (createExpert_Comptable.getInscription_type() == null) {
+		if (createExpertComptable.getInscription_type() == null) {
 			map.put("inscription_type", null);
 		}
 		else {
 			map.put(
 				"inscription_type",
-				String.valueOf(createExpert_Comptable.getInscription_type()));
+				String.valueOf(createExpertComptable.getInscription_type()));
 		}
 
-		if (createExpert_Comptable.getMatricule() == null) {
+		if (createExpertComptable.getMatricule() == null) {
 			map.put("matricule", null);
 		}
 		else {
 			map.put(
 				"matricule",
-				String.valueOf(createExpert_Comptable.getMatricule()));
+				String.valueOf(createExpertComptable.getMatricule()));
 		}
 
-		if (createExpert_Comptable.getNom() == null) {
+		if (createExpertComptable.getNom() == null) {
 			map.put("nom", null);
 		}
 		else {
-			map.put("nom", String.valueOf(createExpert_Comptable.getNom()));
+			map.put("nom", String.valueOf(createExpertComptable.getNom()));
 		}
 
-		if (createExpert_Comptable.getNomCabinet() == null) {
+		if (createExpertComptable.getNomCabinet() == null) {
 			map.put("nomCabinet", null);
 		}
 		else {
 			map.put(
 				"nomCabinet",
-				String.valueOf(createExpert_Comptable.getNomCabinet()));
+				String.valueOf(createExpertComptable.getNomCabinet()));
 		}
 
-		if (createExpert_Comptable.getNumeroCabinet() == null) {
+		if (createExpertComptable.getNumeroCabinet() == null) {
 			map.put("numeroCabinet", null);
 		}
 		else {
 			map.put(
 				"numeroCabinet",
-				String.valueOf(createExpert_Comptable.getNumeroCabinet()));
+				String.valueOf(createExpertComptable.getNumeroCabinet()));
 		}
 
-		if (createExpert_Comptable.getPrenoms() == null) {
+		if (createExpertComptable.getPrenoms() == null) {
 			map.put("prenoms", null);
 		}
 		else {
 			map.put(
-				"prenoms", String.valueOf(createExpert_Comptable.getPrenoms()));
+				"prenoms", String.valueOf(createExpertComptable.getPrenoms()));
 		}
 
 		return map;
 	}
 
-	public static class CreateExpert_ComptableJSONParser
-		extends BaseJSONParser<CreateExpert_Comptable> {
+	public static class CreateExpertComptableJSONParser
+		extends BaseJSONParser<CreateExpertComptable> {
 
 		@Override
-		protected CreateExpert_Comptable createDTO() {
-			return new CreateExpert_Comptable();
+		protected CreateExpertComptable createDTO() {
+			return new CreateExpertComptable();
 		}
 
 		@Override
-		protected CreateExpert_Comptable[] createDTOArray(int size) {
-			return new CreateExpert_Comptable[size];
+		protected CreateExpertComptable[] createDTOArray(int size) {
+			return new CreateExpertComptable[size];
 		}
 
 		@Override
@@ -413,86 +413,86 @@ public class CreateExpert_ComptableSerDes {
 
 		@Override
 		protected void setField(
-			CreateExpert_Comptable createExpert_Comptable,
+			CreateExpertComptable createExpertComptable,
 			String jsonParserFieldName, Object jsonParserFieldValue) {
 
 			if (Objects.equals(jsonParserFieldName, "adressePostale")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setAdressePostale(
+					createExpertComptable.setAdressePostale(
 						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "annee_inscription")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setAnnee_inscription(
+					createExpertComptable.setAnnee_inscription(
 						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "contact")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setContact(
+					createExpertComptable.setContact(
 						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "email")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setEmail(
+					createExpertComptable.setEmail(
 						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "expertAssoID")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setExpertAssoID(
+					createExpertComptable.setExpertAssoID(
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "inscription_by")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setInscription_by(
-						CreateExpert_Comptable.Inscription_by.create(
+					createExpertComptable.setInscription_by(
+						CreateExpertComptable.Inscription_by.create(
 							(String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "inscription_mode")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setInscription_mode(
-						CreateExpert_Comptable.Inscription_mode.create(
+					createExpertComptable.setInscription_mode(
+						CreateExpertComptable.Inscription_mode.create(
 							(String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "inscription_type")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setInscription_type(
-						CreateExpert_Comptable.Inscription_type.create(
+					createExpertComptable.setInscription_type(
+						CreateExpertComptable.Inscription_type.create(
 							(String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "matricule")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setMatricule(
+					createExpertComptable.setMatricule(
 						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "nom")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setNom((String)jsonParserFieldValue);
+					createExpertComptable.setNom((String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "nomCabinet")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setNomCabinet(
+					createExpertComptable.setNomCabinet(
 						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "numeroCabinet")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setNumeroCabinet(
+					createExpertComptable.setNumeroCabinet(
 						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "prenoms")) {
 				if (jsonParserFieldValue != null) {
-					createExpert_Comptable.setPrenoms(
+					createExpertComptable.setPrenoms(
 						(String)jsonParserFieldValue);
 				}
 			}
@@ -577,4 +577,4 @@ public class CreateExpert_ComptableSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-703033928
+// LIFERAY-REST-BUILDER-HASH:-263411684

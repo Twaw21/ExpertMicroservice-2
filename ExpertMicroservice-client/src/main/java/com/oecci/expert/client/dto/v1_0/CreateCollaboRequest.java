@@ -304,4 +304,4 @@ public class CreateCollaboRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1600572130
+// LIFERAY-REST-BUILDER-HASH:-270687597

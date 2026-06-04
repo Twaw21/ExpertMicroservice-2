@@ -142,4 +142,4 @@ public class CreateForwardRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:69803093
+// LIFERAY-REST-BUILDER-HASH:-891840793

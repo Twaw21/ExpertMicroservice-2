@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
@@ -95,7 +96,8 @@ public abstract class BaseVisaResourceTestCase {
 			_testCompanyAdminUser.getEmailAddress(),
 			PropsValues.DEFAULT_ADMIN_PASSWORD
 		).endpoint(
-			testCompany.getVirtualHostname(), 8080, "http"
+			testCompany.getVirtualHostname(),
+			PortalUtil.getPortalServerPort(false), "http"
 		).locale(
 			LocaleUtil.getDefault()
 		).build();
@@ -105,6 +107,11 @@ public abstract class BaseVisaResourceTestCase {
 	public void tearDown() throws Exception {
 		GroupTestUtil.deleteGroup(irrelevantGroup);
 		GroupTestUtil.deleteGroup(testGroup);
+	}
+
+	@Test
+	public void testCanSignVisa() throws Exception {
+		Assert.assertTrue(false);
 	}
 
 	@Test
@@ -120,27 +127,6 @@ public abstract class BaseVisaResourceTestCase {
 	@Test
 	public void testGetDemandeVisasByExpert() throws Exception {
 		Assert.assertTrue(false);
-	}
-
-	@Test
-	public void testCanSignVisa() throws Exception {
-		Visa postVisa = testGetVisa_addVisa();
-
-		DataResult postDataResult = testCanSignVisa_addDataResult(
-			postVisa.getVisaId(), randomDataResult());
-
-		DataResult getDataResult = visaResource.canSignVisa(
-			postVisa.getVisaId());
-
-		assertEquals(postDataResult, getDataResult);
-		assertValid(getDataResult);
-	}
-
-	protected DataResult testCanSignVisa_addDataResult(
-			long visaId, DataResult dataResult)
-		throws Exception {
-
-		return visaResource.canSignVisa(visaId, dataResult);
 	}
 
 	@Test
@@ -500,7 +486,9 @@ public abstract class BaseVisaResourceTestCase {
 			).toString(),
 			"application/json");
 		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
-		httpInvoker.path("http://localhost:8080/o/graphql");
+		httpInvoker.path(
+			"http://localhost:" + PortalUtil.getPortalServerPort(false) +
+				"/o/graphql");
 		httpInvoker.userNameAndPassword(
 			"test@liferay.com:" + PropsValues.DEFAULT_ADMIN_PASSWORD);
 
@@ -746,4 +734,4 @@ public abstract class BaseVisaResourceTestCase {
 	private com.oecci.expert.resource.v1_0.VisaResource _visaResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1521216606
+// LIFERAY-REST-BUILDER-HASH:6277545

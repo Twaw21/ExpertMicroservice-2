@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
@@ -93,7 +94,8 @@ public abstract class BaseCollaborateurResourceTestCase {
 			_testCompanyAdminUser.getEmailAddress(),
 			PropsValues.DEFAULT_ADMIN_PASSWORD
 		).endpoint(
-			testCompany.getVirtualHostname(), 8080, "http"
+			testCompany.getVirtualHostname(),
+			PortalUtil.getPortalServerPort(false), "http"
 		).locale(
 			LocaleUtil.getDefault()
 		).build();
@@ -122,6 +124,11 @@ public abstract class BaseCollaborateurResourceTestCase {
 
 	@Test
 	public void testGetCollaborateurs() throws Exception {
+		Assert.assertTrue(false);
+	}
+
+	@Test
+	public void testUpdateCollabos() throws Exception {
 		Assert.assertTrue(false);
 	}
 
@@ -419,7 +426,9 @@ public abstract class BaseCollaborateurResourceTestCase {
 			).toString(),
 			"application/json");
 		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
-		httpInvoker.path("http://localhost:8080/o/graphql");
+		httpInvoker.path(
+			"http://localhost:" + PortalUtil.getPortalServerPort(false) +
+				"/o/graphql");
 		httpInvoker.userNameAndPassword(
 			"test@liferay.com:" + PropsValues.DEFAULT_ADMIN_PASSWORD);
 
@@ -658,4 +667,4 @@ public abstract class BaseCollaborateurResourceTestCase {
 		_collaborateurResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:327956435
+// LIFERAY-REST-BUILDER-HASH:1712786668

@@ -5,10 +5,12 @@
 
 package com.oecci.expert.client.resource.v1_0;
 
-import com.oecci.expert.client.dto.v1_0.CreateExpert_Comptable;
+import com.oecci.expert.client.dto.v1_0.CreateExpertComptable;
 import com.oecci.expert.client.dto.v1_0.LoadVisualRequest;
 import com.oecci.expert.client.dto.v1_0.ReloadWalletRequest;
 import com.oecci.expert.client.dto.v1_0.StatutRequest;
+import com.oecci.expert.client.dto.v1_0.UpdateCabinetRequest;
+import com.oecci.expert.client.dto.v1_0.UpdateExpertRequest;
 import com.oecci.expert.client.http.HttpInvoker;
 import com.oecci.expert.client.pagination.Pagination;
 import com.oecci.expert.client.problem.Problem;
@@ -36,25 +38,19 @@ public interface Expert_ComptableResource {
 	}
 
 	public void createExpertComptable(
-			CreateExpert_Comptable createExpert_Comptable)
+			CreateExpertComptable createExpertComptable)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse createExpertComptableHttpResponse(
-			CreateExpert_Comptable createExpert_Comptable)
-		throws Exception;
-
-	public String getAllExperts(Integer expertPageSize) throws Exception;
-
-	public HttpInvoker.HttpResponse getAllExpertsHttpResponse(
-			Integer expertPageSize)
+			CreateExpertComptable createExpertComptable)
 		throws Exception;
 
 	public String getExpertComptableById(
-			Long Expert_ComptableId, Integer nestedFieldsDepth)
+			Long expertComptableId, Integer nestedFieldsDepth)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getExpertComptableByIdHttpResponse(
-			Long Expert_ComptableId, Integer nestedFieldsDepth)
+			Long expertComptableId, Integer nestedFieldsDepth)
 		throws Exception;
 
 	public String getExpertComptables(
@@ -78,11 +74,11 @@ public interface Expert_ComptableResource {
 		throws Exception;
 
 	public void loadSignVisual(
-			Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+			Long expertComptableId, LoadVisualRequest loadVisualRequest)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse loadSignVisualHttpResponse(
-			Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+			Long expertComptableId, LoadVisualRequest loadVisualRequest)
 		throws Exception;
 
 	public void reloadWallet(ReloadWalletRequest reloadWalletRequest)
@@ -92,12 +88,28 @@ public interface Expert_ComptableResource {
 			ReloadWalletRequest reloadWalletRequest)
 		throws Exception;
 
+	public void updateCabinet(
+			Long cabinetId, UpdateCabinetRequest updateCabinetRequest)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse updateCabinetHttpResponse(
+			Long cabinetId, UpdateCabinetRequest updateCabinetRequest)
+		throws Exception;
+
+	public void updateExpertComptable(
+			Long expertComptableId, UpdateExpertRequest updateExpertRequest)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse updateExpertComptableHttpResponse(
+			Long expertComptableId, UpdateExpertRequest updateExpertRequest)
+		throws Exception;
+
 	public void validateExpertComptable(
-			Long Expert_ComptableID, StatutRequest statutRequest)
+			Long expertComptableId, StatutRequest statutRequest)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse validateExpertComptableHttpResponse(
-			Long Expert_ComptableID, StatutRequest statutRequest)
+			Long expertComptableId, StatutRequest statutRequest)
 		throws Exception;
 
 	public static class Builder {
@@ -210,11 +222,11 @@ public interface Expert_ComptableResource {
 		implements Expert_ComptableResource {
 
 		public void createExpertComptable(
-				CreateExpert_Comptable createExpert_Comptable)
+				CreateExpertComptable createExpertComptable)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
-				createExpertComptableHttpResponse(createExpert_Comptable);
+				createExpertComptableHttpResponse(createExpertComptable);
 
 			String content = httpResponse.getContent();
 
@@ -265,13 +277,13 @@ public interface Expert_ComptableResource {
 		}
 
 		public HttpInvoker.HttpResponse createExpertComptableHttpResponse(
-				CreateExpert_Comptable createExpert_Comptable)
+				CreateExpertComptable createExpertComptable)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
 			httpInvoker.body(
-				createExpert_Comptable.toString(), "application/json");
+				createExpertComptable.toString(), "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(
@@ -305,116 +317,13 @@ public interface Expert_ComptableResource {
 			return httpInvoker.invoke();
 		}
 
-		public String getAllExperts(Integer expertPageSize) throws Exception {
-			HttpInvoker.HttpResponse httpResponse = getAllExpertsHttpResponse(
-				expertPageSize);
-
-			String content = httpResponse.getContent();
-
-			if ((httpResponse.getStatusCode() / 100) != 2) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response content: " + content);
-				_logger.log(
-					Level.WARNING,
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.log(
-					Level.WARNING,
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-
-				Problem.ProblemException problemException = null;
-
-				if (Objects.equals(
-						httpResponse.getContentType(), "application/json")) {
-
-					problemException = new Problem.ProblemException(
-						Problem.toDTO(content));
-				}
-				else {
-					_logger.log(
-						Level.WARNING,
-						"Unable to process content type: " +
-							httpResponse.getContentType());
-
-					Problem problem = new Problem();
-
-					problem.setStatus(
-						String.valueOf(httpResponse.getStatusCode()));
-
-					problemException = new Problem.ProblemException(problem);
-				}
-
-				throw problemException;
-			}
-			else {
-				_logger.fine("HTTP response content: " + content);
-				_logger.fine(
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.fine(
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-			}
-
-			try {
-				return content;
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-		}
-
-		public HttpInvoker.HttpResponse getAllExpertsHttpResponse(
-				Integer expertPageSize)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/readall/{expertPageSize}");
-
-			httpInvoker.path("expertPageSize", expertPageSize);
-
-			if ((_builder._login != null) && (_builder._password != null)) {
-				httpInvoker.userNameAndPassword(
-					_builder._login + ":" + _builder._password);
-			}
-
-			return httpInvoker.invoke();
-		}
-
 		public String getExpertComptableById(
-				Long Expert_ComptableId, Integer nestedFieldsDepth)
+				Long expertComptableId, Integer nestedFieldsDepth)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getExpertComptableByIdHttpResponse(
-					Expert_ComptableId, nestedFieldsDepth);
+					expertComptableId, nestedFieldsDepth);
 
 			String content = httpResponse.getContent();
 
@@ -476,7 +385,7 @@ public interface Expert_ComptableResource {
 		}
 
 		public HttpInvoker.HttpResponse getExpertComptableByIdHttpResponse(
-				Long Expert_ComptableId, Integer nestedFieldsDepth)
+				Long expertComptableId, Integer nestedFieldsDepth)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -508,9 +417,9 @@ public interface Expert_ComptableResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/{Expert_ComptableId}");
+						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/{expertComptableId}");
 
-			httpInvoker.path("Expert_ComptableId", Expert_ComptableId);
+			httpInvoker.path("expertComptableId", expertComptableId);
 
 			if ((_builder._login != null) && (_builder._password != null)) {
 				httpInvoker.userNameAndPassword(
@@ -780,11 +689,11 @@ public interface Expert_ComptableResource {
 		}
 
 		public void loadSignVisual(
-				Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+				Long expertComptableId, LoadVisualRequest loadVisualRequest)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse = loadSignVisualHttpResponse(
-				Expert_ComptableID, loadVisualRequest);
+				expertComptableId, loadVisualRequest);
 
 			String content = httpResponse.getContent();
 
@@ -835,7 +744,7 @@ public interface Expert_ComptableResource {
 		}
 
 		public HttpInvoker.HttpResponse loadSignVisualHttpResponse(
-				Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+				Long expertComptableId, LoadVisualRequest loadVisualRequest)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -864,9 +773,9 @@ public interface Expert_ComptableResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/load-visual/{Expert_ComptableID}");
+						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/load-visual/{expertComptableId}");
 
-			httpInvoker.path("Expert_ComptableID", Expert_ComptableID);
+			httpInvoker.path("expertComptableId", expertComptableId);
 
 			if ((_builder._login != null) && (_builder._password != null)) {
 				httpInvoker.userNameAndPassword(
@@ -971,13 +880,210 @@ public interface Expert_ComptableResource {
 			return httpInvoker.invoke();
 		}
 
+		public void updateCabinet(
+				Long cabinetId, UpdateCabinetRequest updateCabinetRequest)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse = updateCabinetHttpResponse(
+				cabinetId, updateCabinetRequest);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+		}
+
+		public HttpInvoker.HttpResponse updateCabinetHttpResponse(
+				Long cabinetId, UpdateCabinetRequest updateCabinetRequest)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				updateCabinetRequest.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert/cabinet/update/{cabinetId}");
+
+			httpInvoker.path("cabinetId", cabinetId);
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
+		public void updateExpertComptable(
+				Long expertComptableId, UpdateExpertRequest updateExpertRequest)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				updateExpertComptableHttpResponse(
+					expertComptableId, updateExpertRequest);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+		}
+
+		public HttpInvoker.HttpResponse updateExpertComptableHttpResponse(
+				Long expertComptableId, UpdateExpertRequest updateExpertRequest)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				updateExpertRequest.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/update/{expertComptableId}");
+
+			httpInvoker.path("expertComptableId", expertComptableId);
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
 		public void validateExpertComptable(
-				Long Expert_ComptableID, StatutRequest statutRequest)
+				Long expertComptableId, StatutRequest statutRequest)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				validateExpertComptableHttpResponse(
-					Expert_ComptableID, statutRequest);
+					expertComptableId, statutRequest);
 
 			String content = httpResponse.getContent();
 
@@ -1028,7 +1134,7 @@ public interface Expert_ComptableResource {
 		}
 
 		public HttpInvoker.HttpResponse validateExpertComptableHttpResponse(
-				Long Expert_ComptableID, StatutRequest statutRequest)
+				Long expertComptableId, StatutRequest statutRequest)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -1057,9 +1163,9 @@ public interface Expert_ComptableResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/validation/{Expert_ComptableID}");
+						"/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/validation/{expertComptableId}");
 
-			httpInvoker.path("Expert_ComptableID", Expert_ComptableID);
+			httpInvoker.path("expertComptableId", expertComptableId);
 
 			if ((_builder._login != null) && (_builder._password != null)) {
 				httpInvoker.userNameAndPassword(
@@ -1081,4 +1187,4 @@ public interface Expert_ComptableResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1028284098
+// LIFERAY-REST-BUILDER-HASH:2102007566

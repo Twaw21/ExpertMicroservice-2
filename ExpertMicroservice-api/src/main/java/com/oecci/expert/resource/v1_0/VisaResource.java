@@ -16,7 +16,6 @@ import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
 import com.oecci.expert.dto.v1_0.CreateDmdExtQuotVisaRequest;
-import com.oecci.expert.dto.v1_0.DataResult;
 import com.oecci.expert.dto.v1_0.StatutRequest;
 
 import java.util.Collections;
@@ -29,6 +28,7 @@ import javax.annotation.Generated;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -45,31 +45,35 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface VisaResource {
 
-	public DataResult canSignVisa(Long expertId) throws Exception;
+	public Response canSignVisa(Long expertId) throws Exception;
 
-	public DataResult createDemandeExtensionQuotaVisa(
+	public Response createDemandeExtensionQuotaVisa(
 			CreateDmdExtQuotVisaRequest createDmdExtQuotVisaRequest)
 		throws Exception;
 
-	public String getDemandeVisas(
-			Integer nestedFieldsDepth,
-			com.liferay.portal.kernel.search.filter.Filter filter,
-			Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getDemandesExtensionQuotaVisa(
+			long   ordreExpertId,
+			String statut,
+			int page,
+			int pageSize)
 		throws Exception;
 
-	public String getDemandeVisasByDate(
-			String dateDebut, String dateFin, Integer nestedFieldsDepth,
-			Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getDemandeVisas(
+			Integer page, Integer pageSize, String filter, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public String getDemandeVisasByExpert(
-			Long expertId, Integer nestedFieldsDepth, Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getDemandeVisasByDate(
+			String dateDebut, String dateFin, Integer page, Integer pageSize, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public DataResult validateDemandeExtQuotaVisa(
+	public Response getDemandeVisasByExpert(
+			Long expertId, Integer page, Integer pageSize, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
+		throws Exception;
+
+	public Response validateDemandeExtQuotaVisa(
 			Long demandeExtId, StatutRequest statutRequest)
 		throws Exception;
 
@@ -161,4 +165,4 @@ public interface VisaResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-940777028
+// LIFERAY-REST-BUILDER-HASH:1510164705

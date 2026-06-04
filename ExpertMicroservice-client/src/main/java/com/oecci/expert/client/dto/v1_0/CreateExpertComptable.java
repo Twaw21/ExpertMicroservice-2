@@ -6,7 +6,7 @@
 package com.oecci.expert.client.dto.v1_0;
 
 import com.oecci.expert.client.function.UnsafeSupplier;
-import com.oecci.expert.client.serdes.v1_0.CreateExpert_ComptableSerDes;
+import com.oecci.expert.client.serdes.v1_0.CreateExpertComptableSerDes;
 
 import java.io.Serializable;
 
@@ -19,10 +19,10 @@ import javax.annotation.Generated;
  * @generated
  */
 @Generated("")
-public class CreateExpert_Comptable implements Cloneable, Serializable {
+public class CreateExpertComptable implements Cloneable, Serializable {
 
-	public static CreateExpert_Comptable toDTO(String json) {
-		return CreateExpert_ComptableSerDes.toDTO(json);
+	public static CreateExpertComptable toDTO(String json) {
+		return CreateExpertComptableSerDes.toDTO(json);
 	}
 
 	public String getAdressePostale() {
@@ -324,8 +324,8 @@ public class CreateExpert_Comptable implements Cloneable, Serializable {
 	protected String prenoms;
 
 	@Override
-	public CreateExpert_Comptable clone() throws CloneNotSupportedException {
-		return (CreateExpert_Comptable)super.clone();
+	public CreateExpertComptable clone() throws CloneNotSupportedException {
+		return (CreateExpertComptable)super.clone();
 	}
 
 	@Override
@@ -334,14 +334,14 @@ public class CreateExpert_Comptable implements Cloneable, Serializable {
 			return true;
 		}
 
-		if (!(object instanceof CreateExpert_Comptable)) {
+		if (!(object instanceof CreateExpertComptable)) {
 			return false;
 		}
 
-		CreateExpert_Comptable createExpert_Comptable =
-			(CreateExpert_Comptable)object;
+		CreateExpertComptable createExpertComptable =
+			(CreateExpertComptable)object;
 
-		return Objects.equals(toString(), createExpert_Comptable.toString());
+		return Objects.equals(toString(), createExpertComptable.toString());
 	}
 
 	@Override
@@ -352,7 +352,7 @@ public class CreateExpert_Comptable implements Cloneable, Serializable {
 	}
 
 	public String toString() {
-		return CreateExpert_ComptableSerDes.toJSON(this);
+		return CreateExpertComptableSerDes.toJSON(this);
 	}
 
 	public static enum Inscription_by {
@@ -458,4 +458,4 @@ public class CreateExpert_Comptable implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:669008824
+// LIFERAY-REST-BUILDER-HASH:-2095760019

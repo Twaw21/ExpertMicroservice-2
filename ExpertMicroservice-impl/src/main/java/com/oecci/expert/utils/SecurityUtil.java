@@ -224,7 +224,6 @@ public class SecurityUtil {
 			result.put("data", "");
 			System.out.println("> Returning response");
 		}
-		_log.info("password unencrypted : "+user.getPasswordUnencrypted());
 		return user;
 		} catch (PortalException e) {
 			// TODO Auto-generated catch block

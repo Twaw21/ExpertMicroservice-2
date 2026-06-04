@@ -46,16 +46,6 @@ public class ReloadWalletRequestSerDes {
 
 		sb.append("{");
 
-		if (reloadWalletRequest.getExpert_ComptableID() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"Expert_ComptableID\": ");
-
-			sb.append(reloadWalletRequest.getExpert_ComptableID());
-		}
-
 		if (reloadWalletRequest.getAmount() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -64,6 +54,16 @@ public class ReloadWalletRequestSerDes {
 			sb.append("\"amount\": ");
 
 			sb.append(reloadWalletRequest.getAmount());
+		}
+
+		if (reloadWalletRequest.getExpertComptableID() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"expertComptableID\": ");
+
+			sb.append(reloadWalletRequest.getExpertComptableID());
 		}
 
 		if (reloadWalletRequest.getPaymentID() != null) {
@@ -107,20 +107,20 @@ public class ReloadWalletRequestSerDes {
 
 		Map<String, String> map = new TreeMap<>();
 
-		if (reloadWalletRequest.getExpert_ComptableID() == null) {
-			map.put("Expert_ComptableID", null);
-		}
-		else {
-			map.put(
-				"Expert_ComptableID",
-				String.valueOf(reloadWalletRequest.getExpert_ComptableID()));
-		}
-
 		if (reloadWalletRequest.getAmount() == null) {
 			map.put("amount", null);
 		}
 		else {
 			map.put("amount", String.valueOf(reloadWalletRequest.getAmount()));
+		}
+
+		if (reloadWalletRequest.getExpertComptableID() == null) {
+			map.put("expertComptableID", null);
+		}
+		else {
+			map.put(
+				"expertComptableID",
+				String.valueOf(reloadWalletRequest.getExpertComptableID()));
 		}
 
 		if (reloadWalletRequest.getPaymentID() == null) {
@@ -158,10 +158,10 @@ public class ReloadWalletRequestSerDes {
 
 		@Override
 		protected boolean parseMaps(String jsonParserFieldName) {
-			if (Objects.equals(jsonParserFieldName, "Expert_ComptableID")) {
+			if (Objects.equals(jsonParserFieldName, "amount")) {
 				return false;
 			}
-			else if (Objects.equals(jsonParserFieldName, "amount")) {
+			else if (Objects.equals(jsonParserFieldName, "expertComptableID")) {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "paymentID")) {
@@ -179,15 +179,15 @@ public class ReloadWalletRequestSerDes {
 			ReloadWalletRequest reloadWalletRequest, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "Expert_ComptableID")) {
+			if (Objects.equals(jsonParserFieldName, "amount")) {
 				if (jsonParserFieldValue != null) {
-					reloadWalletRequest.setExpert_ComptableID(
+					reloadWalletRequest.setAmount(
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "amount")) {
+			else if (Objects.equals(jsonParserFieldName, "expertComptableID")) {
 				if (jsonParserFieldValue != null) {
-					reloadWalletRequest.setAmount(
+					reloadWalletRequest.setExpertComptableID(
 						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
@@ -284,4 +284,4 @@ public class ReloadWalletRequestSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1644395048
+// LIFERAY-REST-BUILDER-HASH:-1002722711

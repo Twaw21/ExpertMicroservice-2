@@ -295,4 +295,4 @@ public class CreateForwardRequestSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-473283420
+// LIFERAY-REST-BUILDER-HASH:360722806

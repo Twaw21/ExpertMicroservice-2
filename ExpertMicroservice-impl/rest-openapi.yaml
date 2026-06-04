@@ -26,6 +26,31 @@ paths:
           $ref: '#/components/responses/DataResult201'
       tags: ["Collaborateur"]
 
+  /oecci/expert/collaborateurs/update/{collaborateurId}:
+    post:
+      operationId: updateCollabo
+      description: Permet de mettre a jour un collaborateur.
+      parameters:
+        - name: collaborateurId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCollaboRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UpdateCollaboRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/DataResult201'
+      tags: ["Collaborateur"]
+
   /oecci/expert/collaborateurs/get:
     get:
       operationId: getCollaborateurs
@@ -97,21 +122,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExpert_Comptable'
+              $ref: '#/components/schemas/CreateExpertComptable'   # CORRIGE: etait CreateExpert_Comptable
           application/xml:
             schema:
-              $ref: '#/components/schemas/CreateExpert_Comptable'
+              $ref: '#/components/schemas/CreateExpertComptable'   # CORRIGE: etait CreateExpert_Comptable
       responses:
         '201':
           $ref: '#/components/responses/DataResult201'
       tags: ["Expert_Comptable"]
 
-  /oecci/expert/experts-comptables/update/{Expert_ComptableID}:
+  /oecci/expert/experts-comptables/update/{expertComptableId}:
     post:
       operationId: updateExpertComptable
-      description: Mettre à jour les infos d'un expert comptable
+      description: Mettre a jour les infos d'un expert comptable
       parameters:
-        - name: Expert_ComptableID
+        - name: expertComptableId
           in: path
           required: true
           schema:
@@ -122,21 +147,46 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/updateExpertRequest'
+              $ref: '#/components/schemas/UpdateExpertRequest'   # CORRIGE: etait updateExpertRequest
           application/xml:
             schema:
-              $ref: '#/components/schemas/updateExpertRequest'
+              $ref: '#/components/schemas/UpdateExpertRequest'   # CORRIGE: etait updateExpertRequest
       responses:
         '201':
           $ref: '#/components/responses/DataResult201'
       tags: ["Expert_Comptable"]
 
-  /oecci/expert/experts-comptables/validation/{Expert_ComptableID}:
+  /oecci/expert/cabinet/update/{cabinetId}:
+    post:
+      operationId: updateCabinet
+      description: Mettre a jour les infos d'un cabinet
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCabinetRequest'   # CORRIGE: etait updateCabinetRequest
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UpdateCabinetRequest'   # CORRIGE: etait updateCabinetRequest
+      responses:
+        '201':
+          $ref: '#/components/responses/DataResult201'
+      tags: ["Expert_Comptable"]
+
+  /oecci/expert/experts-comptables/validation/{expertComptableId}:
     post:
       operationId: validateExpertComptable
       description: Valider ou invalider l'inscription d'un expert comptable
       parameters:
-        - name: Expert_ComptableID
+        - name: expertComptableId
           in: path
           required: true
           schema:
@@ -156,12 +206,12 @@ paths:
           $ref: '#/components/responses/DataResult201'
       tags: ["Expert_Comptable"]
 
-  /oecci/expert/experts-comptables/load-visual/{Expert_ComptableID}:
+  /oecci/expert/experts-comptables/load-visual/{expertComptableId}:
     post:
       operationId: loadSignVisual
       description: Charger le visuel de signature d'un expert comptable
       parameters:
-        - name: Expert_ComptableID
+        - name: expertComptableId
           in: path
           required: true
           schema:
@@ -181,12 +231,12 @@ paths:
           $ref: '#/components/responses/DataResult201'
       tags: ["Expert_Comptable"]
 
-  /oecci/expert/experts-comptables/{Expert_ComptableId}:
+  /oecci/expert/experts-comptables/{expertComptableId}:
     get:
       operationId: getExpertComptableById
       description: Expert comptable par ID
       parameters:
-        - name: Expert_ComptableId
+        - name: expertComptableId
           in: path
           required: true
           schema:
@@ -222,8 +272,8 @@ paths:
         - $ref: '#/components/parameters/nestedFields'
         - $ref: '#/components/parameters/nestedFieldsDepth'
       responses:
-        '200':
-          $ref: '#/components/responses/DataResult200'
+        '201':
+          $ref: '#/components/responses/DataResult201'
       tags: ["Expert_Comptable"]
 
   /oecci/expert:
@@ -304,12 +354,12 @@ paths:
           $ref: '#/components/responses/DataResult201'
       tags: ["Transfert_Client"]
 
-  /oecci/expert/transfert-client/by-destinataire/{Expert_ComptableId}:
+  /oecci/expert/transfert-client/by-destinataire/{expertComptableId}:
     get:
       operationId: getDemandesTransfertByDestinataire
       description: Demandes de transfert par expert destinataire
       parameters:
-        - name: Expert_ComptableId
+        - name: expertComptableId
           in: path
           required: true
           schema:
@@ -327,12 +377,12 @@ paths:
           $ref: '#/components/responses/DataResult200'
       tags: ["Transfert_Client"]
 
-  /oecci/expert/transfert-client/by-expediteur/{Expert_ComptableId}:
+  /oecci/expert/transfert-client/by-expediteur/{expertComptableId}:
     get:
       operationId: getDemandesTransfertByExpediteur
       description: Demandes de transfert par expert expediteur
       parameters:
-        - name: Expert_ComptableId
+        - name: expertComptableId
           in: path
           required: true
           schema:
@@ -429,10 +479,10 @@ paths:
         '200':
           $ref: '#/components/responses/DataResult200'
       tags: ["Visa"]
-      
+
   /oecci/expert/visa-quota-exts:
     post:
-      description: Permet de demander l'extension du nombre de visa pouvant etre sign� par un expert
+      description: Permet de demander l'extension du nombre de visa pouvant etre signe par un expert
       operationId: createDemandeExtensionQuotaVisa
       requestBody:
         required: true
@@ -453,11 +503,93 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/DataResult"
-      tags: [ "Visa" ]
+      tags: ["Visa"]
 
-  /oecci/client/visa-quota-exts/validation/{demandeExtId}:
+  /oecci/expert/visa-quota-exts/demandes-extension-quota-visa:
+    get:
+    summary: Lister les demandes d'extension de quota visa d'un admin de l'ordre
+    operationId: getDemandesExtensionQuotaVisa
+    description: >
+      Retourne la liste paginée des demandes d'extension de quota visa
+      adressées à un administrateur de l'ordre donné.
+      
+      
+      Chaque entrée est enrichie avec :
+        - les données de l'expert demandeur (nom, email, contact)
+        - le compteur de visas courant de l'expert (signés, restants, plafonds)
+      
+      
+      Un bloc `statusCounts` est retourné pour afficher les compteurs
+      par statut dans le tableau de bord de l'administrateur.
+      
+      
+      **Filtrage par statut :**
+      Passer le paramètre `statut` pour ne voir que les demandes
+      d'un statut donné (ex. `eNCOURS` pour les demandes en attente).
+      Si absent, toutes les demandes sont retournées.
+    tags:
+      - Extension Quota Visa
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: ordreExpertId
+        in: query
+        required: true
+        description: Identifiant (objectEntryId) de l'administrateur de l'ordre
+        schema:
+          type: integer
+          format: int64
+          example: 10045
+      - name: statut
+        in: query
+        required: false
+        description: >
+          Filtre optionnel sur le statut de la demande.
+          Valeurs possibles : `eNCOURS`, `aCCEPTE`, `rEFUSE`.
+          Si absent, toutes les demandes sont retournées.
+        schema:
+          type: string
+          enum: [eNCOURS, aCCEPTE, rEFUSE]
+          example: eNCOURS
+      - name: page
+        in: query
+        required: false
+        description: Numéro de page (base 1). Défaut  1.
+        schema:
+          type: integer
+          format: int32
+          default: 1
+          minimum: 1
+          example: 1
+      - name: pageSize
+        in: query
+        required: false
+        description: Nombre item par page. Defaut 20. Maximum  100.
+        schema:
+          type: integer
+          format: int32
+          default: 20
+          minimum: 1
+          maximum: 100
+          example: 20
+
+    responses:
+      '201':
+        description: Réponse unique pour tous les cas métier.
+          Le champ `code` et `message` détaillent le résultat.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataResult"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/DataResult"
+      tags: ["Visa"]
+
+
+  /oecci/expert/visa-quota-exts/validation/{demandeExtId}:
     post:
-      summary: Valider/Invalider la demande d'extension de quota visa sign�
+      summary: Valider/Invalider la demande d'extension de quota visa signe
       operationId: validateDemandeExtQuotaVisa
       parameters:
         - name: demandeExtId
@@ -486,11 +618,11 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/DataResult"
-      tags: [ "Visa" ]
-  
-  /oecci/client-cga/canSignVisa/{expertId}:
+      tags: ["Visa"]
+
+  /oecci/expert/canSignVisa/{expertId}:
     get:
-      summary: Verifie quun expert comptable peut encore signer des visa
+      summary: Verifie qu'un expert comptable peut encore signer des visa
       operationId: canSignVisa
       parameters:
         - name: expertId
@@ -501,16 +633,9 @@ paths:
             format: int64
           description: L'ID de l'expert
       responses:
-        '201':
-          description: limite nombre visa verifie avec succes
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DataResult"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/DataResult"
-      tags: [ "Visa" ]
+        '200':
+          $ref: '#/components/responses/DataResult200'
+      tags: ["Visa"]
 
 
 components:
@@ -579,6 +704,15 @@ components:
         creatorLevel: {type: string, enum: [admin, moderateur, assistant]}
       required: [nom, prenoms, email, role, statut]
 
+    UpdateCollaboRequest:
+      type: object
+      properties:
+        nom: {type: string}
+        prenoms: {type: string}
+        contact: {type: string}
+        statut: {type: boolean}
+      required: [nom, prenoms, statut]
+
     CreateExpertComptable:
       type: object
       properties:
@@ -602,18 +736,25 @@ components:
       properties:
         nom: {type: string}
         prenoms: {type: string}
-        email: {type: string, format: email}
         adressePostale: {type: string}
         matricule: {type: string}
-        annee_inscription: {type: string}
+        annee_inscription: {type: integer, format: int64}
         contact: {type: string}
-        inscription_by: {type: string, enum: [by_admin, by_moderateur, by_assistant]}
-        inscription_type: {type: string, enum: [individuel, cabinet, collaborateur]}
+      required: [nom, prenoms, adressePostale, matricule, annee_inscription, contact]
+
+    UpdateCabinetRequest:
+      type: object
+      properties:
+        nom: {type: string}
+        prenoms: {type: string}
+        adressePostale: {type: string}
+        matricule: {type: string}
+        annee_inscription: {type: integer, format: int64}
+        contact: {type: string}
         nomCabinet: {type: string}
         numeroCabinet: {type: string}
-        inscription_mode: {type: string, enum: [for_assoc, for_coord, for_adj, for_na]}
-        expertAssoID: {type: integer, format: int64}
-      required: [nom, prenoms, email, matricule, inscription_type, inscription_mode]
+        categorie: {$ref: '#/components/schemas/Option'}
+      required: [nom, prenoms, adressePostale, annee_inscription, matricule, contact, nomCabinet, numeroCabinet, categorie]
 
     CreateForwardRequest:
       type: object
@@ -642,10 +783,10 @@ components:
       type: object
       properties:
         walletID: {type: integer, format: int64}
-        Expert_ComptableID: {type: integer, format: int64}
+        expertComptableID: {type: integer, format: int64}
         paymentID: {type: integer, format: int64}
         amount: {type: integer, format: int64}
-      required: [Expert_ComptableID, walletID, paymentID, amount]
+      required: [expertComptableID, walletID, paymentID, amount]
 
     LoadVisualRequest:
       type: object
@@ -658,7 +799,7 @@ components:
       type: object
       properties:
         designation: {type: string}
-        
+
     CreateDmdExtQuotVisaRequest:
       type: object
       properties:
@@ -672,5 +813,4 @@ components:
           type: string
       required:
         - expertID
-        - cgaExpediteurID
         - ordreExpertID

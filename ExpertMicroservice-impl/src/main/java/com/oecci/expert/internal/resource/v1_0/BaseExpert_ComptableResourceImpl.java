@@ -23,7 +23,12 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.ActionUtil;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
-import com.oecci.expert.dto.v1_0.*;
+import com.oecci.expert.dto.v1_0.CreateExpertComptable;
+import com.oecci.expert.dto.v1_0.LoadVisualRequest;
+import com.oecci.expert.dto.v1_0.ReloadWalletRequest;
+import com.oecci.expert.dto.v1_0.StatutRequest;
+import com.oecci.expert.dto.v1_0.UpdateCabinetRequest;
+import com.oecci.expert.dto.v1_0.UpdateExpertRequest;
 import com.oecci.expert.resource.v1_0.Expert_ComptableResource;
 
 import java.lang.reflect.Array;
@@ -47,7 +52,7 @@ import javax.ws.rs.core.UriInfo;
 @Generated("")
 @javax.ws.rs.Path("/v1.0")
 public abstract class BaseExpert_ComptableResourceImpl
-		implements Expert_ComptableResource {
+	implements Expert_ComptableResource {
 
 	/**
 	 * Invoke this method with the command line:
@@ -55,122 +60,24 @@ public abstract class BaseExpert_ComptableResourceImpl
 	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables' -d $'{"adressePostale": ___, "annee_inscription": ___, "contact": ___, "email": ___, "expertAssoID": ___, "inscription_by": ___, "inscription_mode": ___, "inscription_type": ___, "matricule": ___, "nom": ___, "nomCabinet": ___, "numeroCabinet": ___, "prenoms": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Permet de creer un expert comptable independant, sans rattachement a un cabinet."
+		description = "Permet de creer un expert comptable independant, sans rattachement a un cabinet."
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
+		}
 	)
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
 	@javax.ws.rs.Path("/oecci/expert/experts-comptables")
 	@javax.ws.rs.POST
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
-	@javax.ws.rs.Consumes({"application/json", "application/xml"})
 	@Override
 	public Response createExpertComptable(
 			CreateExpertComptable createExpertComptable)
-			throws Exception {
+		throws Exception {
 
-		return null;
-	}
+		Response.ResponseBuilder responseBuilder = Response.ok();
 
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/validation/{expertComptableID}' -d $'{"motif_refus": ___, "statut": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
-	 */
-	@io.swagger.v3.oas.annotations.Operation(
-			description = "Valider ou invalider l'inscription d'un expert comptable"
-	)
-	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "expertComptableID"
-					)
-			}
-	)
-	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
-			}
-	)
-	@javax.ws.rs.Path("/oecci/expert/experts-comptables/validation/{expertComptableID}")
-	@javax.ws.rs.POST
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
-	@javax.ws.rs.Consumes({"application/json", "application/xml"})
-	@Override
-	public Response validateExpertComptable(
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.validation.constraints.NotNull
-			@javax.ws.rs.PathParam("expertComptableID")
-			Long expertComptableID,
-			StatutRequest statutRequest)
-			throws Exception {
-
-		return null;
-	}
-
-
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/wallet/reload' -d $'{"expertComptableID": ___, "amount": ___, "paymentID": ___, "walletID": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
-	 */
-	@io.swagger.v3.oas.annotations.Operation(
-			description = "Permet de recharger le wallet d'un expert comptable."
-	)
-	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
-			}
-	)
-	@javax.ws.rs.Path("/oecci/expert/wallet/reload")
-	@javax.ws.rs.POST
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
-	@javax.ws.rs.Consumes({"application/json", "application/xml"})
-	@Override
-	public Response reloadWallet(ReloadWalletRequest reloadWalletRequest)
-			throws Exception {
-
-		return null;
-	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/load-visual/{expertComptableID}' -d $'{"visualContent": ___, "visualName": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
-	 */
-	@io.swagger.v3.oas.annotations.Operation(
-			description = "Charger le visuel de signature d'un expert comptable"
-	)
-	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "expertComptableID"
-					)
-			}
-	)
-	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
-			}
-	)
-	@javax.ws.rs.Path("/oecci/expert/experts-comptables/load-visual/{expertComptableID}")
-	@javax.ws.rs.POST
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
-	@javax.ws.rs.Consumes({"application/json", "application/xml"})
-	@Override
-	public Response loadSignVisual(
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.validation.constraints.NotNull
-			@javax.ws.rs.PathParam("expertComptableID")
-			Long expertComptableID,
-			LoadVisualRequest loadVisualRequest)
-			throws Exception {
-
-		return null;
+		return responseBuilder.build();
 	}
 
 	/**
@@ -179,13 +86,81 @@ public abstract class BaseExpert_ComptableResourceImpl
 	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/{expertComptableId}'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Expert comptable par ID"
+		description = "Expert comptable par ID"
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "expertComptableId"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
+		}
+	)
+	@javax.ws.rs.GET
+	@javax.ws.rs.Path("/oecci/expert/experts-comptables/{expertComptableId}")
+	@javax.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public Response getExpertComptableById(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("expertComptableId")
+			Long expertComptableId,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("fields")
+			String fields,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("nestedFields")
+			String nestedFields,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("nestedFieldsDepth")
+			Integer nestedFieldsDepth)
+		throws Exception {
+
+		return null;
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert?page=1&pageSize=20'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+			description = "Experts comptables - endpoint generique"
 	)
 	@io.swagger.v3.oas.annotations.Parameters(
 			value = {
 					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "expertComptableId"
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "page"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "pageSize"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "filter"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "sort"
 					),
 					@io.swagger.v3.oas.annotations.Parameter(
 							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
@@ -207,14 +182,22 @@ public abstract class BaseExpert_ComptableResourceImpl
 			}
 	)
 	@javax.ws.rs.GET
-	@javax.ws.rs.Path("/oecci/expert/experts-comptables/{expertComptableId}")
+	@javax.ws.rs.Path("/oecci/expert")
 	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
-	public Response getExpertComptableById(
+	public Response getExpertComptables(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.validation.constraints.NotNull
-			@javax.ws.rs.PathParam("expertComptableId")
-			Long expertComptableId,
+			@javax.ws.rs.QueryParam("page")
+			Integer page,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("pageSize")
+			Integer pageSize,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("filter")
+			String filter,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.ws.rs.QueryParam("sort")
+			String sort,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("fields")
 			String fields,
@@ -228,6 +211,7 @@ public abstract class BaseExpert_ComptableResourceImpl
 
 		return null;
 	}
+
 
 	/**
 	 * Invoke this method with the command line:
@@ -315,77 +299,185 @@ public abstract class BaseExpert_ComptableResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert?page=1&pageSize=20'  -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/load-visual/{expertComptableId}' -d $'{"visualContent": ___, "visualName": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Experts comptables - endpoint generique"
+		description = "Charger le visuel de signature d'un expert comptable"
 	)
 	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "page"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "pageSize"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "filter"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "sort"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "fields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFieldsDepth"
-					)
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "expertComptableId"
+			)
+		}
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
+		}
 	)
-	@javax.ws.rs.GET
-	@javax.ws.rs.Path("/oecci/expert")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
+	@javax.ws.rs.Path(
+		"/oecci/expert/experts-comptables/load-visual/{expertComptableId}"
+	)
+	@javax.ws.rs.POST
 	@Override
-	public Response getExpertComptables(
+	public Response loadSignVisual(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.ws.rs.QueryParam("page")
-			Integer page,
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.ws.rs.QueryParam("pageSize")
-			Integer pageSize,
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.ws.rs.QueryParam("filter")
-			String filter,
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.ws.rs.QueryParam("sort")
-			String sort,
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.ws.rs.QueryParam("fields")
-			String fields,
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.ws.rs.QueryParam("nestedFields")
-			String nestedFields,
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.ws.rs.QueryParam("nestedFieldsDepth")
-			Integer nestedFieldsDepth)
-			throws Exception {
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("expertComptableId")
+			Long expertComptableId,
+			LoadVisualRequest loadVisualRequest)
+		throws Exception {
 
-		return null;
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/wallet/reload' -d $'{"amount": ___, "expertComptableID": ___, "paymentID": ___, "walletID": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+		description = "Permet de recharger le wallet d'un expert comptable."
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
+		}
+	)
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
+	@javax.ws.rs.Path("/oecci/expert/wallet/reload")
+	@javax.ws.rs.POST
+	@Override
+	public Response reloadWallet(ReloadWalletRequest reloadWalletRequest)
+		throws Exception {
+
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/cabinet/update/{cabinetId}' -d $'{"adressePostale": ___, "annee_inscription": ___, "categorie": ___, "contact": ___, "email": ___, "matricule": ___, "nom": ___, "nomCabinet": ___, "numeroCabinet": ___, "prenoms": ___, "statut": ___, "update_by": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+		description = "Mettre a jour les infos d'un cabinet"
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "cabinetId"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
+		}
+	)
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
+	@javax.ws.rs.Produces({"application/json", "application/xml"})
+	@javax.ws.rs.Path("/oecci/expert/cabinet/update/{cabinetId}")
+	@javax.ws.rs.POST
+	@Override
+	public Response updateCabinet(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("cabinetId")
+			Long cabinetId,
+			UpdateCabinetRequest updateCabinetRequest)
+		throws Exception {
+
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/update/{expertComptableId}' -d $'{"adressePostale": ___, "annee_inscription": ___, "contact": ___, "matricule": ___, "nom": ___, "prenoms": ___, "update_by": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+		description = "Mettre a jour les infos d'un expert comptable"
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "expertComptableId"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
+		}
+	)
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
+	@javax.ws.rs.Path(
+		"/oecci/expert/experts-comptables/update/{expertComptableId}"
+	)
+	@javax.ws.rs.POST
+	@Override
+	public Response updateExpertComptable(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("expertComptableId")
+			Long expertComptableId,
+			UpdateExpertRequest updateExpertRequest)
+		throws Exception {
+
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/experts-comptables/validation/{expertComptableId}' -d $'{"motif_refus": ___, "statut": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+		description = "Valider ou invalider l'inscription d'un expert comptable"
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "expertComptableId"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Expert_Comptable")
+		}
+	)
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
+	@javax.ws.rs.Path(
+		"/oecci/expert/experts-comptables/validation/{expertComptableId}"
+	)
+	@javax.ws.rs.POST
+	@Override
+	public Response validateExpertComptable(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("expertComptableId")
+			Long expertComptableId,
+			StatutRequest statutRequest)
+		throws Exception {
+
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
 	}
 
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
@@ -393,26 +485,26 @@ public abstract class BaseExpert_ComptableResourceImpl
 	}
 
 	public void setContextCompany(
-			com.liferay.portal.kernel.model.Company contextCompany) {
+		com.liferay.portal.kernel.model.Company contextCompany) {
 
 		this.contextCompany = contextCompany;
 	}
 
 	public void setContextHttpServletRequest(
-			HttpServletRequest contextHttpServletRequest) {
+		HttpServletRequest contextHttpServletRequest) {
 
 		if ((contextHttpServletRequest != null) &&
-				(contextHttpServletRequest.getAttribute(WebKeys.CTX) == null)) {
+			(contextHttpServletRequest.getAttribute(WebKeys.CTX) == null)) {
 
 			contextHttpServletRequest.setAttribute(
-					WebKeys.CTX, ServletContextPool.get(null));
+				WebKeys.CTX, ServletContextPool.get(null));
 		}
 
 		this.contextHttpServletRequest = contextHttpServletRequest;
 	}
 
 	public void setContextHttpServletResponse(
-			HttpServletResponse contextHttpServletResponse) {
+		HttpServletResponse contextHttpServletResponse) {
 
 		this.contextHttpServletResponse = contextHttpServletResponse;
 	}
@@ -422,20 +514,20 @@ public abstract class BaseExpert_ComptableResourceImpl
 	}
 
 	public void setContextUser(
-			com.liferay.portal.kernel.model.User contextUser) {
+		com.liferay.portal.kernel.model.User contextUser) {
 
 		this.contextUser = contextUser;
 	}
 
 	public void setExpressionConvert(
-			ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
-					expressionConvert) {
+		ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
+			expressionConvert) {
 
 		this.expressionConvert = expressionConvert;
 	}
 
 	public void setFilterParserProvider(
-			FilterParserProvider filterParserProvider) {
+		FilterParserProvider filterParserProvider) {
 
 		this.filterParserProvider = filterParserProvider;
 	}
@@ -445,13 +537,13 @@ public abstract class BaseExpert_ComptableResourceImpl
 	}
 
 	public void setResourceActionLocalService(
-			ResourceActionLocalService resourceActionLocalService) {
+		ResourceActionLocalService resourceActionLocalService) {
 
 		this.resourceActionLocalService = resourceActionLocalService;
 	}
 
 	public void setResourcePermissionLocalService(
-			ResourcePermissionLocalService resourcePermissionLocalService) {
+		ResourcePermissionLocalService resourcePermissionLocalService) {
 
 		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
@@ -465,70 +557,70 @@ public abstract class BaseExpert_ComptableResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-			String actionName,
-			com.liferay.portal.kernel.model.GroupedModel groupedModel,
-			String methodName) {
+		String actionName,
+		com.liferay.portal.kernel.model.GroupedModel groupedModel,
+		String methodName) {
 
 		return ActionUtil.addAction(
-				actionName, getClass(), groupedModel, methodName,
-				contextScopeChecker, contextUriInfo);
+			actionName, getClass(), groupedModel, methodName,
+			contextScopeChecker, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
-			String actionName, Long id, String methodName, Long ownerId,
-			String permissionName, Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-				actionName, getClass(), id, methodName, contextScopeChecker,
-				ownerId, permissionName, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
-			String actionName, Long id, String methodName,
-			ModelResourcePermission modelResourcePermission) {
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
 
 		return ActionUtil.addAction(
-				actionName, getClass(), id, methodName, contextScopeChecker,
-				modelResourcePermission, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
-			String actionName, String methodName, String permissionName,
-			Long siteId) {
+		String actionName, String methodName, String permissionName,
+		Long siteId) {
 
 		return addAction(
-				actionName, siteId, methodName, null, permissionName, siteId);
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R, E extends Throwable> List<R> transform(
-			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		return TransformUtil.transform(collection, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> R[] transform(
-			T[] array, UnsafeFunction<T, R, E> unsafeFunction,
-			Class<? extends R> clazz) {
+		T[] array, UnsafeFunction<T, R, E> unsafeFunction,
+		Class<? extends R> clazz) {
 
 		return TransformUtil.transform(array, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> R[] transformToArray(
-			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
-			Class<? extends R> clazz) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
+		Class<? extends R> clazz) {
 
 		return TransformUtil.transformToArray(
-				collection, unsafeFunction, clazz);
+			collection, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> List<R> transformToList(
-			T[] array, UnsafeFunction<T, R, E> unsafeFunction) {
+		T[] array, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		return TransformUtil.transformToList(array, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> long[] transformToLongArray(
-			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		try {
 			return unsafeTransformToLongArray(collection, unsafeFunction);
@@ -540,7 +632,7 @@ public abstract class BaseExpert_ComptableResourceImpl
 
 	protected <T, R, E extends Throwable> List<R> unsafeTransform(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransform(collection, unsafeFunction);
 	}
@@ -548,7 +640,7 @@ public abstract class BaseExpert_ComptableResourceImpl
 	protected <T, R, E extends Throwable> R[] unsafeTransform(
 			T[] array, UnsafeFunction<T, R, E> unsafeFunction,
 			Class<? extends R> clazz)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransform(array, unsafeFunction, clazz);
 	}
@@ -556,25 +648,25 @@ public abstract class BaseExpert_ComptableResourceImpl
 	protected <T, R, E extends Throwable> R[] unsafeTransformToArray(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
 			Class<? extends R> clazz)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransformToArray(
-				collection, unsafeFunction, clazz);
+			collection, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> List<R> unsafeTransformToList(
 			T[] array, UnsafeFunction<T, R, E> unsafeFunction)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransformToList(array, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> long[] unsafeTransformToLongArray(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction)
-			throws E {
+		throws E {
 
 		return (long[])_unsafeTransformToPrimitiveArray(
-				collection, unsafeFunction, long[].class);
+			collection, unsafeFunction, long[].class);
 	}
 
 	protected AcceptLanguage contextAcceptLanguage;
@@ -585,7 +677,7 @@ public abstract class BaseExpert_ComptableResourceImpl
 	protected UriInfo contextUriInfo;
 	protected com.liferay.portal.kernel.model.User contextUser;
 	protected ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
-			expressionConvert;
+		expressionConvert;
 	protected FilterParserProvider filterParserProvider;
 	protected GroupLocalService groupLocalService;
 	protected ResourceActionLocalService resourceActionLocalService;
@@ -596,12 +688,12 @@ public abstract class BaseExpert_ComptableResourceImpl
 	private <T, R, E extends Throwable> Object _unsafeTransformToPrimitiveArray(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
 			Class<?> clazz)
-			throws E {
+		throws E {
 
 		List<R> list = unsafeTransform(collection, unsafeFunction);
 
 		Object array = clazz.cast(
-				Array.newInstance(clazz.getComponentType(), list.size()));
+			Array.newInstance(clazz.getComponentType(), list.size()));
 
 		for (int i = 0; i < list.size(); i++) {
 			Array.set(array, i, list.get(i));
@@ -611,7 +703,7 @@ public abstract class BaseExpert_ComptableResourceImpl
 	}
 
 	private static final com.liferay.portal.kernel.log.Log _log =
-			LogFactoryUtil.getLog(BaseExpert_ComptableResourceImpl.class);
+		LogFactoryUtil.getLog(BaseExpert_ComptableResourceImpl.class);
 
 }
-// LIFERAY-REST-BUILDER-HASH:405386187
+// LIFERAY-REST-BUILDER-HASH:115888486

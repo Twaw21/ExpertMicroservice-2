@@ -740,8 +740,7 @@ public class Transfert_ClientResourceImpl
 
 @Override
 public Response getDemandesTransfertByDestinataire(
-			Long expertComptableId, Integer page, Integer pageSize,
-			String filter, String sort, String fields, String nestedFields,
+			Long expertComptableId, Integer page, Integer pageSize, String sort, String fields, String nestedFields,
 			Integer nestedFieldsDepth)
 			throws Exception {
 
@@ -794,16 +793,16 @@ public Response getDemandesTransfertByDestinataire(
 				"r_iDExpertComptableDestinataire_c_expertComptableId",
 				expertComptableId);
 
-		String finalFilter = (filter != null && !filter.isBlank())
+		/*String finalFilter = (filter != null && !filter.isBlank())
 				? ObjectEntryHelper.buildAndFilter(baseFilter, filter)
-				: baseFilter;
+				: baseFilter;*/
 
 		Sort[]   sorts    = _objectEntryHelper.parseSorts(sort);
 
 		List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
 				technicalUser.getUserId(), companyId, groupId,
 				Constants.ERC_DEMANDE_TRANSFERT,
-				finalFilter, sorts,
+				null, sorts,
 				(long) (page != null ? page : -1),
 				(long) (pageSize != null ? pageSize : -1));
 
@@ -823,8 +822,7 @@ public Response getDemandesTransfertByDestinataire(
 
 @Override
 public Response getDemandesTransfertByExpediteur(
-			Long expertComptableId, Integer page, Integer pageSize,
-			String filter, String sort, String fields, String nestedFields,
+			Long expertComptableId, Integer page, Integer pageSize, String sort, String fields, String nestedFields,
 			Integer nestedFieldsDepth)
 			throws Exception {
 
@@ -877,16 +875,16 @@ public Response getDemandesTransfertByExpediteur(
 				"r_iDExpertComptableTransfertClient_c_expertComptableId",
 				expertComptableId);
 
-		String finalFilter = (filter != null && !filter.isBlank())
+		/*String finalFilter = (filter != null && !filter.isBlank())
 				? ObjectEntryHelper.buildAndFilter(baseFilter, filter)
-				: baseFilter;
+				: baseFilter;*/
 
 		Sort[]   sorts    = _objectEntryHelper.parseSorts(sort);
 
 		List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
 				technicalUser.getUserId(), companyId, groupId,
 				Constants.ERC_DEMANDE_TRANSFERT,
-				finalFilter, sorts,
+				null, sorts,
 				(long) (page != null ? page : -1),
 				(long) (pageSize != null ? pageSize : -1));
 

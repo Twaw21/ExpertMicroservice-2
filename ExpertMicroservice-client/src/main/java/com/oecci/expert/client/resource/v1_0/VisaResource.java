@@ -34,7 +34,7 @@ public interface VisaResource {
 		return new Builder();
 	}
 
-	public DataResult canSignVisa(Long expertId) throws Exception;
+	public String canSignVisa(Long expertId) throws Exception;
 
 	public HttpInvoker.HttpResponse canSignVisaHttpResponse(Long expertId)
 		throws Exception;
@@ -193,7 +193,7 @@ public interface VisaResource {
 
 	public static class VisaResourceImpl implements VisaResource {
 
-		public DataResult canSignVisa(Long expertId) throws Exception {
+		public String canSignVisa(Long expertId) throws Exception {
 			HttpInvoker.HttpResponse httpResponse = canSignVisaHttpResponse(
 				expertId);
 
@@ -245,8 +245,7 @@ public interface VisaResource {
 			}
 
 			try {
-				return com.oecci.expert.client.serdes.v1_0.DataResultSerDes.
-					toDTO(content);
+				return content;
 			}
 			catch (Exception e) {
 				_logger.log(
@@ -911,4 +910,4 @@ public interface VisaResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1974500511
+// LIFERAY-REST-BUILDER-HASH:135705743

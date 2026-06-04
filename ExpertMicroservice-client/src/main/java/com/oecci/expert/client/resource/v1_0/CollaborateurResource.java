@@ -6,6 +6,7 @@
 package com.oecci.expert.client.resource.v1_0;
 
 import com.oecci.expert.client.dto.v1_0.CreateCollaboRequest;
+import com.oecci.expert.client.dto.v1_0.UpdateCollaboRequest;
 import com.oecci.expert.client.http.HttpInvoker;
 import com.oecci.expert.client.pagination.Pagination;
 import com.oecci.expert.client.problem.Problem;
@@ -67,6 +68,14 @@ public interface CollaborateurResource {
 	public HttpInvoker.HttpResponse getCollaborateursHttpResponse(
 			Integer nestedFieldsDepth, String filterString,
 			Pagination pagination, String sortString)
+		throws Exception;
+
+	public void updateCollabos(
+			Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse updateCollabosHttpResponse(
+			Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
 		throws Exception;
 
 	public static class Builder {
@@ -654,6 +663,104 @@ public interface CollaborateurResource {
 			return httpInvoker.invoke();
 		}
 
+		public void updateCollabos(
+				Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse = updateCollabosHttpResponse(
+				collaborateurId, updateCollaboRequest);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+		}
+
+		public HttpInvoker.HttpResponse updateCollabosHttpResponse(
+				Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				updateCollaboRequest.toString(), "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert/collaborateurs/update/{collaborateurId}");
+
+			httpInvoker.path("collaborateurId", collaborateurId);
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
 		private CollaborateurResourceImpl(Builder builder) {
 			_builder = builder;
 		}
@@ -666,4 +773,4 @@ public interface CollaborateurResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1499086957
+// LIFERAY-REST-BUILDER-HASH:-797319311

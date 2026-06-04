@@ -37,7 +37,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Generated("")
 @GraphQLName("CreateDmdExtQuotVisaRequest")
 @io.swagger.v3.oas.annotations.media.Schema(
-	requiredProperties = {"expertID", "cgaExpediteurID", "ordreExpertID"}
+	requiredProperties = {"expertID", "ordreExpertID"}
 )
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "CreateDmdExtQuotVisaRequest")
@@ -348,4 +348,4 @@ public class CreateDmdExtQuotVisaRequest implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1275254312
+// LIFERAY-REST-BUILDER-HASH:-1039375020

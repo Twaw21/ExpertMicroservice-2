@@ -19,6 +19,8 @@ import com.oecci.expert.dto.v1_0.CreateExpertComptable;
 import com.oecci.expert.dto.v1_0.LoadVisualRequest;
 import com.oecci.expert.dto.v1_0.ReloadWalletRequest;
 import com.oecci.expert.dto.v1_0.StatutRequest;
+import com.oecci.expert.dto.v1_0.UpdateCabinetRequest;
+import com.oecci.expert.dto.v1_0.UpdateExpertRequest;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,37 +50,40 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface Expert_ComptableResource {
 
 	public Response createExpertComptable(
-			CreateExpertComptable createExpert_Comptable)
+			CreateExpertComptable createExpertComptable)
 		throws Exception;
 
-	public String getAllExperts(Integer expertPageSize) throws Exception;
-
-	public String getExpertComptableById(
-			Long Expert_ComptableId, Integer nestedFieldsDepth)
+	public Response getExpertComptableById(
+			Long expertComptableId, String fields, String nestedFields, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public String getExpertComptables(
-			Integer nestedFieldsDepth,
-			com.liferay.portal.kernel.search.filter.Filter filter,
-			Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getExpertComptables(
+			Integer page, Integer pageSize, String filter, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public String getExpertComptablesByCategorie(
-			String categorie, String etat, Integer nestedFieldsDepth,
-			Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getExpertComptablesByCategorie(
+			String categorie, String etat, Integer page, Integer pageSize, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
 		throws Exception;
 
 	public Response loadSignVisual(
-			Long Expert_ComptableID, LoadVisualRequest loadVisualRequest)
+			Long expertComptableId, LoadVisualRequest loadVisualRequest)
 		throws Exception;
 
 	public Response reloadWallet(ReloadWalletRequest reloadWalletRequest)
 		throws Exception;
 
+	public Response updateCabinet(
+			Long cabinetId, UpdateCabinetRequest updateCabinetRequest)
+		throws Exception;
+
+	public Response updateExpertComptable(
+			Long expertComptableId, UpdateExpertRequest updateExpertRequest)
+		throws Exception;
+
 	public Response validateExpertComptable(
-			Long Expert_ComptableID, StatutRequest statutRequest)
+			Long expertComptableId, StatutRequest statutRequest)
 		throws Exception;
 
 	public default void setContextAcceptLanguage(
@@ -169,4 +174,4 @@ public interface Expert_ComptableResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-2028556947
+// LIFERAY-REST-BUILDER-HASH:166005113

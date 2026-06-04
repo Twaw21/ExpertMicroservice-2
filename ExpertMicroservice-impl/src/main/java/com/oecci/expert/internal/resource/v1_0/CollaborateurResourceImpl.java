@@ -13,11 +13,11 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.util.PropsUtil;
 import com.oecci.expert.dto.v1_0.CreateCollaboRequest;
+import com.oecci.expert.dto.v1_0.UpdateCollaboRequest;
 import com.oecci.expert.resource.v1_0.CollaborateurResource;
 import com.oecci.expert.utils.Constants;
 import com.oecci.expert.utils.ObjectEntryHelper;
@@ -26,6 +26,7 @@ import com.oecci.expert.utils.UserHelper;
 import com.oecci.expert.utils.Utils;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -518,6 +519,179 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 
 		_log.info("> Returning response");
 		return Response.status(Response.Status.OK).entity(result).build();
+	}
+
+	@Override
+	public Response updateCollabo(Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
+			throws Exception {
+		
+
+			long userId    = contextUser.getUserId();
+//		long companyId = contextCompany.getCompanyId();
+			long companyId = PortalUtil.getDefaultCompanyId();;
+//		long groupId   = Constants.DEV_OECCI_SITE_ID;
+			long groupId = 0;
+			User user = SecurityUtil.checkUser(_httpServletRequest, "updateCollabos	");
+			if (user == null) {
+				return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+			}
+			_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+			String[] roles = {"Regular COLLABO ADMIN Shared Object"};
+			boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+			JSONObject result = JSONFactoryUtil.createJSONObject();
+			if (!hasAccess) {
+				result = JSONFactoryUtil.createJSONObject();
+				result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+				result.put("message", "Vous n'avez les permissions nécessaires.");
+				result.put("data", "");
+				return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+			}
+
+			User technicalUser = null;
+
+			// Ne jamais utiliser comme propriétaire d'ObjectEntry.
+			try{
+				technicalUser = _userHelper.getTechnicalUser(companyId);
+				_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+
+			}
+			catch (Exception e) {
+				_log.error("[getExpertClients] Compte technique introuvable : " +
+						e.getMessage(), e);
+				result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+				result.put("message",
+						"Compte technique manquant. Contacter l'administrateur.");
+				result.put("data", "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+
+
+			String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://"
+					+ PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
+
+			_log.info("> Base URL : " + baseURL);
+			_log.info(">> Verifying if order's accountant already exists... id=" + collaborateurId);
+
+
+			// 1. Récupérer le collaborateur
+
+			ObjectEntry collaboEntry;
+			try {
+				collaboEntry = _objectEntryHelper.getEntryOrThrow(
+						collaborateurId);
+			}
+			catch (Exception e) {
+				_log.info(
+						"Aucun collaborateur n'existe avec cet ID : " +
+								collaborateurId + ".");
+				result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
+				result.put(
+						"message",
+						"Aucun collaborateur n'existe avec cet ID : " +
+								collaborateurId + ".");
+				result.put("data", "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+
+			_log.info(">> Order's accountant found. ID : " + collaboEntry.getObjectEntryId());
+
+			String collaborateur_type =
+					ObjectEntryHelper.getString(collaboEntry, "collaborateurType");
+			_log.info("Collabo type : " + collaborateur_type);
+
+			// 2. Mettre à jour les infos globale du collabo
+
+		_log.info("Begining by update the global collabo infos..");
+		Map<String, Serializable> updateCollaboValues = new HashMap<>();
+		//collaboValues.put("collaborateurType", collaborateurTypeKey);
+		updateCollaboValues.put("isActive", updateCollaboRequest.getStatut());
+		//collaboValues.put(
+		//		"r_iDUserCollabo_userId", liferayUser.getUserId());
+
+		ObjectEntry updatedGlobalCollaboEntry = _objectEntryHelper.updateEntry(
+				technicalUser.getUserId(), groupId, companyId,
+				collaboEntry.getObjectEntryId(), updateCollaboValues);
+
+		if (updatedGlobalCollaboEntry == null) {
+			String msg =
+					"La mise à jour de " + collaborateur_type + " " +
+							updateCollaboRequest.getNom() +
+							" a échoué. Veuillez réessayer ou contacter l'administrateur si cela persiste. ";
+			_log.info(msg);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", msg);
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+		_log.info("global collabo info well updated..");
+		_log.info("now we getting the specific collabo infos by his type : "+collaborateur_type);
+		ObjectEntry specificCollaboEntry = null;
+
+		// 3. recuperer le specific collaborateur par son type dans l'objet gloabl collaborateur
+		if (collaborateur_type.equalsIgnoreCase("ADMIN")) {
+			specificCollaboEntry = _objectEntryHelper.getEntry(
+					ObjectEntryHelper.getLong(collaboEntry, "r_iDCollaborateurAdmin_c_collabAdminId")
+			);
+		}
+		else if (collaborateur_type.equalsIgnoreCase("MODERATEUR")) {
+			specificCollaboEntry = _objectEntryHelper.getEntry(
+					ObjectEntryHelper.getLong(collaboEntry, "r_iDCollaborateurGestionnaire_c_collabGestionnaireId")
+			);
+		}
+		else {
+			specificCollaboEntry = _objectEntryHelper.getEntry(
+					ObjectEntryHelper.getLong(collaboEntry, "r_iDCollaborateurAssistant_c_collabAssistantsId")
+			);
+		}
+		_log.info("specific collabo ID : "+specificCollaboEntry.getObjectEntryId());
+		String collaborateur_name = ObjectEntryHelper.getString(specificCollaboEntry, "nom") +
+				ObjectEntryHelper.getString(specificCollaboEntry, "prenoms");
+		_log.info("specific collabo found : "+collaborateur_name);
+		// Construire les valeurs du collaborateur a update
+		Map<String, Serializable> updateValues = new HashMap<>();
+		_log.info("> Updating speicific collabo entry now...");
+
+		updateValues.put("nom",    updateCollaboRequest.getNom());
+		updateValues.put("prenoms", updateCollaboRequest.getPrenoms());
+		updateValues.put("contact", updateCollaboRequest.getContact());
+
+			ObjectEntry updateSpecificCollaboEntry = _objectEntryHelper.updateEntry(
+					technicalUser.getUserId(), groupId, companyId,
+					collaboEntry.getObjectEntryId(), updateValues);
+
+			if (updateSpecificCollaboEntry == null) {
+				_log.info(
+						"La mise à jour du collaborateur " + collaborateur_name +
+								" a échoué.");
+				result.put(
+						"message",
+						"La mise à jour du collaborateur associé " +
+								collaborateur_name +
+								" a échoué. Veuillez réessayer ou contacter l'administrateur si cela persiste. ");
+				result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+				result.put("data", "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+
+			_log.info(
+					"La mise à jour de l'expert " + collaborateur_name +
+							" a été effectuée avec succès : " +
+							_objectEntryHelper.entriesToJson(Collections.singletonList(updatedGlobalCollaboEntry), null
+							, "r_iDCollaborateurAdmin_c_collabAdminId," +
+											"r_iDCollaborateurGestionnaire_c_collabGestionnaireId," +
+											"r_iDCollaborateurAssistant_c_collabAssistantsId"));
+
+			result.put("code", Constants.HTTP_SUCCESS);
+			result.put(
+					"message",
+					"La mise à jour du collaborateur " + collaborateur_name +
+							" a été effectuée avec succès.");
+			result.put("data", _objectEntryHelper.entriesToJson(Collections.singletonList(updateSpecificCollaboEntry), null
+					, null));
+			_log.info("> Returning response");
+			return Response.status(Response.Status.OK).entity(result).build();
+		
+
 	}
 
 	// -------------------------------------------------------------------------

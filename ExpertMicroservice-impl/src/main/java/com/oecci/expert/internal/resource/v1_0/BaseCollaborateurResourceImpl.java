@@ -24,6 +24,7 @@ import com.liferay.portal.vulcan.util.ActionUtil;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
 import com.oecci.expert.dto.v1_0.CreateCollaboRequest;
+import com.oecci.expert.dto.v1_0.UpdateCollaboRequest;
 import com.oecci.expert.resource.v1_0.CollaborateurResource;
 
 import java.lang.reflect.Array;
@@ -47,7 +48,7 @@ import javax.ws.rs.core.UriInfo;
 @Generated("")
 @javax.ws.rs.Path("/v1.0")
 public abstract class BaseCollaborateurResourceImpl
-		implements CollaborateurResource {
+	implements CollaborateurResource {
 
 	/**
 	 * Invoke this method with the command line:
@@ -55,22 +56,23 @@ public abstract class BaseCollaborateurResourceImpl
 	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/collaborateurs' -d $'{"contact": ___, "creatorID": ___, "creatorLevel": ___, "email": ___, "nom": ___, "prenoms": ___, "role": ___, "statut": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Permet d'ajouter un nouveau collaborateur avec ses informations personnelles, son role et son statut."
+		description = "Permet d'ajouter un nouveau collaborateur avec ses informations personnelles, son role et son statut."
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Collaborateur")
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Collaborateur")
+		}
 	)
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
 	@javax.ws.rs.Path("/oecci/expert/collaborateurs")
 	@javax.ws.rs.POST
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
-	@javax.ws.rs.Consumes({"application/json", "application/xml"})
 	@Override
 	public Response createCollabos(CreateCollaboRequest createCollaboRequest)
-			throws Exception {
+		throws Exception {
 
-		return null;
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
 	}
 
 	/**
@@ -79,52 +81,51 @@ public abstract class BaseCollaborateurResourceImpl
 	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/collaborateurs/readallby/{collaboID}'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Recuperer la liste des collaborateurs pour un collaborateur"
+		description = "Recuperer la liste des collaborateurs pour un collaborateur"
 	)
 	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "collaboID"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "page"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "pageSize"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "filter"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "sort"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "fields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFieldsDepth"
-					)
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "collaboID"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Collaborateur")
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Collaborateur")
+		}
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/collaborateurs/readallby/{collaboID}")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response getAllCollabos(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -152,7 +153,7 @@ public abstract class BaseCollaborateurResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("nestedFieldsDepth")
 			Integer nestedFieldsDepth)
-			throws Exception {
+		throws Exception {
 
 		return null;
 	}
@@ -163,48 +164,47 @@ public abstract class BaseCollaborateurResourceImpl
 	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/collaborateurs/by-user/{liferayUserId}'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Collaborateur par utilisateur Liferay"
+		description = "Collaborateur par utilisateur Liferay"
 	)
 	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "liferayUserId"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "page"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "pageSize"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "sort"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "fields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFieldsDepth"
-					)
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "liferayUserId"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Collaborateur")
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Collaborateur")
+		}
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/collaborateurs/by-user/{liferayUserId}")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response getCollaborateurByUser(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -229,7 +229,7 @@ public abstract class BaseCollaborateurResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("nestedFieldsDepth")
 			Integer nestedFieldsDepth)
-			throws Exception {
+		throws Exception {
 
 		return null;
 	}
@@ -240,48 +240,47 @@ public abstract class BaseCollaborateurResourceImpl
 	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/collaborateurs/get'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Liste complete des collaborateurs."
+		description = "Liste complete des collaborateurs."
 	)
 	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "page"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "pageSize"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "filter"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "sort"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "fields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFieldsDepth"
-					)
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Collaborateur")
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Collaborateur")
+		}
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/collaborateurs/get")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response getCollaborateurs(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -305,9 +304,47 @@ public abstract class BaseCollaborateurResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("nestedFieldsDepth")
 			Integer nestedFieldsDepth)
-			throws Exception {
+		throws Exception {
 
 		return null;
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/collaborateurs/update/{collaborateurId}' -d $'{"contact": ___, "nom": ___, "prenoms": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+		description = "Permet de mettre a jour un collaborateur."
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "collaborateurId"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Collaborateur")
+		}
+	)
+	@javax.ws.rs.Consumes({"application/json", "application/xml"})
+	@javax.ws.rs.Path("/oecci/expert/collaborateurs/update/{collaborateurId}")
+	@javax.ws.rs.POST
+	@Override
+	public Response updateCollabo(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@javax.ws.rs.PathParam("collaborateurId")
+			Long collaborateurId,
+			UpdateCollaboRequest updateCollaboRequest)
+		throws Exception {
+
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
 	}
 
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
@@ -315,26 +352,26 @@ public abstract class BaseCollaborateurResourceImpl
 	}
 
 	public void setContextCompany(
-			com.liferay.portal.kernel.model.Company contextCompany) {
+		com.liferay.portal.kernel.model.Company contextCompany) {
 
 		this.contextCompany = contextCompany;
 	}
 
 	public void setContextHttpServletRequest(
-			HttpServletRequest contextHttpServletRequest) {
+		HttpServletRequest contextHttpServletRequest) {
 
 		if ((contextHttpServletRequest != null) &&
-				(contextHttpServletRequest.getAttribute(WebKeys.CTX) == null)) {
+			(contextHttpServletRequest.getAttribute(WebKeys.CTX) == null)) {
 
 			contextHttpServletRequest.setAttribute(
-					WebKeys.CTX, ServletContextPool.get(StringPool.BLANK));
+				WebKeys.CTX, ServletContextPool.get(null));
 		}
 
 		this.contextHttpServletRequest = contextHttpServletRequest;
 	}
 
 	public void setContextHttpServletResponse(
-			HttpServletResponse contextHttpServletResponse) {
+		HttpServletResponse contextHttpServletResponse) {
 
 		this.contextHttpServletResponse = contextHttpServletResponse;
 	}
@@ -344,20 +381,20 @@ public abstract class BaseCollaborateurResourceImpl
 	}
 
 	public void setContextUser(
-			com.liferay.portal.kernel.model.User contextUser) {
+		com.liferay.portal.kernel.model.User contextUser) {
 
 		this.contextUser = contextUser;
 	}
 
 	public void setExpressionConvert(
-			ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
-					expressionConvert) {
+		ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
+			expressionConvert) {
 
 		this.expressionConvert = expressionConvert;
 	}
 
 	public void setFilterParserProvider(
-			FilterParserProvider filterParserProvider) {
+		FilterParserProvider filterParserProvider) {
 
 		this.filterParserProvider = filterParserProvider;
 	}
@@ -367,13 +404,13 @@ public abstract class BaseCollaborateurResourceImpl
 	}
 
 	public void setResourceActionLocalService(
-			ResourceActionLocalService resourceActionLocalService) {
+		ResourceActionLocalService resourceActionLocalService) {
 
 		this.resourceActionLocalService = resourceActionLocalService;
 	}
 
 	public void setResourcePermissionLocalService(
-			ResourcePermissionLocalService resourcePermissionLocalService) {
+		ResourcePermissionLocalService resourcePermissionLocalService) {
 
 		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
@@ -387,70 +424,70 @@ public abstract class BaseCollaborateurResourceImpl
 	}
 
 	protected Map<String, String> addAction(
-			String actionName,
-			com.liferay.portal.kernel.model.GroupedModel groupedModel,
-			String methodName) {
+		String actionName,
+		com.liferay.portal.kernel.model.GroupedModel groupedModel,
+		String methodName) {
 
 		return ActionUtil.addAction(
-				actionName, getClass(), groupedModel, methodName,
-				contextScopeChecker, contextUriInfo);
+			actionName, getClass(), groupedModel, methodName,
+			contextScopeChecker, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
-			String actionName, Long id, String methodName, Long ownerId,
-			String permissionName, Long siteId) {
+		String actionName, Long id, String methodName, Long ownerId,
+		String permissionName, Long siteId) {
 
 		return ActionUtil.addAction(
-				actionName, getClass(), id, methodName, contextScopeChecker,
-				ownerId, permissionName, siteId, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			ownerId, permissionName, siteId, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
-			String actionName, Long id, String methodName,
-			ModelResourcePermission modelResourcePermission) {
+		String actionName, Long id, String methodName,
+		ModelResourcePermission modelResourcePermission) {
 
 		return ActionUtil.addAction(
-				actionName, getClass(), id, methodName, contextScopeChecker,
-				modelResourcePermission, contextUriInfo);
+			actionName, getClass(), id, methodName, contextScopeChecker,
+			modelResourcePermission, contextUriInfo);
 	}
 
 	protected Map<String, String> addAction(
-			String actionName, String methodName, String permissionName,
-			Long siteId) {
+		String actionName, String methodName, String permissionName,
+		Long siteId) {
 
 		return addAction(
-				actionName, siteId, methodName, null, permissionName, siteId);
+			actionName, siteId, methodName, null, permissionName, siteId);
 	}
 
 	protected <T, R, E extends Throwable> List<R> transform(
-			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		return TransformUtil.transform(collection, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> R[] transform(
-			T[] array, UnsafeFunction<T, R, E> unsafeFunction,
-			Class<? extends R> clazz) {
+		T[] array, UnsafeFunction<T, R, E> unsafeFunction,
+		Class<? extends R> clazz) {
 
 		return TransformUtil.transform(array, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> R[] transformToArray(
-			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
-			Class<? extends R> clazz) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
+		Class<? extends R> clazz) {
 
 		return TransformUtil.transformToArray(
-				collection, unsafeFunction, clazz);
+			collection, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> List<R> transformToList(
-			T[] array, UnsafeFunction<T, R, E> unsafeFunction) {
+		T[] array, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		return TransformUtil.transformToList(array, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> long[] transformToLongArray(
-			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
+		Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction) {
 
 		try {
 			return unsafeTransformToLongArray(collection, unsafeFunction);
@@ -462,7 +499,7 @@ public abstract class BaseCollaborateurResourceImpl
 
 	protected <T, R, E extends Throwable> List<R> unsafeTransform(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransform(collection, unsafeFunction);
 	}
@@ -470,7 +507,7 @@ public abstract class BaseCollaborateurResourceImpl
 	protected <T, R, E extends Throwable> R[] unsafeTransform(
 			T[] array, UnsafeFunction<T, R, E> unsafeFunction,
 			Class<? extends R> clazz)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransform(array, unsafeFunction, clazz);
 	}
@@ -478,25 +515,25 @@ public abstract class BaseCollaborateurResourceImpl
 	protected <T, R, E extends Throwable> R[] unsafeTransformToArray(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
 			Class<? extends R> clazz)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransformToArray(
-				collection, unsafeFunction, clazz);
+			collection, unsafeFunction, clazz);
 	}
 
 	protected <T, R, E extends Throwable> List<R> unsafeTransformToList(
 			T[] array, UnsafeFunction<T, R, E> unsafeFunction)
-			throws E {
+		throws E {
 
 		return TransformUtil.unsafeTransformToList(array, unsafeFunction);
 	}
 
 	protected <T, R, E extends Throwable> long[] unsafeTransformToLongArray(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction)
-			throws E {
+		throws E {
 
 		return (long[])_unsafeTransformToPrimitiveArray(
-				collection, unsafeFunction, long[].class);
+			collection, unsafeFunction, long[].class);
 	}
 
 	protected AcceptLanguage contextAcceptLanguage;
@@ -507,7 +544,7 @@ public abstract class BaseCollaborateurResourceImpl
 	protected UriInfo contextUriInfo;
 	protected com.liferay.portal.kernel.model.User contextUser;
 	protected ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
-			expressionConvert;
+		expressionConvert;
 	protected FilterParserProvider filterParserProvider;
 	protected GroupLocalService groupLocalService;
 	protected ResourceActionLocalService resourceActionLocalService;
@@ -518,12 +555,12 @@ public abstract class BaseCollaborateurResourceImpl
 	private <T, R, E extends Throwable> Object _unsafeTransformToPrimitiveArray(
 			Collection<T> collection, UnsafeFunction<T, R, E> unsafeFunction,
 			Class<?> clazz)
-			throws E {
+		throws E {
 
 		List<R> list = unsafeTransform(collection, unsafeFunction);
 
 		Object array = clazz.cast(
-				Array.newInstance(clazz.getComponentType(), list.size()));
+			Array.newInstance(clazz.getComponentType(), list.size()));
 
 		for (int i = 0; i < list.size(); i++) {
 			Array.set(array, i, list.get(i));
@@ -533,7 +570,7 @@ public abstract class BaseCollaborateurResourceImpl
 	}
 
 	private static final com.liferay.portal.kernel.log.Log _log =
-			LogFactoryUtil.getLog(BaseCollaborateurResourceImpl.class);
+		LogFactoryUtil.getLog(BaseCollaborateurResourceImpl.class);
 
 }
-// LIFERAY-REST-BUILDER-HASH:405386187
+// LIFERAY-REST-BUILDER-HASH:1506777029

@@ -1236,7 +1236,7 @@ public class ObjectEntryHelper {
 			List<ObjectEntry> entries,
 			String fields,
 			String nestedFields) {
-		_log.info(">>>>> entriesToJson <<<<<");
+		_log.info(">>>> entriesToJson <<<<");
 		JSONArray arr = JSONFactoryUtil.createJSONArray();
 
 		// Parse les champs à inclure
@@ -1259,6 +1259,8 @@ public class ObjectEntryHelper {
 			JSONObject obj = JSONFactoryUtil.createJSONObject();
 			obj.put("id", entry.getObjectEntryId());
 			obj.put("externalReferenceCode", entry.getExternalReferenceCode());
+			obj.put("dateCreated", entry.getCreateDate());
+			obj.put("dateModified", entry.getModifiedDate());
 
 			// Ajoute les valeurs normales
 			Map<String, Serializable> values = entry.getValues();

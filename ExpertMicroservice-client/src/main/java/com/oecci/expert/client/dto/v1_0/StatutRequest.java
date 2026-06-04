@@ -99,4 +99,4 @@ public class StatutRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-279250984
+// LIFERAY-REST-BUILDER-HASH:1213767466

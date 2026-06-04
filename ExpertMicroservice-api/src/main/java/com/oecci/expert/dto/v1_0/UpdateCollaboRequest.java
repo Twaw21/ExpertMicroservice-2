@@ -26,8 +26,9 @@ import java.util.function.Supplier;
 
 import javax.annotation.Generated;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -35,49 +36,170 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @generated
  */
 @Generated("")
-@GraphQLName("ReloadWalletRequest")
+@GraphQLName("UpdateCollaboRequest")
 @io.swagger.v3.oas.annotations.media.Schema(
-	requiredProperties = {
-		"expertComptableID", "walletID", "paymentID", "amount"
-	}
+	requiredProperties = {"nom", "prenoms", "statut"}
 )
 @JsonFilter("Liferay.Vulcan")
-@XmlRootElement(name = "ReloadWalletRequest")
-public class ReloadWalletRequest implements Serializable {
+@XmlRootElement(name = "UpdateCollaboRequest")
+public class UpdateCollaboRequest implements Serializable {
 
-	public static ReloadWalletRequest toDTO(String json) {
-		return ObjectMapperUtil.readValue(ReloadWalletRequest.class, json);
+	public static UpdateCollaboRequest toDTO(String json) {
+		return ObjectMapperUtil.readValue(UpdateCollaboRequest.class, json);
 	}
 
-	public static ReloadWalletRequest unsafeToDTO(String json) {
+	public static UpdateCollaboRequest unsafeToDTO(String json) {
 		return ObjectMapperUtil.unsafeReadValue(
-			ReloadWalletRequest.class, json);
+			UpdateCollaboRequest.class, json);
 	}
 
 	@io.swagger.v3.oas.annotations.media.Schema
-	public Long getAmount() {
-		if (_amountSupplier != null) {
-			amount = _amountSupplier.get();
+	public String getContact() {
+		if (_contactSupplier != null) {
+			contact = _contactSupplier.get();
 
-			_amountSupplier = null;
+			_contactSupplier = null;
 		}
 
-		return amount;
+		return contact;
 	}
 
-	public void setAmount(Long amount) {
-		this.amount = amount;
+	public void setContact(String contact) {
+		this.contact = contact;
 
-		_amountSupplier = null;
+		_contactSupplier = null;
 	}
 
 	@JsonIgnore
-	public void setAmount(
-		UnsafeSupplier<Long, Exception> amountUnsafeSupplier) {
+	public void setContact(
+		UnsafeSupplier<String, Exception> contactUnsafeSupplier) {
 
-		_amountSupplier = () -> {
+		_contactSupplier = () -> {
 			try {
-				return amountUnsafeSupplier.get();
+				return contactUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String contact;
+
+	@JsonIgnore
+	private Supplier<String> _contactSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
+	public String getNom() {
+		if (_nomSupplier != null) {
+			nom = _nomSupplier.get();
+
+			_nomSupplier = null;
+		}
+
+		return nom;
+	}
+
+	public void setNom(String nom) {
+		this.nom = nom;
+
+		_nomSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setNom(UnsafeSupplier<String, Exception> nomUnsafeSupplier) {
+		_nomSupplier = () -> {
+			try {
+				return nomUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotEmpty
+	protected String nom;
+
+	@JsonIgnore
+	private Supplier<String> _nomSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
+	public String getPrenoms() {
+		if (_prenomsSupplier != null) {
+			prenoms = _prenomsSupplier.get();
+
+			_prenomsSupplier = null;
+		}
+
+		return prenoms;
+	}
+
+	public void setPrenoms(String prenoms) {
+		this.prenoms = prenoms;
+
+		_prenomsSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setPrenoms(
+		UnsafeSupplier<String, Exception> prenomsUnsafeSupplier) {
+
+		_prenomsSupplier = () -> {
+			try {
+				return prenomsUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotEmpty
+	protected String prenoms;
+
+	@JsonIgnore
+	private Supplier<String> _prenomsSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
+	public Boolean getStatut() {
+		if (_statutSupplier != null) {
+			statut = _statutSupplier.get();
+
+			_statutSupplier = null;
+		}
+
+		return statut;
+	}
+
+	public void setStatut(Boolean statut) {
+		this.statut = statut;
+
+		_statutSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setStatut(
+			UnsafeSupplier<Boolean, Exception> statutUnsafeSupplier) {
+
+		_statutSupplier = () -> {
+			try {
+				return statutUnsafeSupplier.get();
 			}
 			catch (RuntimeException runtimeException) {
 				throw runtimeException;
@@ -91,136 +213,11 @@ public class ReloadWalletRequest implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	@NotNull
-	protected Long amount;
+	protected Boolean statut;
 
 	@JsonIgnore
-	private Supplier<Long> _amountSupplier;
+	private Supplier<Boolean> _statutSupplier;
 
-	@io.swagger.v3.oas.annotations.media.Schema
-	public Long getExpertComptableID() {
-		if (_expertComptableIDSupplier != null) {
-			expertComptableID = _expertComptableIDSupplier.get();
-
-			_expertComptableIDSupplier = null;
-		}
-
-		return expertComptableID;
-	}
-
-	public void setExpertComptableID(Long expertComptableID) {
-		this.expertComptableID = expertComptableID;
-
-		_expertComptableIDSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setExpertComptableID(
-		UnsafeSupplier<Long, Exception> expertComptableIDUnsafeSupplier) {
-
-		_expertComptableIDSupplier = () -> {
-			try {
-				return expertComptableIDUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	@NotNull
-	protected Long expertComptableID;
-
-	@JsonIgnore
-	private Supplier<Long> _expertComptableIDSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema
-	public Long getPaymentID() {
-		if (_paymentIDSupplier != null) {
-			paymentID = _paymentIDSupplier.get();
-
-			_paymentIDSupplier = null;
-		}
-
-		return paymentID;
-	}
-
-	public void setPaymentID(Long paymentID) {
-		this.paymentID = paymentID;
-
-		_paymentIDSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setPaymentID(
-		UnsafeSupplier<Long, Exception> paymentIDUnsafeSupplier) {
-
-		_paymentIDSupplier = () -> {
-			try {
-				return paymentIDUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	@NotNull
-	protected Long paymentID;
-
-	@JsonIgnore
-	private Supplier<Long> _paymentIDSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema
-	public Long getWalletID() {
-		if (_walletIDSupplier != null) {
-			walletID = _walletIDSupplier.get();
-
-			_walletIDSupplier = null;
-		}
-
-		return walletID;
-	}
-
-	public void setWalletID(Long walletID) {
-		this.walletID = walletID;
-
-		_walletIDSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setWalletID(
-		UnsafeSupplier<Long, Exception> walletIDUnsafeSupplier) {
-
-		_walletIDSupplier = () -> {
-			try {
-				return walletIDUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	@NotNull
-	protected Long walletID;
-
-	@JsonIgnore
-	private Supplier<Long> _walletIDSupplier;
 
 	@Override
 	public boolean equals(Object object) {
@@ -228,13 +225,14 @@ public class ReloadWalletRequest implements Serializable {
 			return true;
 		}
 
-		if (!(object instanceof ReloadWalletRequest)) {
+		if (!(object instanceof UpdateCollaboRequest)) {
 			return false;
 		}
 
-		ReloadWalletRequest reloadWalletRequest = (ReloadWalletRequest)object;
+		UpdateCollaboRequest updateCollaboRequest =
+			(UpdateCollaboRequest)object;
 
-		return Objects.equals(toString(), reloadWalletRequest.toString());
+		return Objects.equals(toString(), updateCollaboRequest.toString());
 	}
 
 	@Override
@@ -249,52 +247,52 @@ public class ReloadWalletRequest implements Serializable {
 
 		sb.append("{");
 
-		Long amount = getAmount();
+		String contact = getContact();
 
-		if (amount != null) {
+		if (contact != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"amount\": ");
+			sb.append("\"contact\": ");
 
-			sb.append(amount);
+			sb.append("\"");
+
+			sb.append(_escape(contact));
+
+			sb.append("\"");
 		}
 
-		Long expertComptableID = getExpertComptableID();
+		String nom = getNom();
 
-		if (expertComptableID != null) {
+		if (nom != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"expertComptableID\": ");
+			sb.append("\"nom\": ");
 
-			sb.append(expertComptableID);
+			sb.append("\"");
+
+			sb.append(_escape(nom));
+
+			sb.append("\"");
 		}
 
-		Long paymentID = getPaymentID();
+		String prenoms = getPrenoms();
 
-		if (paymentID != null) {
+		if (prenoms != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"paymentID\": ");
+			sb.append("\"prenoms\": ");
 
-			sb.append(paymentID);
-		}
+			sb.append("\"");
 
-		Long walletID = getWalletID();
+			sb.append(_escape(prenoms));
 
-		if (walletID != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"walletID\": ");
-
-			sb.append(walletID);
+			sb.append("\"");
 		}
 
 		sb.append("}");
@@ -304,7 +302,7 @@ public class ReloadWalletRequest implements Serializable {
 
 	@io.swagger.v3.oas.annotations.media.Schema(
 		accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY,
-		defaultValue = "com.oecci.expert.dto.v1_0.ReloadWalletRequest",
+		defaultValue = "com.oecci.expert.dto.v1_0.UpdateCollaboRequest",
 		name = "x-class-name"
 	)
 	public String xClassName;
@@ -398,4 +396,4 @@ public class ReloadWalletRequest implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-475374763
+// LIFERAY-REST-BUILDER-HASH:-1722617895

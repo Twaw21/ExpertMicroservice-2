@@ -124,4 +124,4 @@ public class CreateDmdExtQuotVisaRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1908191740
+// LIFERAY-REST-BUILDER-HASH:-1485786509

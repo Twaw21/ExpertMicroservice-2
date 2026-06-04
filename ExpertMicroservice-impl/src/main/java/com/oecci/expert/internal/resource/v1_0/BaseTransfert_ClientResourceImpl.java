@@ -19,6 +19,7 @@ import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.ActionUtil;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
@@ -65,7 +66,6 @@ public abstract class BaseTransfert_ClientResourceImpl
 	@javax.ws.rs.Consumes({"application/json", "application/xml"})
 	@javax.ws.rs.Path("/oecci/expert/transfert-client")
 	@javax.ws.rs.POST
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response createTransfertClient(
 			CreateForwardRequest createForwardRequest)
@@ -79,7 +79,7 @@ public abstract class BaseTransfert_ClientResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/transfert-client/by-destinataire/{Expert_ComptableId}'  -u 'test@liferay.com:test'
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/transfert-client/by-destinataire/{expertComptableId}'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
 		description = "Demandes de transfert par expert destinataire"
@@ -88,7 +88,7 @@ public abstract class BaseTransfert_ClientResourceImpl
 		value = {
 			@io.swagger.v3.oas.annotations.Parameter(
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-				name = "Expert_ComptableId"
+				name = "expertComptableId"
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
@@ -127,24 +127,20 @@ public abstract class BaseTransfert_ClientResourceImpl
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path(
-		"/oecci/expert/transfert-client/by-destinataire/{Expert_ComptableId}"
+		"/oecci/expert/transfert-client/by-destinataire/{expertComptableId}"
 	)
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response getDemandesTransfertByDestinataire(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.validation.constraints.NotNull
-			@javax.ws.rs.PathParam("Expert_ComptableId")
-			Long Expert_ComptableId,
+			@javax.ws.rs.PathParam("expertComptableId")
+			Long expertComptableId,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("page")
 			Integer page,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("pageSize")
 			Integer pageSize,
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.ws.rs.QueryParam("filter")
-			String filter,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("sort")
 			String sort,
@@ -165,72 +161,68 @@ public abstract class BaseTransfert_ClientResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/transfert-client/by-expediteur/{Expert_ComptableId}'  -u 'test@liferay.com:test'
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/transfert-client/by-expediteur/{expertComptableId}'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
-			description = "Demandes de transfert par expert expediteur"
+		description = "Demandes de transfert par expert expediteur"
 	)
 	@io.swagger.v3.oas.annotations.Parameters(
-			value = {
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "Expert_ComptableId"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "page"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "pageSize"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "filter"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "sort"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "fields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFieldsDepth"
-					)
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "expertComptableId"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "fields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFieldsDepth"
+			)
+		}
 	)
 	@io.swagger.v3.oas.annotations.tags.Tags(
-			value = {
-					@io.swagger.v3.oas.annotations.tags.Tag(name = "Transfert_Client")
-			}
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "Transfert_Client")
+		}
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path(
-			"/oecci/expert/transfert-client/by-expediteur/{Expert_ComptableId}"
+		"/oecci/expert/transfert-client/by-expediteur/{expertComptableId}"
 	)
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response getDemandesTransfertByExpediteur(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.validation.constraints.NotNull
-			@javax.ws.rs.PathParam("Expert_ComptableId")
-			Long Expert_ComptableId,
+			@javax.ws.rs.PathParam("expertComptableId")
+			Long expertComptableId,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("page")
 			Integer page,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("pageSize")
 			Integer pageSize,
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.ws.rs.QueryParam("filter")
-			String filter,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("sort")
 			String sort,
@@ -295,7 +287,6 @@ public abstract class BaseTransfert_ClientResourceImpl
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/transfert-client/list")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response getDemandesTransfertClients(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -350,7 +341,6 @@ public abstract class BaseTransfert_ClientResourceImpl
 		"/oecci/expert/transfert-client/validation/{demandeTransfertID}"
 	)
 	@javax.ws.rs.POST
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
 	public Response validateDemandeTransfertClient(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -382,7 +372,7 @@ public abstract class BaseTransfert_ClientResourceImpl
 			(contextHttpServletRequest.getAttribute(WebKeys.CTX) == null)) {
 
 			contextHttpServletRequest.setAttribute(
-				WebKeys.CTX, ServletContextPool.get(StringPool.BLANK));
+				WebKeys.CTX, ServletContextPool.get(null));
 		}
 
 		this.contextHttpServletRequest = contextHttpServletRequest;
@@ -590,5 +580,6 @@ public abstract class BaseTransfert_ClientResourceImpl
 	private static final com.liferay.portal.kernel.log.Log _log =
 		LogFactoryUtil.getLog(BaseTransfert_ClientResourceImpl.class);
 
+	
 }
-// LIFERAY-REST-BUILDER-HASH:625365355
+// LIFERAY-REST-BUILDER-HASH:2144535427

@@ -49,18 +49,19 @@ public interface Transfert_ClientResource {
 			CreateForwardRequest createForwardRequest)
 		throws Exception;
 
-	public String getDemandesTransfertByDestinataire(
-			Long Expert_ComptableId, Integer nestedFieldsDepth,
-			com.liferay.portal.kernel.search.filter.Filter filter,
-			Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getDemandesTransfertByDestinataire(
+			Long expertComptableId, Integer page, Integer pageSize, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public String getDemandesTransfertClients(
-			Integer nestedFieldsDepth,
-			com.liferay.portal.kernel.search.filter.Filter filter,
-			Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getDemandesTransfertByExpediteur(
+			Long expertComptableId, Integer page, Integer pageSize, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
+		throws Exception;
+
+	public Response getDemandesTransfertClients(
+			Integer page, Integer pageSize, String filter, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepths)
 		throws Exception;
 
 	public Response validateDemandeTransfertClient(
@@ -155,4 +156,4 @@ public interface Transfert_ClientResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1404449005
+// LIFERAY-REST-BUILDER-HASH:-455897122

@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
@@ -93,7 +94,8 @@ public abstract class BaseExpert_ComptableResourceTestCase {
 			_testCompanyAdminUser.getEmailAddress(),
 			PropsValues.DEFAULT_ADMIN_PASSWORD
 		).endpoint(
-			testCompany.getVirtualHostname(), 8080, "http"
+			testCompany.getVirtualHostname(),
+			PortalUtil.getPortalServerPort(false), "http"
 		).locale(
 			LocaleUtil.getDefault()
 		).build();
@@ -107,11 +109,6 @@ public abstract class BaseExpert_ComptableResourceTestCase {
 
 	@Test
 	public void testCreateExpertComptable() throws Exception {
-		Assert.assertTrue(false);
-	}
-
-	@Test
-	public void testGetAllExperts() throws Exception {
 		Assert.assertTrue(false);
 	}
 
@@ -137,6 +134,16 @@ public abstract class BaseExpert_ComptableResourceTestCase {
 
 	@Test
 	public void testReloadWallet() throws Exception {
+		Assert.assertTrue(false);
+	}
+
+	@Test
+	public void testUpdateCabinet() throws Exception {
+		Assert.assertTrue(false);
+	}
+
+	@Test
+	public void testUpdateExpertComptable() throws Exception {
 		Assert.assertTrue(false);
 	}
 
@@ -446,7 +453,9 @@ public abstract class BaseExpert_ComptableResourceTestCase {
 			).toString(),
 			"application/json");
 		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
-		httpInvoker.path("http://localhost:8080/o/graphql");
+		httpInvoker.path(
+			"http://localhost:" + PortalUtil.getPortalServerPort(false) +
+				"/o/graphql");
 		httpInvoker.userNameAndPassword(
 			"test@liferay.com:" + PropsValues.DEFAULT_ADMIN_PASSWORD);
 
@@ -685,4 +694,4 @@ public abstract class BaseExpert_ComptableResourceTestCase {
 		_expert_ComptableResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:192903464
+// LIFERAY-REST-BUILDER-HASH:-119577968

@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
@@ -93,7 +94,8 @@ public abstract class BaseTransfert_ClientResourceTestCase {
 			_testCompanyAdminUser.getEmailAddress(),
 			PropsValues.DEFAULT_ADMIN_PASSWORD
 		).endpoint(
-			testCompany.getVirtualHostname(), 8080, "http"
+			testCompany.getVirtualHostname(),
+			PortalUtil.getPortalServerPort(false), "http"
 		).locale(
 			LocaleUtil.getDefault()
 		).build();
@@ -112,6 +114,11 @@ public abstract class BaseTransfert_ClientResourceTestCase {
 
 	@Test
 	public void testGetDemandesTransfertByDestinataire() throws Exception {
+		Assert.assertTrue(false);
+	}
+
+	@Test
+	public void testGetDemandesTransfertByExpediteur() throws Exception {
 		Assert.assertTrue(false);
 	}
 
@@ -426,7 +433,9 @@ public abstract class BaseTransfert_ClientResourceTestCase {
 			).toString(),
 			"application/json");
 		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
-		httpInvoker.path("http://localhost:8080/o/graphql");
+		httpInvoker.path(
+			"http://localhost:" + PortalUtil.getPortalServerPort(false) +
+				"/o/graphql");
 		httpInvoker.userNameAndPassword(
 			"test@liferay.com:" + PropsValues.DEFAULT_ADMIN_PASSWORD);
 
@@ -665,4 +674,4 @@ public abstract class BaseTransfert_ClientResourceTestCase {
 		_transfert_ClientResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1746378005
+// LIFERAY-REST-BUILDER-HASH:130420892

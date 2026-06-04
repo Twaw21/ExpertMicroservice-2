@@ -13,14 +13,10 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Sort;
-import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
-import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.util.PropsUtil;
 import com.oecci.expert.dto.v1_0.CreateDmdExtQuotVisaRequest;
-import com.oecci.expert.dto.v1_0.DataResult;
 import com.oecci.expert.dto.v1_0.StatutRequest;
 import com.oecci.expert.resource.v1_0.VisaResource;
 
@@ -32,7 +28,14 @@ import org.osgi.service.component.annotations.ServiceScope;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Lenovo
@@ -42,295 +45,6 @@ import java.util.List;
 	scope = ServiceScope.PROTOTYPE, service = VisaResource.class
 )
 public class VisaResourceImpl extends BaseVisaResourceImpl {
-	@Override
-	public Response validateDemandeExtQuotaVisa(Long demandeExtId, StatutRequest statutRequest) throws Exception {
-		return null;
-	}
-
-	@Override
-	public Response canSignVisa(Long expertId) throws Exception {
-		return null;
-	}
-
-	public Response createDemandeExtensionQuotaVisa(CreateDmdExtQuotVisaRequest createDmdExtQuotVisaRequest)
-			throws Exception {
-		/*
-//      pour acc�s limiter � admin
-//		// R�cup�rer le checker de permission
-//	    PermissionChecker permissionChecker =
-//	        PermissionThreadLocal.getPermissionChecker();
-//
-//	    // V�rifier si c'est un admin Liferay
-//	    if (!permissionChecker.isOmniadmin() &&
-//	        !permissionChecker.isCompanyAdmin()) {
-//	        return Response.status(Response.Status.FORBIDDEN)
-//	                       .entity("Acc�s refus�")
-//	                       .build();
-//	    }
-
-		JSONObject client, expert_comptable_expediteur = null, expert_comptable_destinataire = null, result;
-		if (_httpServletRequest == null ) {
-			_log.info(">> Object request does not exist. ");
-			result = JSONFactoryUtil.createJSONObject();
-			result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
-			result.put("message", "Objet request introuvable");
-			result.put("data", "");
-			System.out.println("> Returning response");
-			return Response.status(Response.Status.OK).entity(result).build();
-		}
-
-		User user = PortalUtil.getUser(_httpServletRequest);
-
-		if (user == null) {
-			_log.debug("Aucun utilisateur connect� - fin du traitement.");
-			_log.info(">> Object request does not exist. ");
-			result = JSONFactoryUtil.createJSONObject();
-			result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
-			result.put("message", "Aucun utilisateur connect�");
-			result.put("data", "");
-			System.out.println("> Returning response");
-			return Response.status(Response.Status.OK).entity(result).build();
-		}
-		_log.info("User found by PortalUtil.getUser(request) : "+user.getFullName());
-
-//		 // R�cup�rer l'utilisateur courant
-//        User c_user = _userLocalService.getUser(
-//            PrincipalThreadLocal.getUserId()
-//        );
-//        _log.info("User found by PrincipalThreadLocal.getUserId() : "+c_user.getFullName());
-//
-
-		String csrfToken = AuthTokenUtil.getToken(
-				_httpServletRequest
-		);
-
-		_log.info("xcrsf by AuthTokenUtil.getToken : "+csrfToken);
-		_log.info("headers names : "+_httpServletRequest.getHeaderNames());
-
-		long companyId = user.getCompanyId();
-
-		String roles [] = {"Regular EXPERTS Shared Object", "Regular EXPERTS ASSOCIE Shared Object"};
-		// V�rifier si l'utilisateur a un r�le sp�cifique
-		boolean hasRole = RoleLocalServiceUtil.hasUserRoles(
-				user.getUserId(),
-				companyId,
-				roles,  // Nom du r�le dans Liferay
-				true                  // true = inclure les r�les h�rit�s
-		);
-
-		if (!hasRole) {
-			return Response
-					.status(Response.Status.FORBIDDEN)
-					.entity("{\"message\": \"R�le insuffisant\"}")
-					.build();
-		}
-
-
-
-		System.out.println(">> Begining VISA QUOTA EXTENSION creation...");
-		String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://" +
-				PropsUtil.get(PropsKeys.WEB_SERVER_HOST);// + ":" +PropsUtil.get(PropsKeys.WEB_SERVER_HTTPS_PORT);
-
-
-//		String baseURL = "http://localhost:8081";
-		System.out.println("> Base URL : " + baseURL);
-
-		String request_type = null;
-		boolean isToCreate = false;
-
-		System.out.println(">> verifying accountant making request");
-
-		String link = Constants.LIFERAY_GET_EXPERT_COMPT_BY_ID_URL
-				.replace("[baseUrl]", baseURL)
-				.replace("[expertComptableID]", "" + createDmdExtQuotVisaRequest.getExpertID());
-		System.out.println("> headless URL to check RECIPIENT ACCOUNTANT link : " + link);
-		expert_comptable_destinataire = Utils.executeHttpRequest(baseURL, link, null, Constants.GET_REQUEST, csrfToken);
-		if (expert_comptable_destinataire == null) {
-			System.out.println(">> Expert comptable destinataire ID " + createDmdExtQuotVisaRequest.getExpertID() + " n'existe pas");
-			result = JSONFactoryUtil.createJSONObject();
-			result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
-			result.put("message", "Expert comptable destinataire ID " + createDmdExtQuotVisaRequest.getExpertID() + " n'existe pas");
-			result.put("data", "");
-			System.out.println("> Returning response");
-			return Response.status(Response.Status.OK).entity(result).build();
-		}
-
-		System.out.println(">> SENDER ACCOUNTANT FOUND. ID : "+expert_comptable_destinataire.getString("nom"));
-
-//		System.out.println(">> Checking CLIENT FORWARDING infos...");
-//		link = Constants.LIFERAY_GET_DEMANDE_TRANSFERT
-//				.replace("[baseUrl]", baseURL)
-//				.replace("[expertExpediteurId]", "'" + expert_comptable_expediteur.getLong("id") + "'")
-//				.replace("[expertDestinataireId]", "'" + createForwardRequest.getExpertDestinataireID() + "'")
-//				.replace("[clientId]", "'" + client.getLong("id") + "'");//Ajouter le statut pour traiter ceux qui sont en attente de validation
-//		System.out.println("> headless URL to check DEMANDE TRANSFERT : " + link);
-//		JSONObject transferts_clients = Utils.executeHttpRequest(baseURL, link, null, Constants.GET_REQUEST);
-//		if (transferts_clients.getJSONArray("items").length() == 0) {
-//
-//			link = Constants.LIFERAY_CREATE_TRANSFERT_CLIENT_URL.replace("[baseUrl]", baseURL);
-//			System.out.println("> headless URL to create DEMANDE TRANSFERT CLIENT : " + link);
-//			request_type = Constants.POST_REQUEST;
-//			isToCreate = true;
-//		} else {
-//			transferts_clients = transferts_clients.getJSONArray("items").getJSONObject(0);
-//			//expert_comptable_destinataire = client.getJSONObject("r_iDExpertComptableDestinataire_c_expertComptableId");
-//			System.out.println(">> DEMANDE TRANSFERT d�j� enregistr�. ID : "+transferts_clients.getLong("id")+"\nMise � jour de ses infos en cours...");
-//			link = Constants.LIFERAY_UPDATE_TRANSFERT_CLIENT_URL
-//					.replace("[baseUrl]", baseURL)
-//					.replace("[demandeTransfertId]", "" + transferts_clients.getLong("id"));
-//			System.out.println("> headless URL to update DEMANDE TRANSFERT : " + link);
-//			request_type = Constants.PUT_REQUEST;
-//
-//		}
-//
-//
-//		JSONObject data_to_post = JSONFactoryUtil.createJSONObject();
-//		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-//		String randomCode = Utils.generateRandomCode();
-//		String reference = "DMD-TRF-"+timestamp.getTime()+"-"+randomCode;//Calendar.getInstance().getTimeInMillis();
-//		data_to_post.put("code", reference);
-//
-//		data_to_post.put("r_iDClientTransfertClient_c_clientId", client.getLong("id"));
-//		data_to_post.put("r_iDExpertComptableTransfertClient_c_expertComptableId", expert_comptable_expediteur.getLong("id"));
-//		data_to_post.put("r_iDExpertComptableDestinataire_c_expertComptableId", expert_comptable_destinataire.getLong("id"));
-//
-//		JSONObject validationStatut = JSONFactoryUtil.createJSONObject();
-//		validationStatut.put("name", "EN_COURS");
-//		validationStatut.put("key", "eNCOURS");
-//		data_to_post.put("transfertStatut", validationStatut);
-//		data_to_post.put("motif", createForwardRequest.getMotif() != null ? createForwardRequest.getMotif() : "");
-//
-//
-//		transferts_clients = Utils.executeHttpRequest(baseURL, link, data_to_post, request_type);
-//		if (transferts_clients == null) {
-//			result = JSONFactoryUtil.createJSONObject();
-//			String message = null;
-//			if (isToCreate) {
-//				message = "La demande de transfert du client "+client.getString("raisonSociale")
-//				+ " de l'expert comptable "+expert_comptable_expediteur.getString("nom")+ " "+ expert_comptable_expediteur.getString("prenoms")
-//				+ " � l'expert comptable "+expert_comptable_destinataire.getString("nom")+ " "+ expert_comptable_destinataire.getString("prenoms")
-//				+ " a �chou�. Veuillez r�essayer ou contacter l'administrateur si cela persiste. ";
-//				System.out.println(message);
-//				result.put("message", message);
-//			} else {
-//				message = "La mise � jour de la demande de transfert du client "+client.getString("raisonSociale")
-//				+ " de l'expert comptable "+expert_comptable_expediteur.getString("nom")+ " "+ expert_comptable_expediteur.getString("prenoms")
-//				+ " � l'expert comptable "+expert_comptable_destinataire.getString("nom")+ " "+ expert_comptable_destinataire.getString("prenoms")
-//				+ " a �chou�. Veuillez r�essayer ou contacter l'administrateur si cela persiste. ";
-//				System.out.println(message);
-//				result.put("message", message);
-//			}
-//			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
-//			result.put("data", "");
-//			System.out.println("> Returning response..");
-//			return Response.status(Response.Status.OK).entity(result).build();
-//		}
-//		System.out.println(">> CLIENT FORWARDING WELL CREATED / UPDATED!! ");
-//		System.out.println(">> Starting client  notification..");
-//		System.out.println("> Preparing template notification for CLIENT..");
-//
-//
-//		JSONArray users_to_notify = JSONFactoryUtil.createJSONArray();
-//		JSONArray intervenants = client.getJSONArray("iDClientIntervenant");
-//		Map<String, Object> templateVariables = new HashMap<>();
-//		for (int j = 0; j < intervenants.length(); j++) {
-//			JSONObject intervenant = intervenants.getJSONObject(j);
-//			templateVariables = new HashMap<>();
-//			String templatePath = "/templates/email/transfert_client.ftl";
-//
-//			templateVariables.put("nom_client", client.getString("raisonSociale"));
-//			templateVariables.put("nom_expert_expediteur", expert_comptable_expediteur.getString("prenoms") +" "+ expert_comptable_expediteur.getString("nom"));
-//			templateVariables.put("email_expediteur", expert_comptable_expediteur.getString("email"));
-//			templateVariables.put("nom_expert_destinataire", expert_comptable_destinataire.getString("prenoms") +" "+ expert_comptable_expediteur.getString("nom"));
-//			templateVariables.put("email_destinataire", expert_comptable_destinataire.getString("email"));
-//			templateVariables.put("reference_transfert", transferts_clients.getString("code"));
-//			templateVariables.put("motif_transfert", transferts_clients.getString("motif") != null ? transferts_clients.getString("motif") : "");
-//
-//			// For full date-time with timezone
-//			DateTimeFormatter date_formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-//			ZonedDateTime zonedDateTime = ZonedDateTime.parse(transferts_clients.getString("dateCreated"), date_formatter);
-//			LocalDate date_created_forwarding = zonedDateTime.toLocalDate();
-//			System.out.println("> date_created_forwarding : "+date_created_forwarding);
-//			// Formatter la LocalDate en String
-//	        DateTimeFormatter output_formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//	        System.out.println("> Client forwarding date formatted : "+date_created_forwarding.format(output_formatter));
-//
-//	        templateVariables.put("date_transfert", date_created_forwarding.format(output_formatter));
-//
-//			//////templateVariables.put("statut_visa", transferts_clients.getJSONObject("transfertStatut").getString("name"));
-//			String mail_content = Utils.processMailTemplate(templatePath, this.getClass(), templateVariables);
-//
-//			System.out.println("mail content updated : "+mail_content);
-//
-//			data_to_post = JSONFactoryUtil.createJSONObject();
-//			data_to_post.put("email", intervenant.getString("email"));
-//			data_to_post.put("content", mail_content);
-//			data_to_post.put("subject", "OECCI : Notification de demande d'inscription client");
-//
-//			users_to_notify.put(data_to_post);
-//
-//		}
-//
-//		System.out.println("> Preparing template notification for CLIENT EXPERT RECIPIENT..");
-//		templateVariables = new HashMap<>();
-//		String templatePath = "/templates/email/transfert_client_expert_notification.ftl";
-//
-//		templateVariables.put("nom_expert_expediteur", expert_comptable_expediteur.getString("prenoms") +" "+ expert_comptable_expediteur.getString("nom"));
-//		templateVariables.put("nom_expert_destinataire", expert_comptable_destinataire.getString("prenoms") +" "+ expert_comptable_expediteur.getString("nom"));
-//		templateVariables.put("nom_client", client.getString("raisonSociale"));
-//		templateVariables.put("email_client", client.getString("email"));
-//		templateVariables.put("reference_transfert", transferts_clients.getString("code"));
-//		templateVariables.put("motif_transfert", transferts_clients.getString("motif") != null ? transferts_clients.getString("motif") : "");
-//
-//		// For full date-time with timezone
-//		DateTimeFormatter date_formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-//		ZonedDateTime zonedDateTime = ZonedDateTime.parse(transferts_clients.getString("dateCreated"), date_formatter);
-//		LocalDate date_created_forwarding = zonedDateTime.toLocalDate();
-//		System.out.println("> date_created_forwarding : "+date_created_forwarding);
-//
-//     // Formatter la LocalDate en String
-//        DateTimeFormatter output_formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//
-//        System.out.println("> Client forwarding date formatted : "+date_created_forwarding.format(output_formatter));
-//	    templateVariables.put("date_transfert", date_created_forwarding.format(output_formatter));
-//
-//		//////templateVariables.put("statut_visa", transferts_clients.getJSONObject("transfertStatut").getString("name"));
-//		String mail_content = Utils.processMailTemplate(templatePath, this.getClass(), templateVariables);
-//
-//		System.out.println("mail content updated : "+mail_content);
-//
-//		data_to_post = JSONFactoryUtil.createJSONObject();
-//		data_to_post.put("email", expert_comptable_destinataire.getString("email"));
-//		data_to_post.put("content", mail_content);
-//		data_to_post.put("subject", "OECCI : Notification de demande d'inscription client");
-//
-//		users_to_notify.put(data_to_post);
-//
-//		System.out.println();
-//		System.out.println(">> Infos for notification ready to be used..");
-//		link = Constants.LIFERAY_SEND_NOTIFICATION_EMAIL_URL
-//				.replace("[baseUrl]", baseURL);
-//		System.out.println("> headless URL to send CLIENT notification : " + link);
-//		for (int i = 0; i < users_to_notify.length(); i++) {
-//			System.out.println();
-//			System.out.println(">> Sending email notification to : " + users_to_notify.getJSONObject(i).getString("email"));
-//			JSONObject notification = Utils.executeHttpRequest(baseURL, link, users_to_notify.getJSONObject(i), Constants.POST_REQUEST);
-//			if(notification != null)
-//				System.out.println("Notifiation return code : "+notification.getInt("code"));
-////				if(notification.getInt("code") == Constants.HTTP_SUCCESS) {
-////
-////				}
-//		}
-		result = JSONFactoryUtil.createJSONObject();
-		result.put("message", "");
-		result.put("code", Constants.HTTP_SUCCESS);
-//		result.put("data", transferts_clients);
-		result.put("data", "");
-
-		System.out.println("> Returning response");
-		return Response.status(Response.Status.OK).entity(result).build();*/
-		return null;
-	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 			VisaResourceImpl.class);
@@ -340,6 +54,973 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 	// -------------------------------------------------------------------------
 
 	private static final String ERC_DEMANDE_VISA              = Constants.ERC_DEMANDE_VISA;
+	private static final String ERC_QUOTAT_VISA_CONFIGURATION = Constants.ERC_QUOTAT_VISA_CONFIGURATION;
+	private static final String ERC_EXPERT_VISA_COUNT         = Constants.ERC_EXPERT_VISA_COUNT;
+	private static final String ERC_DEMANDE_EXTENSION_QUOTA_VISA         = Constants.ERC_DEMANDE_EXTENSION_QUOTA_VISA;
+
+
+
+	@Override
+	public Response createDemandeExtensionQuotaVisa(
+			CreateDmdExtQuotVisaRequest demandeExtensionQuotaVisaRequest)
+			throws Exception {
+
+		_log.info(">> Début createDemandeExtensionQuotaVisa");
+
+		long userId    = contextUser.getUserId();
+		long companyId = contextCompany.getCompanyId();
+		long groupId   = 0;
+		String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://" +
+				PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
+
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+
+		// ------------------------------------------------------------------
+		// Compte technique
+		// ------------------------------------------------------------------
+		User technicalUser;
+		try {
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+			_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+		}
+		catch (Exception e) {
+			_log.error("[createDemandeExtensionQuotaVisa] Compte technique introuvable : " +
+					e.getMessage(), e);
+			result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", "Compte technique manquant. Contacter l'administrateur.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		long techUserId = technicalUser.getUserId();
+
+		// ------------------------------------------------------------------
+		// 1. Vérifier l'existence de l'expert comptable demandeur
+		// ------------------------------------------------------------------
+		ObjectEntry expertEntry;
+		try {
+			expertEntry = _objectEntryHelper.getEntryOrThrow(
+					demandeExtensionQuotaVisaRequest.getExpertID());
+		}
+		catch (Exception e) {
+			_log.warn("[createDemandeExtensionQuotaVisa] Expert introuvable : id=" +
+					demandeExtensionQuotaVisaRequest.getExpertID());
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Expert comptable ID " +
+					demandeExtensionQuotaVisaRequest.getExpertID() + " n'existe pas.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		String expertNom     = ObjectEntryHelper.getString(expertEntry, "nom");
+		String expertPrenoms = ObjectEntryHelper.getString(expertEntry, "prenoms");
+		String expertEmail   = ObjectEntryHelper.getString(expertEntry, "email");
+		String expertNomComplet = expertPrenoms + " " + expertNom;
+
+		_log.info("[createDemandeExtensionQuotaVisa] Expert demandeur : " + expertNomComplet);
+
+		// ------------------------------------------------------------------
+		// 2. Vérifier l'existence de l'administrateur de l'ordre
+		// ------------------------------------------------------------------
+		ObjectEntry ordreEntry;
+		try {
+			ordreEntry = _objectEntryHelper.getEntryOrThrow(
+					demandeExtensionQuotaVisaRequest.getOrdreExpertID());
+		}
+		catch (Exception e) {
+			_log.warn("[createDemandeExtensionQuotaVisa] Administrateur de l'ordre introuvable : id=" +
+					demandeExtensionQuotaVisaRequest.getOrdreExpertID());
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Administrateur de l'ordre ID " +
+					demandeExtensionQuotaVisaRequest.getOrdreExpertID() + " n'existe pas.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		String ordreEmail   = ObjectEntryHelper.getString(ordreEntry, "email");
+		String ordreNom     = ObjectEntryHelper.getString(ordreEntry, "nom");
+		String ordrePrenoms = ObjectEntryHelper.getString(ordreEntry, "prenoms");
+		String ordreNomComplet = ordrePrenoms + " " + ordreNom;
+
+		_log.info("[createDemandeExtensionQuotaVisa] Administrateur de l'ordre : " + ordreNomComplet);
+
+		// ------------------------------------------------------------------
+		// 3. Récupérer la configuration de quota visa globale
+		// ------------------------------------------------------------------
+		List<ObjectEntry> quotaList = _objectEntryHelper.searchByFilter(
+				techUserId, companyId, groupId, ERC_QUOTAT_VISA_CONFIGURATION, null);
+
+		if (quotaList.isEmpty()) {
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Aucune configuration de quota de visa trouvée.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		int minLimitVisa = (int) ObjectEntryHelper.getLong(quotaList.get(0), "minlimitevisa");
+		int maxLimitVisa = (int) ObjectEntryHelper.getLong(quotaList.get(0), "maxlimitevisa");
+
+		_log.info("[createDemandeExtensionQuotaVisa] Config quota — min=" + minLimitVisa +
+				" max=" + maxLimitVisa);
+
+		// ------------------------------------------------------------------
+		// 4. Récupérer le compteur de visas de l'expert
+		// ------------------------------------------------------------------
+		List<ObjectEntry> visaCountList = _objectEntryHelper.searchByFilter(
+				techUserId, companyId, groupId, ERC_EXPERT_VISA_COUNT,
+				ObjectEntryHelper.buildEqFilter(
+						"r_expertVisaCount_c_expertComptableId",
+						String.valueOf(expertEntry.getObjectEntryId())));
+
+		if (visaCountList.isEmpty()) {
+			_log.warn("[createDemandeExtensionQuotaVisa] Aucun compteur visa trouvé pour expert id=" +
+					expertEntry.getObjectEntryId());
+			result.put("code",    Constants.HTTP_NOT_UPDATED);
+			result.put("message", "Echec de la demande d'extension de quota visa. " +
+					"Aucune configuration de comptage trouvée pour l'expert comptable " +
+					expertNomComplet + ".");
+			JSONObject countData = JSONFactoryUtil.createJSONObject();
+			countData.put("current_visa_count", 0);
+			result.put("data", countData);
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		ObjectEntry countEntry      = visaCountList.get(0);
+		boolean isOnMinConfig       = ObjectEntryHelper.getBoolean(countEntry, "isOnMinConfig");
+		int     currentVisaCount    = (int) ObjectEntryHelper.getLong(countEntry, "visaCount");
+
+		// ------------------------------------------------------------------
+		// 5. Vérifier si le quota est déjà étendu
+		//    canBeCounted = l'expert est encore dans la plage min → il peut
+		//    demander l'extension. S'il est déjà passé en maxConfig, son quota
+		//    a déjà été étendu → on bloque.
+		// ------------------------------------------------------------------
+		boolean canRequestExtension = isOnMinConfig;
+
+		if (!canRequestExtension) {
+			_log.warn("[createDemandeExtensionQuotaVisa] Quota déjà étendu pour expert id=" +
+					expertEntry.getObjectEntryId());
+			result.put("code",    Constants.HTTP_NOT_UPDATED);
+			result.put("message", "Echec de la demande d'extension de quota visa. " +
+					"Le quota visa signé a déjà été étendu pour l'expert comptable " +
+					expertNomComplet + ".");
+			JSONObject countData = JSONFactoryUtil.createJSONObject();
+			countData.put("current_visa_count", currentVisaCount);
+			result.put("data", countData);
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		_log.info("[createDemandeExtensionQuotaVisa] Expert éligible à l'extension — " +
+				"visaCount=" + currentVisaCount + " minLimit=" + minLimitVisa);
+
+		// ------------------------------------------------------------------
+		// 6. Chercher une demande d'extension existante (statut eNCOURS)
+		//    pour éviter les doublons
+		// ------------------------------------------------------------------
+		String extensionFilter = ObjectEntryHelper.buildAndFilter(
+				ObjectEntryHelper.buildEqFilter(
+						"r_expertDemandeur_c_expertComptableId",
+						String.valueOf(expertEntry.getObjectEntryId())),
+				ObjectEntryHelper.buildEqFilter(
+						"extensionQuotatStatus", "eNCOURS"));
+
+		List<ObjectEntry> existingExtensions = _objectEntryHelper.searchByFilter(
+				userId, companyId, groupId, ERC_DEMANDE_EXTENSION_QUOTA_VISA, extensionFilter);
+
+		// ------------------------------------------------------------------
+		// 7. Créer ou mettre à jour la demande d'extension
+		// ------------------------------------------------------------------
+		String reference = "DMD-EXT-QUOTA-" + System.currentTimeMillis() +
+				"-" + UserHelper.generateSecureCode();
+
+		Map<String, Serializable> extensionValues = new HashMap<>();
+		extensionValues.put("extensionQuotatStatus", "eNCOURS");
+		extensionValues.put(
+				"r_expertDemandeur_c_expertComptableId",
+				expertEntry.getObjectEntryId());
+		extensionValues.put(
+				"r_iDExpertCoordinateur_c_expertCoordinateurId",
+				demandeExtensionQuotaVisaRequest.getOrdreExpertID());
+		extensionValues.put(
+				"motif",
+				demandeExtensionQuotaVisaRequest.getMotif() != null ?
+						demandeExtensionQuotaVisaRequest.getMotif() : "");
+
+		ObjectEntry savedExtension;
+		boolean isNewExtension = existingExtensions.isEmpty();
+
+		if (isNewExtension) {
+			_log.info("[createDemandeExtensionQuotaVisa] Création de la demande d'extension...");
+			extensionValues.put("code", reference);
+			savedExtension = _objectEntryHelper.addEntry(
+					userId, groupId, companyId,
+					ERC_DEMANDE_EXTENSION_QUOTA_VISA, extensionValues);
+		}
+		else {
+			long existingId = existingExtensions.get(0).getObjectEntryId();
+			_log.info("[createDemandeExtensionQuotaVisa] MAJ demande d'extension existante id=" +
+					existingId);
+			savedExtension = _objectEntryHelper.updateEntry(
+					userId, groupId, companyId, existingId, extensionValues);
+		}
+
+		if (savedExtension == null) {
+			String msg = (isNewExtension ? "La création" : "La mise à jour") +
+					" de la demande d'extension de quota visa pour l'expert " +
+					expertNomComplet +
+					" a échoué. Veuillez réessayer ou contacter l'administrateur si cela persiste.";
+			_log.error("[createDemandeExtensionQuotaVisa] " + msg);
+			result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", msg);
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		String savedCode  = ObjectEntryHelper.getString(savedExtension, "code");
+		String savedMotif = ObjectEntryHelper.getString(savedExtension, "motif");
+		LocalDate dateCreated = savedExtension.getCreateDate()
+				.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		String dateCreatedFormatted = dateCreated.format (DateTimeFormatter.ofPattern("dd MM yyyy"));
+
+		_log.info("[createDemandeExtensionQuotaVisa] Demande persistée — code=" + savedCode);
+
+		// ------------------------------------------------------------------
+		// 8. Notification à l'administrateur de l'ordre
+		// ------------------------------------------------------------------
+		try {
+			String templatePath =
+					"/templates/email/notification_expert_dmd_ext_visa_quotat.ftl";
+
+			Map<String, Object> tplVars = new HashMap<>();
+			tplVars.put("nom_admin_ordre",     ordreNomComplet);
+			tplVars.put("nom_expert",          expertNomComplet);
+			tplVars.put("email_expert",        expertEmail);
+			tplVars.put("reference_demande",   savedCode);
+			tplVars.put("motif",               savedMotif != null ? savedMotif : "");
+			tplVars.put("date_demande",        dateCreatedFormatted);
+			tplVars.put("current_visa_count",  String.valueOf(currentVisaCount));
+			tplVars.put("min_limit_visa",      String.valueOf(minLimitVisa));
+			tplVars.put("max_limit_visa",      String.valueOf(maxLimitVisa));
+			tplVars.put("lien_plateforme",     baseURL + "/web/oecci_expert_ordre");
+
+			String mailContent = Utils.processMailTemplate(
+					templatePath, this.getClass(), tplVars);
+
+			JSONObject notifPayload = JSONFactoryUtil.createJSONObject();
+			notifPayload.put("email",   ordreEmail);
+			notifPayload.put("content", mailContent);
+			notifPayload.put("subject", "OECCI : Nouvelle demande d'extension de quota visa");
+
+			String notifLink = Constants.LIFERAY_SEND_NOTIFICATION_EMAIL_URL
+					.replace("[baseUrl]", baseURL);
+
+			JSONObject notifResult = Utils.executeHttpRequest(
+					baseURL, notifLink, notifPayload, Constants.POST_REQUEST);
+			if (notifResult != null) {
+				_log.info("[createDemandeExtensionQuotaVisa] Notification envoyée à " +
+						ordreEmail + " — code=" + notifResult.getInt("code"));
+			}
+		}
+		catch (Exception e) {
+			_log.warn("[createDemandeExtensionQuotaVisa] Erreur notification ordre : " +
+					e.getMessage(), e);
+		}
+
+		// ------------------------------------------------------------------
+		// 9. Réponse succès
+		// ------------------------------------------------------------------
+		JSONObject dataObj = JSONFactoryUtil.createJSONObject();
+		dataObj.put("id",                    savedExtension.getObjectEntryId());
+		dataObj.put("code",                  savedCode);
+		dataObj.put("extensionQuotatStatus", "eNCOURS");
+		dataObj.put("expertId",              expertEntry.getObjectEntryId());
+		dataObj.put("expertNom",             expertNomComplet);
+		dataObj.put("current_visa_count",    currentVisaCount);
+		dataObj.put("min_limit_visa",        minLimitVisa);
+		dataObj.put("max_limit_visa",        maxLimitVisa);
+
+		result.put("code",    Constants.HTTP_SUCCESS);
+		result.put("message", "La demande d'extension de quota visa de l'expert " +
+				expertNomComplet + " a été soumise avec succès. " +
+				"L'administrateur de l'ordre a été notifié.");
+		result.put("data", dataObj);
+
+		_log.info("[createDemandeExtensionQuotaVisa] Traitement terminé.");
+		return Response.status(Response.Status.OK).entity(result).build();
+	}
+
+
+	@Override
+	public Response getDemandesExtensionQuotaVisa(
+			long   ordreExpertId,
+			String statut,
+			int page,
+			int pageSize)
+			throws Exception {
+
+		_log.info(">> Début getDemandesExtensionQuotaVisa — ordreExpertId=" + ordreExpertId +
+				" statut=" + statut + " page=" + page + " pageSize=" + pageSize);
+
+		long userId    = contextUser.getUserId();
+		long companyId = contextCompany.getCompanyId();
+		long groupId   = 0;
+
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+
+		// ------------------------------------------------------------------
+		// Validation des paramètres
+		// ------------------------------------------------------------------
+		if (ordreExpertId <= 0) {
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Paramètre ordreExpertId manquant ou invalide.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		if (page < 1)     page     = 1;
+		if (pageSize < 1) pageSize = 20;
+		if (pageSize > 100) pageSize = 100;
+
+		// ------------------------------------------------------------------
+		// Compte technique
+		// ------------------------------------------------------------------
+		User technicalUser;
+		try {
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+		}
+		catch (Exception e) {
+			_log.error("[getDemandesExtensionQuotaVisa] Compte technique introuvable : " +
+					e.getMessage(), e);
+			result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", "Compte technique manquant. Contacter l'administrateur.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		long techUserId = technicalUser.getUserId();
+
+		// ------------------------------------------------------------------
+		// 1. Vérifier l'existence de l'administrateur de l'ordre
+		// ------------------------------------------------------------------
+		ObjectEntry ordreEntry;
+		try {
+			ordreEntry = _objectEntryHelper.getEntryOrThrow(ordreExpertId);
+		}
+		catch (Exception e) {
+			_log.warn("[getDemandesExtensionQuotaVisa] Admin ordre introuvable : id=" +
+					ordreExpertId);
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Administrateur de l'ordre introuvable pour l'id : " +
+					ordreExpertId + ".");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		String ordreNom     = ObjectEntryHelper.getString(ordreEntry, "nom");
+		String ordrePrenoms = ObjectEntryHelper.getString(ordreEntry, "prenoms");
+		_log.info("[getDemandesExtensionQuotaVisa] Admin ordre : " + ordrePrenoms + " " + ordreNom);
+
+		// ------------------------------------------------------------------
+		// 2. Récupérer la configuration de quota visa globale
+		//    (nécessaire pour enrichir chaque ligne avec les plafonds)
+		// ------------------------------------------------------------------
+		int minLimitVisa = 0;
+		int maxLimitVisa = 0;
+
+		List<ObjectEntry> quotaList = _objectEntryHelper.searchByFilter(
+				techUserId, companyId, groupId, ERC_QUOTAT_VISA_CONFIGURATION, null);
+
+		if (!quotaList.isEmpty()) {
+			minLimitVisa = (int) ObjectEntryHelper.getLong(quotaList.get(0), "minlimitevisa");
+			maxLimitVisa = (int) ObjectEntryHelper.getLong(quotaList.get(0), "maxlimitevisa");
+		}
+
+		_log.info("[getDemandesExtensionQuotaVisa] Config quota — min=" + minLimitVisa +
+				" max=" + maxLimitVisa);
+
+		// ------------------------------------------------------------------
+		// 3. Construction du filtre de recherche des demandes d'extension
+		//
+		//    Filtre de base : toutes les demandes adressées à cet admin.
+		//    Filtre optionnel : statut si fourni et non vide.
+		// ------------------------------------------------------------------
+		String baseFilter = ObjectEntryHelper.buildEqFilter(
+				"r_iDExpertCoordinateur_c_expertCoordinateurId",
+				String.valueOf(ordreExpertId));
+
+		String finalFilter;
+		if (statut != null && !statut.isBlank()) {
+			finalFilter = ObjectEntryHelper.buildAndFilter(
+					baseFilter,
+					ObjectEntryHelper.buildEqFilter("extensionQuotatStatus", statut.trim()));
+		}
+		else {
+			finalFilter = baseFilter;
+		}
+
+		// ------------------------------------------------------------------
+		// 4. Récupérer toutes les demandes correspondant au filtre
+		// ------------------------------------------------------------------
+		List<ObjectEntry> allDemandes = _objectEntryHelper.searchByFilter(
+				userId, companyId, groupId,
+				ERC_DEMANDE_EXTENSION_QUOTA_VISA, finalFilter);
+
+		_log.info("[getDemandesExtensionQuotaVisa] " + allDemandes.size() +
+				" demande(s) trouvée(s).");
+
+		// ------------------------------------------------------------------
+		// 5. Pagination manuelle
+		// ------------------------------------------------------------------
+		int totalItems = allDemandes.size();
+		int totalPages = (totalItems == 0) ? 1 : (int) Math.ceil((double) totalItems / pageSize);
+		int fromIndex  = (page - 1) * pageSize;
+		int toIndex    = Math.min(fromIndex + pageSize, totalItems);
+
+		List<ObjectEntry> pageDemandes = (fromIndex >= totalItems)
+				? new ArrayList<>()
+				: allDemandes.subList(fromIndex, toIndex);
+
+		// ------------------------------------------------------------------
+		// 6. Enrichissement de chaque demande
+		// ------------------------------------------------------------------
+		JSONArray items = JSONFactoryUtil.createJSONArray();
+
+		for (ObjectEntry demandeEntry : pageDemandes) {
+			try {
+				JSONObject item = JSONFactoryUtil.createJSONObject();
+
+				// Champs propres à la demande
+				item.put("id",                    demandeEntry.getObjectEntryId());
+				item.put("code",                  ObjectEntryHelper.getString(demandeEntry, "code"));
+				item.put("extensionQuotatStatus", ObjectEntryHelper.getString(demandeEntry, "extensionQuotatStatus"));
+				item.put("motif",                 ObjectEntryHelper.getString(demandeEntry, "motif"));
+
+				// Date de création formatée
+				LocalDate dateCreated = demandeEntry.getCreateDate()
+						.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				item.put("dateCreated", dateCreated.format(DateTimeFormatter.ofPattern("dd MM yyyy")));
+
+				// Date de dernière modification
+				LocalDate dateModified = demandeEntry.getModifiedDate()
+						.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				item.put("dateModified", dateModified.format(DateTimeFormatter.ofPattern("dd MM yyyy")));
+
+				// ── Données de l'expert demandeur ──────────────────────────
+				long expertDemandeurId = ObjectEntryHelper.getLong(
+						demandeEntry, "r_expertDemandeur_c_expertComptableId");
+
+				JSONObject expertData = JSONFactoryUtil.createJSONObject();
+				expertData.put("id", expertDemandeurId);
+
+				ObjectEntry expertEntry = _objectEntryHelper.getEntry(expertDemandeurId);
+				if (expertEntry != null) {
+					String expertNom     = ObjectEntryHelper.getString(expertEntry, "nom");
+					String expertPrenoms = ObjectEntryHelper.getString(expertEntry, "prenoms");
+					expertData.put("nom",        expertNom);
+					expertData.put("prenoms",    expertPrenoms);
+					expertData.put("nomComplet", expertPrenoms + " " + expertNom);
+					expertData.put("email",      ObjectEntryHelper.getString(expertEntry, "email"));
+					expertData.put("contact",    ObjectEntryHelper.getString(expertEntry, "contact"));
+				}
+				item.put("expertDemandeur", expertData);
+
+				// ── Compteur de visas de l'expert ──────────────────────────
+				JSONObject visaCountData = JSONFactoryUtil.createJSONObject();
+				visaCountData.put("minLimitVisa", minLimitVisa);
+				visaCountData.put("maxLimitVisa", maxLimitVisa);
+
+				List<ObjectEntry> visaCountList = _objectEntryHelper.searchByFilter(
+						techUserId, companyId, groupId, ERC_EXPERT_VISA_COUNT,
+						ObjectEntryHelper.buildEqFilter(
+								"r_expertVisaCount_c_expertComptableId",
+								String.valueOf(expertDemandeurId)));
+
+				if (!visaCountList.isEmpty()) {
+					ObjectEntry countEntry   = visaCountList.get(0);
+					boolean isOnMinConfig    = ObjectEntryHelper.getBoolean(countEntry, "isOnMinConfig");
+					int     currentVisaCount = (int) ObjectEntryHelper.getLong(countEntry, "visaCount");
+					int     applicableLimit  = isOnMinConfig ? minLimitVisa : maxLimitVisa;
+					int     remainingVisas   = Math.max(0, applicableLimit - currentVisaCount);
+
+					visaCountData.put("currentVisaCount", currentVisaCount);
+					visaCountData.put("isOnMinConfig",    isOnMinConfig);
+					visaCountData.put("applicableLimit",  applicableLimit);
+					visaCountData.put("remainingVisas",   remainingVisas);
+					visaCountData.put("canSign",          remainingVisas > 0);
+				}
+				else {
+					visaCountData.put("currentVisaCount", 0);
+					visaCountData.put("isOnMinConfig",    true);
+					visaCountData.put("applicableLimit",  minLimitVisa);
+					visaCountData.put("remainingVisas",   minLimitVisa);
+					visaCountData.put("canSign",          minLimitVisa > 0);
+				}
+				item.put("visaCount", visaCountData);
+
+				items.put(item);
+			}
+			catch (Exception e) {
+				_log.warn("[getDemandesExtensionQuotaVisa] Erreur enrichissement demande id=" +
+						demandeEntry.getObjectEntryId() + " : " + e.getMessage());
+			}
+		}
+
+		// ------------------------------------------------------------------
+		// 7. Compteurs par statut pour le tableau de bord de l'admin
+		// ------------------------------------------------------------------
+		JSONObject statusCounts = JSONFactoryUtil.createJSONObject();
+		statusCounts.put("total",    totalItems);
+		statusCounts.put("eNCOURS",  _countByStatut(allDemandes, "eNCOURS"));
+		statusCounts.put("aCCEPTE",  _countByStatut(allDemandes, "aCCEPTE"));
+		statusCounts.put("rEFUSE",   _countByStatut(allDemandes, "rEFUSE"));
+
+		// ------------------------------------------------------------------
+		// 8. Construction de la réponse paginée
+		// ------------------------------------------------------------------
+		JSONObject pagination = JSONFactoryUtil.createJSONObject();
+		pagination.put("page",       page);
+		pagination.put("pageSize",   pageSize);
+		pagination.put("totalItems", totalItems);
+		pagination.put("totalPages", totalPages);
+		pagination.put("hasNext",    page < totalPages);
+		pagination.put("hasPrev",    page > 1);
+
+		JSONObject data = JSONFactoryUtil.createJSONObject();
+		data.put("items",        items);
+		data.put("pagination",   pagination);
+		data.put("statusCounts", statusCounts);
+
+		result.put("code",    Constants.HTTP_SUCCESS);
+		result.put("message", items.length() == 0
+				? "Aucune demande d'extension de quota visa trouvée."
+				: items.length() + " demande(s) trouvée(s).");
+		result.put("data", data);
+
+		_log.info("[getDemandesExtensionQuotaVisa] Réponse construite — " +
+				items.length() + " item(s) retourné(s).");
+		return Response.status(Response.Status.OK).entity(result).build();
+	}
+
+	// ------------------------------------------------------------------
+// Méthode utilitaire — compte les entrées d'une liste par statut
+// ------------------------------------------------------------------
+	private int _countByStatut(List<ObjectEntry> entries, String statutKey) {
+		int count = 0;
+		for (ObjectEntry e : entries) {
+			if (statutKey.equals(ObjectEntryHelper.getString(e, "extensionQuotatStatus"))) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+		@Override
+		public Response validateDemandeExtQuotaVisa(
+				Long           demandeExtId,
+				StatutRequest  statutRequest)
+        throws Exception {
+
+			_log.info(">> Début validateDemandeExtQuotaVisa — id=" + demandeExtId);
+
+			long userId    = contextUser.getUserId();
+			long companyId = contextCompany.getCompanyId();
+			long groupId   = 0;
+			String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://" +
+					PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
+
+			JSONObject result = JSONFactoryUtil.createJSONObject();
+
+			// ------------------------------------------------------------------
+			// Compte technique
+			// ------------------------------------------------------------------
+			User technicalUser;
+			try {
+				technicalUser = _userHelper.getTechnicalUser(companyId);
+				_log.info("[ UserAdmin ] >>>>: " + technicalUser.getFirstName());
+			}
+			catch (Exception e) {
+				_log.error("[validateDemandeExtQuotaVisa] Compte technique introuvable : " +
+						e.getMessage(), e);
+				result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+				result.put("message", "Compte technique manquant. Contacter l'administrateur.");
+				result.put("data",    "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+
+			long techUserId = technicalUser.getUserId();
+
+			// ------------------------------------------------------------------
+			// 1. Récupérer la demande d'extension
+			// ------------------------------------------------------------------
+			ObjectEntry extensionEntry;
+			try {
+				extensionEntry = _objectEntryHelper.getEntryOrThrow(demandeExtId);
+			}
+			catch (Exception e) {
+				_log.warn("[validateDemandeExtQuotaVisa] Demande introuvable : id=" + demandeExtId);
+				result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+				result.put("message", "Aucune demande d'extension de quota visa trouvée pour l'id : " +
+						demandeExtId + ".");
+				result.put("data",    "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+
+			_log.info("[validateDemandeExtQuotaVisa] Demande trouvée — statut actuel=" +
+					ObjectEntryHelper.getString(extensionEntry, "extensionQuotatStatus"));
+
+			// ------------------------------------------------------------------
+			// 2. Extraire les FKs et charger les entités liées
+			// ------------------------------------------------------------------
+			long expertDemandeurId = ObjectEntryHelper.getLong(
+					extensionEntry, "r_expertDemandeur_c_expertComptableId");
+			long ordreTraiteurId   = ObjectEntryHelper.getLong(
+					extensionEntry, "r_iDExpertCoordinateur_c_expertCoordinateurId");
+
+			ObjectEntry expertEntry;
+			try {
+				expertEntry = _objectEntryHelper.getEntryOrThrow(expertDemandeurId);
+			}
+			catch (Exception e) {
+				_log.error("[validateDemandeExtQuotaVisa] Expert demandeur introuvable : id=" +
+						expertDemandeurId);
+				result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+				result.put("message", "Expert comptable demandeur introuvable (id=" +
+						expertDemandeurId + ").");
+				result.put("data",    "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+
+			ObjectEntry ordreEntry;
+			try {
+				ordreEntry = _objectEntryHelper.getEntryOrThrow(ordreTraiteurId);
+			}
+			catch (Exception e) {
+				_log.warn("[validateDemandeExtQuotaVisa] Ordre introuvable : id=" + ordreTraiteurId +
+						" — traitement poursuivi sans les infos ordre.");
+				ordreEntry = null;
+			}
+
+			String expertNom       = ObjectEntryHelper.getString(expertEntry, "nom");
+			String expertPrenoms   = ObjectEntryHelper.getString(expertEntry, "prenoms");
+			String expertEmail     = ObjectEntryHelper.getString(expertEntry, "email");
+			String expertNomComplet = expertPrenoms + " " + expertNom;
+
+			String ordreNomComplet = (ordreEntry != null)
+					? ObjectEntryHelper.getString(ordreEntry, "prenoms") + " " +
+					ObjectEntryHelper.getString(ordreEntry, "nom")
+					: "L'administrateur de l'ordre";
+
+			String extensionCode = ObjectEntryHelper.getString(extensionEntry, "code");
+			String motifRefus    = statutRequest.getMotif_refus() != null ?
+					statutRequest.getMotif_refus() : "";
+
+			_log.info("[validateDemandeExtQuotaVisa] Expert=" + expertNomComplet +
+					" | Nouveau statut=" + statutRequest.getStatut().getKey());
+
+			// ------------------------------------------------------------------
+			// 3. Mettre à jour le statut de la demande d'extension
+			// ------------------------------------------------------------------
+			Map<String, Serializable> updateValues = new HashMap<>();
+			updateValues.put("extensionQuotatStatus", statutRequest.getStatut().getKey());
+			updateValues.put("motif",                 motifRefus);
+
+			ObjectEntry updatedExtension = _objectEntryHelper.updateEntry(
+					userId, groupId, companyId,
+					extensionEntry.getObjectEntryId(), updateValues);
+
+			if (updatedExtension == null) {
+				_log.error("[validateDemandeExtQuotaVisa] Echec mise à jour statut pour id=" +
+						demandeExtId);
+				result.put("code",    Constants.HTTP_NOT_UPDATED);
+				result.put("message", "La mise à jour de la demande d'extension n° " +
+						extensionCode + " a échoué. Veuillez réessayer ou contacter " +
+						"l'administrateur si cela persiste.");
+				result.put("data",    "");
+				return Response.status(Response.Status.OK).entity(result).build();
+			}
+
+			String updatedStatutKey = ObjectEntryHelper.getString(
+					updatedExtension, "extensionQuotatStatus");
+			_log.info("[validateDemandeExtQuotaVisa] Statut mis à jour : " + updatedStatutKey);
+
+			// ------------------------------------------------------------------
+			// 4. Si ACCEPTÉ : passer le compteur visa de l'expert de min à max
+			// ------------------------------------------------------------------
+			int maxLimitVisa = 0;
+
+			if (statutRequest.getStatut().getName()
+					.equalsIgnoreCase(Constants.EXTENSION_QUOTA_ACCEPTE_STATUS)) {
+
+				// Récupérer la config globale pour avoir maxlimitevisa
+				List<ObjectEntry> quotaList = _objectEntryHelper.searchByFilter(
+						techUserId, companyId, groupId, ERC_QUOTAT_VISA_CONFIGURATION, null);
+
+				if (quotaList.isEmpty()) {
+					_log.warn("[validateDemandeExtQuotaVisa] Config quota introuvable — " +
+							"impossible de mettre à jour le compteur.");
+				}
+				else {
+					maxLimitVisa = (int) ObjectEntryHelper.getLong(
+							quotaList.get(0), "maxlimitevisa");
+
+					// Récupérer le compteur de l'expert
+					List<ObjectEntry> visaCountList = _objectEntryHelper.searchByFilter(
+							techUserId, companyId, groupId, ERC_EXPERT_VISA_COUNT,
+							ObjectEntryHelper.buildEqFilter(
+									"r_expertVisaCount_c_expertComptableId",
+									String.valueOf(expertDemandeurId)));
+
+					if (visaCountList.isEmpty()) {
+						_log.warn("[validateDemandeExtQuotaVisa] Compteur visa introuvable pour " +
+								"expert id=" + expertDemandeurId);
+					}
+					else {
+						ObjectEntry visaCountEntry = visaCountList.get(0);
+
+						Map<String, Serializable> countUpdateValues = new HashMap<>();
+						// isOnMinConfig passe à false : l'expert est maintenant
+						// en configuration max — il peut signer jusqu'à maxlimitevisa.
+						countUpdateValues.put("isOnMinConfig", false);
+
+						ObjectEntry updatedCount = _objectEntryHelper.updateEntry(
+								userId, groupId, companyId,
+								visaCountEntry.getObjectEntryId(), countUpdateValues);
+
+						if (updatedCount == null) {
+							_log.warn("[validateDemandeExtQuotaVisa] Echec MAJ compteur visa pour " +
+									"expert id=" + expertDemandeurId);
+						}
+						else {
+							_log.info("[validateDemandeExtQuotaVisa] Compteur expert passé en " +
+									"maxConfig (isOnMinConfig=false) — maxLimit=" + maxLimitVisa);
+						}
+					}
+				}
+			}
+
+			// ------------------------------------------------------------------
+			// 5. Notification à l'expert comptable
+			// ------------------------------------------------------------------
+			try {
+				String templatePath =
+						"/templates/email/notification_validation_dmd_ext_visa_quotat.ftl";
+
+				boolean isAccepted = statutRequest.getStatut().getName()
+						.equalsIgnoreCase(Constants.EXTENSION_QUOTA_ACCEPTE_STATUS);
+
+				Map<String, Object> tplVars = new HashMap<>();
+				tplVars.put("nom_expert",        expertNomComplet);
+				tplVars.put("nom_admin_ordre",   ordreNomComplet);
+				tplVars.put("reference_demande", extensionCode);
+				tplVars.put("statut",            statutRequest.getStatut().getName());
+				tplVars.put("is_accepted",       isAccepted);
+				tplVars.put("max_limit_visa",    String.valueOf(maxLimitVisa));
+				tplVars.put("motif_refus",       motifRefus);
+				tplVars.put("lien_plateforme",   baseURL + "/web/oecci");
+
+				String mailContent = Utils.processMailTemplate(
+						templatePath, this.getClass(), tplVars);
+
+				JSONObject notifPayload = JSONFactoryUtil.createJSONObject();
+				notifPayload.put("email",   expertEmail);
+				notifPayload.put("content", mailContent);
+				notifPayload.put("subject", isAccepted
+						? "OECCI : Votre demande d'extension de quota visa a été acceptée"
+						: "OECCI : Votre demande d'extension de quota visa a été refusée");
+
+				String notifLink = Constants.LIFERAY_SEND_NOTIFICATION_EMAIL_URL
+						.replace("[baseUrl]", baseURL);
+
+				JSONObject notifResult = Utils.executeHttpRequest(
+						baseURL, notifLink, notifPayload, Constants.POST_REQUEST);
+				if (notifResult != null) {
+					_log.info("[validateDemandeExtQuotaVisa] Notification envoyée à " +
+							expertEmail + " — code=" + notifResult.getInt("code"));
+				}
+			}
+			catch (Exception e) {
+				_log.warn("[validateDemandeExtQuotaVisa] Erreur notification expert : " +
+						e.getMessage(), e);
+			}
+
+			// ------------------------------------------------------------------
+			// 6. Réponse succès
+			// ------------------------------------------------------------------
+			boolean isAccepted = statutRequest.getStatut().getName()
+					.equalsIgnoreCase(Constants.EXTENSION_QUOTA_ACCEPTE_STATUS);
+
+			JSONObject dataObj = JSONFactoryUtil.createJSONObject();
+			dataObj.put("id",                    updatedExtension.getObjectEntryId());
+			dataObj.put("code",                  extensionCode);
+			dataObj.put("extensionQuotatStatus", updatedStatutKey);
+			dataObj.put("expertId",              expertDemandeurId);
+			dataObj.put("expertNom",             expertNomComplet);
+			if (isAccepted) {
+				dataObj.put("max_limit_visa", maxLimitVisa);
+			}
+			if (!motifRefus.isEmpty()) {
+				dataObj.put("motif_refus", motifRefus);
+			}
+
+			String message = isAccepted
+					? "La demande d'extension de quota visa n° " + extensionCode +
+					" de l'expert " + expertNomComplet +
+					" a été acceptée. Il peut désormais signer jusqu'à " +
+					maxLimitVisa + " visas."
+					: "La demande d'extension de quota visa n° " + extensionCode +
+					" de l'expert " + expertNomComplet + " a été refusée.";
+
+			result.put("code",    Constants.HTTP_SUCCESS);
+			result.put("message", message);
+			result.put("data",    dataObj);
+
+			_log.info("[validateDemandeExtQuotaVisa] Traitement terminé — " + message);
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+	@Override
+	public Response canSignVisa(Long expertId)
+			throws Exception {
+
+		_log.info(">> Début canSignVisa — expertId=" + expertId);
+
+		long userId    = contextUser.getUserId();
+		long companyId = contextCompany.getCompanyId();
+		long groupId   = 0;
+
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+
+		// ------------------------------------------------------------------
+		// Validation du paramètre
+		// ------------------------------------------------------------------
+		if (expertId == null || expertId <= 0) {
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Paramètre expertId manquant ou invalide.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		// ------------------------------------------------------------------
+		// Compte technique
+		// ------------------------------------------------------------------
+		User technicalUser;
+		try {
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+		}
+		catch (Exception e) {
+			_log.error("[canSignVisa] Compte technique introuvable : " + e.getMessage(), e);
+			result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", "Compte technique manquant. Contacter l'administrateur.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		long techUserId = technicalUser.getUserId();
+
+		// ------------------------------------------------------------------
+		// 1. Vérifier l'existence de l'expert comptable
+		// ------------------------------------------------------------------
+		ObjectEntry expertEntry;
+		try {
+			expertEntry = _objectEntryHelper.getEntryOrThrow(expertId);
+		}
+		catch (Exception e) {
+			_log.warn("[canSignVisa] Expert introuvable : id=" + expertId);
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Expert comptable introuvable pour l'id : " + expertId + ".");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		String expertNom     = ObjectEntryHelper.getString(expertEntry, "nom");
+		String expertPrenoms = ObjectEntryHelper.getString(expertEntry, "prenoms");
+		String expertNomComplet = expertPrenoms + " " + expertNom;
+
+		// ------------------------------------------------------------------
+		// 2. Récupérer la configuration de quota visa globale
+		// ------------------------------------------------------------------
+		List<ObjectEntry> quotaList = _objectEntryHelper.searchByFilter(
+				techUserId, companyId, groupId, ERC_QUOTAT_VISA_CONFIGURATION, null);
+
+		if (quotaList.isEmpty()) {
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Aucune configuration de quota de visa trouvée.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		int minLimitVisa = (int) ObjectEntryHelper.getLong(quotaList.get(0), "minlimitevisa");
+		int maxLimitVisa = (int) ObjectEntryHelper.getLong(quotaList.get(0), "maxlimitevisa");
+
+		// ------------------------------------------------------------------
+		// 3. Récupérer le compteur de visas de l'expert
+		// ------------------------------------------------------------------
+		List<ObjectEntry> visaCountList = _objectEntryHelper.searchByFilter(
+				techUserId, companyId, groupId, ERC_EXPERT_VISA_COUNT,
+				ObjectEntryHelper.buildEqFilter(
+						"r_expertVisaCount_c_expertComptableId",
+						String.valueOf(expertId)));
+
+		if (visaCountList.isEmpty()) {
+			_log.warn("[canSignVisa] Aucun compteur visa trouvé pour expert id=" + expertId);
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Aucune configuration de comptage de visa trouvée pour " +
+					"l'expert comptable " + expertNomComplet + ".");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		ObjectEntry countEntry   = visaCountList.get(0);
+		boolean isOnMinConfig    = ObjectEntryHelper.getBoolean(countEntry, "isOnMinConfig");
+		int     currentVisaCount = (int) ObjectEntryHelper.getLong(countEntry, "visaCount");
+
+		// ------------------------------------------------------------------
+		// 4. Calcul de la capacité applicable et du reste disponible
+		//
+		//    isOnMinConfig = true  → plafond = minlimitevisa (config de base)
+		//    isOnMinConfig = false → plafond = maxlimitevisa (quota étendu)
+		// ------------------------------------------------------------------
+		int applicableLimit  = isOnMinConfig ? minLimitVisa : maxLimitVisa;
+		int remainingVisas   = Math.max(0, applicableLimit - currentVisaCount);
+		boolean canSign      = remainingVisas > 0;
+
+		_log.info("[canSignVisa] Expert=" + expertNomComplet +
+				" | visaCount=" + currentVisaCount +
+				" | applicableLimit=" + applicableLimit +
+				" | remaining=" + remainingVisas +
+				" | canSign=" + canSign);
+
+		// ------------------------------------------------------------------
+		// 5. Construction de la réponse
+		// ------------------------------------------------------------------
+		JSONObject data = JSONFactoryUtil.createJSONObject();
+		data.put("expertId",         expertId);
+		data.put("expertNom",        expertNomComplet);
+		data.put("canSign",          canSign);
+		data.put("currentVisaCount", currentVisaCount);
+		data.put("applicableLimit",  applicableLimit);
+		data.put("remainingVisas",   remainingVisas);
+		data.put("isOnMinConfig",    isOnMinConfig);
+		data.put("minLimitVisa",     minLimitVisa);
+		data.put("maxLimitVisa",     maxLimitVisa);
+
+		String message = canSign
+				? "L'expert " + expertNomComplet + " peut encore signer " +
+				remainingVisas + " visa(s) sur un maximum de " + applicableLimit + "."
+				: "L'expert " + expertNomComplet +
+				" a atteint son quota de visas signés (" + currentVisaCount +
+				"/" + applicableLimit + "). " +
+				(isOnMinConfig
+						? "Il peut soumettre une demande d'extension de quota."
+						: "Son quota étendu est également atteint.");
+
+		result.put("code",    Constants.HTTP_SUCCESS);
+		result.put("message", message);
+		result.put("data",    data);
+
+		return Response.status(Response.Status.OK).entity(result).build();
+	}
+
 
 	// -------------------------------------------------------------------------
 	// getDemandeVisasByDate
@@ -428,7 +1109,7 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 						(long) (pageSize != null ? pageSize : -1));
 			}
 
-			JSONArray data = objH.entriesToJson(entries, fields, nestedFields);
+			JSONArray data = _objectEntryHelper.entriesToJson(entries, fields, nestedFields);
 			_log.info("entriesToJson : " + data.toString());
 
 			result.put("code", Constants.HTTP_SUCCESS);
@@ -510,7 +1191,7 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 					(long) (page != null ? page : -1),
 					(long) (pageSize != null ? pageSize : -1));
 
-			JSONArray data = objH.entriesToJson(entries, fields, nestedFields);
+			JSONArray data = _objectEntryHelper.entriesToJson(entries, fields, nestedFields);
 			_log.info("entriesToJson : " + data.toString());
 
 			result.put("code", Constants.HTTP_SUCCESS);
@@ -544,7 +1225,8 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 		}
 
 		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
-		String[] roles = {"Regular EXPERTS Shared Object", "Regular COLLABO ADMIN Shared Object"};
+		String[] roles = {"Regular EXPERTS Shared Object", "Regular COLLABO ADMIN Shared Object"
+				, "Regular COLLABO ASSISTANT Shared Object", "Regular COLLABO MODERATOR Shared Object"};
 		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
 
 		JSONObject result = JSONFactoryUtil.createJSONObject();
@@ -590,8 +1272,8 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 					(long) (page != null ? page : -1),
 					(long) (pageSize != null ? pageSize : -1));
 
-			JSONArray data = objH.entriesToJson(entries, fields, nestedFields);
-			_log.info("entriesToJson : " + data.toString());
+			JSONArray data = _objectEntryHelper.entriesToJson(entries, fields, nestedFields);
+			_log.info(">> entriesToJson : " + data.toString());
 
 			result.put("code", Constants.HTTP_SUCCESS);
 			result.put("message", "OK");

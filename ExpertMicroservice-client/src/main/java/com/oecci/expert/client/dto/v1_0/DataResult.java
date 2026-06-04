@@ -78,4 +78,4 @@ public class DataResult implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1420672796
+// LIFERAY-REST-BUILDER-HASH:-623420937

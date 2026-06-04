@@ -40,24 +40,25 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @generated
  */
 @Generated("")
-@GraphQLName("CreateExpertComptable")
+@GraphQLName("UpdateCabinetRequest")
 @io.swagger.v3.oas.annotations.media.Schema(
 	requiredProperties = {
-		"nom", "prenoms", "email", "matricule", "inscription_type",
-		"inscription_mode"
+		"nom", "prenoms", "email", "matricule", "nomCabinet",
+		"numeroCabinet", "categorie", "annee_inscription", "contact", "adressePostale"
+
 	}
 )
 @JsonFilter("Liferay.Vulcan")
-@XmlRootElement(name = "CreateExpertComptable")
-public class CreateExpertComptable implements Serializable {
+@XmlRootElement(name = "UpdateCabinetRequest")
+public class UpdateCabinetRequest implements Serializable {
 
-	public static CreateExpertComptable toDTO(String json) {
-		return ObjectMapperUtil.readValue(CreateExpertComptable.class, json);
+	public static UpdateCabinetRequest toDTO(String json) {
+		return ObjectMapperUtil.readValue(UpdateCabinetRequest.class, json);
 	}
 
-	public static CreateExpertComptable unsafeToDTO(String json) {
+	public static UpdateCabinetRequest unsafeToDTO(String json) {
 		return ObjectMapperUtil.unsafeReadValue(
-			CreateExpertComptable.class, json);
+			UpdateCabinetRequest.class, json);
 	}
 
 	@io.swagger.v3.oas.annotations.media.Schema
@@ -102,7 +103,7 @@ public class CreateExpertComptable implements Serializable {
 	private Supplier<String> _adressePostaleSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
-	public String getAnnee_inscription() {
+	public Integer getAnnee_inscription() {
 		if (_annee_inscriptionSupplier != null) {
 			annee_inscription = _annee_inscriptionSupplier.get();
 
@@ -112,7 +113,7 @@ public class CreateExpertComptable implements Serializable {
 		return annee_inscription;
 	}
 
-	public void setAnnee_inscription(String annee_inscription) {
+	public void setAnnee_inscription(Integer annee_inscription) {
 		this.annee_inscription = annee_inscription;
 
 		_annee_inscriptionSupplier = null;
@@ -120,7 +121,7 @@ public class CreateExpertComptable implements Serializable {
 
 	@JsonIgnore
 	public void setAnnee_inscription(
-		UnsafeSupplier<String, Exception> annee_inscriptionUnsafeSupplier) {
+		UnsafeSupplier<Integer, Exception> annee_inscriptionUnsafeSupplier) {
 
 		_annee_inscriptionSupplier = () -> {
 			try {
@@ -137,10 +138,53 @@ public class CreateExpertComptable implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String annee_inscription;
+	protected Integer annee_inscription;
 
 	@JsonIgnore
-	private Supplier<String> _annee_inscriptionSupplier;
+	private Supplier<Integer> _annee_inscriptionSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
+	@Valid
+	public Option getCategorie() {
+		if (_categorieSupplier != null) {
+			categorie = _categorieSupplier.get();
+
+			_categorieSupplier = null;
+		}
+
+		return categorie;
+	}
+
+	public void setCategorie(Option categorie) {
+		this.categorie = categorie;
+
+		_categorieSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setCategorie(
+		UnsafeSupplier<Option, Exception> categorieUnsafeSupplier) {
+
+		_categorieSupplier = () -> {
+			try {
+				return categorieUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotNull
+	protected Option categorie;
+
+	@JsonIgnore
+	private Supplier<Option> _categorieSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
 	public String getContact() {
@@ -182,256 +226,6 @@ public class CreateExpertComptable implements Serializable {
 
 	@JsonIgnore
 	private Supplier<String> _contactSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema
-	public String getEmail() {
-		if (_emailSupplier != null) {
-			email = _emailSupplier.get();
-
-			_emailSupplier = null;
-		}
-
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-
-		_emailSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setEmail(
-		UnsafeSupplier<String, Exception> emailUnsafeSupplier) {
-
-		_emailSupplier = () -> {
-			try {
-				return emailUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	@NotEmpty
-	protected String email;
-
-	@JsonIgnore
-	private Supplier<String> _emailSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema
-	public Long getExpertAssoID() {
-		if (_expertAssoIDSupplier != null) {
-			expertAssoID = _expertAssoIDSupplier.get();
-
-			_expertAssoIDSupplier = null;
-		}
-
-		return expertAssoID;
-	}
-
-	public void setExpertAssoID(Long expertAssoID) {
-		this.expertAssoID = expertAssoID;
-
-		_expertAssoIDSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setExpertAssoID(
-		UnsafeSupplier<Long, Exception> expertAssoIDUnsafeSupplier) {
-
-		_expertAssoIDSupplier = () -> {
-			try {
-				return expertAssoIDUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long expertAssoID;
-
-	@JsonIgnore
-	private Supplier<Long> _expertAssoIDSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema
-	@JsonGetter("inscription_by")
-	@Valid
-	public Inscription_by getInscription_by() {
-		if (_inscription_bySupplier != null) {
-			inscription_by = _inscription_bySupplier.get();
-
-			_inscription_bySupplier = null;
-		}
-
-		return inscription_by;
-	}
-
-	@JsonIgnore
-	public String getInscription_byAsString() {
-		Inscription_by inscription_by = getInscription_by();
-
-		if (inscription_by == null) {
-			return null;
-		}
-
-		return inscription_by.toString();
-	}
-
-	public void setInscription_by(Inscription_by inscription_by) {
-		this.inscription_by = inscription_by;
-
-		_inscription_bySupplier = null;
-	}
-
-	@JsonIgnore
-	public void setInscription_by(
-		UnsafeSupplier<Inscription_by, Exception>
-			inscription_byUnsafeSupplier) {
-
-		_inscription_bySupplier = () -> {
-			try {
-				return inscription_byUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Inscription_by inscription_by;
-
-	@JsonIgnore
-	private Supplier<Inscription_by> _inscription_bySupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema
-	@JsonGetter("inscription_mode")
-	@Valid
-	public Inscription_mode getInscription_mode() {
-		if (_inscription_modeSupplier != null) {
-			inscription_mode = _inscription_modeSupplier.get();
-
-			_inscription_modeSupplier = null;
-		}
-
-		return inscription_mode;
-	}
-
-	@JsonIgnore
-	public String getInscription_modeAsString() {
-		Inscription_mode inscription_mode = getInscription_mode();
-
-		if (inscription_mode == null) {
-			return null;
-		}
-
-		return inscription_mode.toString();
-	}
-
-	public void setInscription_mode(Inscription_mode inscription_mode) {
-		this.inscription_mode = inscription_mode;
-
-		_inscription_modeSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setInscription_mode(
-		UnsafeSupplier<Inscription_mode, Exception>
-			inscription_modeUnsafeSupplier) {
-
-		_inscription_modeSupplier = () -> {
-			try {
-				return inscription_modeUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	@NotNull
-	protected Inscription_mode inscription_mode;
-
-	@JsonIgnore
-	private Supplier<Inscription_mode> _inscription_modeSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema
-	@JsonGetter("inscription_type")
-	@Valid
-	public Inscription_type getInscription_type() {
-		if (_inscription_typeSupplier != null) {
-			inscription_type = _inscription_typeSupplier.get();
-
-			_inscription_typeSupplier = null;
-		}
-
-		return inscription_type;
-	}
-
-	@JsonIgnore
-	public String getInscription_typeAsString() {
-		Inscription_type inscription_type = getInscription_type();
-
-		if (inscription_type == null) {
-			return null;
-		}
-
-		return inscription_type.toString();
-	}
-
-	public void setInscription_type(Inscription_type inscription_type) {
-		this.inscription_type = inscription_type;
-
-		_inscription_typeSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setInscription_type(
-		UnsafeSupplier<Inscription_type, Exception>
-			inscription_typeUnsafeSupplier) {
-
-		_inscription_typeSupplier = () -> {
-			try {
-				return inscription_typeUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	@NotNull
-	protected Inscription_type inscription_type;
-
-	@JsonIgnore
-	private Supplier<Inscription_type> _inscription_typeSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
 	public String getMatricule() {
@@ -551,6 +345,7 @@ public class CreateExpertComptable implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotEmpty
 	protected String nomCabinet;
 
 	@JsonIgnore
@@ -592,6 +387,7 @@ public class CreateExpertComptable implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotEmpty
 	protected String numeroCabinet;
 
 	@JsonIgnore
@@ -639,20 +435,24 @@ public class CreateExpertComptable implements Serializable {
 	@JsonIgnore
 	private Supplier<String> _prenomsSupplier;
 
+	@JsonIgnore
+	private Supplier<Option> _statutSupplier;
+
+
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
 			return true;
 		}
 
-		if (!(object instanceof CreateExpertComptable)) {
+		if (!(object instanceof UpdateCabinetRequest)) {
 			return false;
 		}
 
-		CreateExpertComptable createExpertComptable =
-			(CreateExpertComptable)object;
+		UpdateCabinetRequest updateCabinetRequest =
+			(UpdateCabinetRequest)object;
 
-		return Objects.equals(toString(), createExpertComptable.toString());
+		return Objects.equals(toString(), updateCabinetRequest.toString());
 	}
 
 	@Override
@@ -683,7 +483,7 @@ public class CreateExpertComptable implements Serializable {
 			sb.append("\"");
 		}
 
-		String annee_inscription = getAnnee_inscription();
+		Integer annee_inscription = getAnnee_inscription();
 
 		if (annee_inscription != null) {
 			if (sb.length() > 1) {
@@ -699,6 +499,18 @@ public class CreateExpertComptable implements Serializable {
 			sb.append("\"");
 		}
 
+		Option categorie = getCategorie();
+
+		if (categorie != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"categorie\": ");
+
+			sb.append(String.valueOf(categorie));
+		}
+
 		String contact = getContact();
 
 		if (contact != null) {
@@ -712,76 +524,6 @@ public class CreateExpertComptable implements Serializable {
 
 			sb.append(_escape(contact));
 
-			sb.append("\"");
-		}
-
-		String email = getEmail();
-
-		if (email != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"email\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(email));
-
-			sb.append("\"");
-		}
-
-		Long expertAssoID = getExpertAssoID();
-
-		if (expertAssoID != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"expertAssoID\": ");
-
-			sb.append(expertAssoID);
-		}
-
-		Inscription_by inscription_by = getInscription_by();
-
-		if (inscription_by != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"inscription_by\": ");
-
-			sb.append("\"");
-			sb.append(inscription_by);
-			sb.append("\"");
-		}
-
-		Inscription_mode inscription_mode = getInscription_mode();
-
-		if (inscription_mode != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"inscription_mode\": ");
-
-			sb.append("\"");
-			sb.append(inscription_mode);
-			sb.append("\"");
-		}
-
-		Inscription_type inscription_type = getInscription_type();
-
-		if (inscription_type != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"inscription_type\": ");
-
-			sb.append("\"");
-			sb.append(inscription_type);
 			sb.append("\"");
 		}
 
@@ -872,127 +614,10 @@ public class CreateExpertComptable implements Serializable {
 
 	@io.swagger.v3.oas.annotations.media.Schema(
 		accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY,
-		defaultValue = "com.oecci.expert.dto.v1_0.CreateExpertComptable",
+		defaultValue = "com.oecci.expert.dto.v1_0.UpdateCabinetRequest",
 		name = "x-class-name"
 	)
 	public String xClassName;
-
-	@GraphQLName("Inscription_by")
-	public static enum Inscription_by {
-
-		BY_ADMIN("by_admin"), BY_MODERATEUR("by_moderateur"),
-		BY_ASSISTANT("by_assistant");
-
-		@JsonCreator
-		public static Inscription_by create(String value) {
-			if ((value == null) || value.equals("")) {
-				return null;
-			}
-
-			for (Inscription_by inscription_by : values()) {
-				if (Objects.equals(inscription_by.getValue(), value)) {
-					return inscription_by;
-				}
-			}
-
-			throw new IllegalArgumentException("Invalid enum value: " + value);
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Inscription_by(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
-	}
-
-	@GraphQLName("Inscription_mode")
-	public static enum Inscription_mode {
-
-		FOR_ASSOC("for_assoc"), FOR_COORD("for_coord"), FOR_ADJ("for_adj"),
-		FOR_NA("for_na");
-
-		@JsonCreator
-		public static Inscription_mode create(String value) {
-			if ((value == null) || value.equals("")) {
-				return null;
-			}
-
-			for (Inscription_mode inscription_mode : values()) {
-				if (Objects.equals(inscription_mode.getValue(), value)) {
-					return inscription_mode;
-				}
-			}
-
-			throw new IllegalArgumentException("Invalid enum value: " + value);
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Inscription_mode(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
-	}
-
-	@GraphQLName("Inscription_type")
-	public static enum Inscription_type {
-
-		INDIVIDUEL("individuel"), CABINET("cabinet"),
-		COLLABORATEUR("collaborateur");
-
-		@JsonCreator
-		public static Inscription_type create(String value) {
-			if ((value == null) || value.equals("")) {
-				return null;
-			}
-
-			for (Inscription_type inscription_type : values()) {
-				if (Objects.equals(inscription_type.getValue(), value)) {
-					return inscription_type;
-				}
-			}
-
-			throw new IllegalArgumentException("Invalid enum value: " + value);
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Inscription_type(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
-	}
 
 	private static String _escape(Object object) {
 		return StringUtil.replace(
@@ -1083,4 +708,4 @@ public class CreateExpertComptable implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-614733749
+// LIFERAY-REST-BUILDER-HASH:842119396

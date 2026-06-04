@@ -16,6 +16,7 @@ import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
 import com.oecci.expert.dto.v1_0.CreateCollaboRequest;
+import com.oecci.expert.dto.v1_0.UpdateCollaboRequest;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,24 +48,23 @@ public interface CollaborateurResource {
 	public Response createCollabos(CreateCollaboRequest createCollaboRequest)
 		throws Exception;
 
-	public String getAllCollabos(
-			Long collaboID, Integer nestedFieldsDepth,
-			com.liferay.portal.kernel.search.filter.Filter filter,
-			Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getAllCollabos(
+			Long collaboID, Integer page, Integer pageSize, String filter, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public String getCollaborateurByUser(
-			Long liferayUserId, Integer nestedFieldsDepth,
-			Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getCollaborateurByUser(
+			Long liferayUserId, Integer page, Integer pageSize, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public String getCollaborateurs(
-			Integer nestedFieldsDepth,
-			com.liferay.portal.kernel.search.filter.Filter filter,
-			Pagination pagination,
-			com.liferay.portal.kernel.search.Sort[] sorts)
+	public Response getCollaborateurs(
+			Integer page, Integer pageSize, String filter, String sort,
+			String fields, String nestedFields, Integer nestedFieldsDepth)
+		throws Exception;
+
+	public Response updateCollabo(
+			Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
 		throws Exception;
 
 	public default void setContextAcceptLanguage(
@@ -155,4 +155,4 @@ public interface CollaborateurResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1428337066
+// LIFERAY-REST-BUILDER-HASH:-1671026238

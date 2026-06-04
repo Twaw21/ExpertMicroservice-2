@@ -99,4 +99,4 @@ public class LoadVisualRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:428642106
+// LIFERAY-REST-BUILDER-HASH:-1745766287

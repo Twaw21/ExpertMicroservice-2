@@ -268,4 +268,4 @@ public class CreateDmdExtQuotVisaRequestSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:579163549
+// LIFERAY-REST-BUILDER-HASH:-1990258638

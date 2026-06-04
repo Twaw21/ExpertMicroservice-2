@@ -5,7 +5,7 @@
 
 package com.oecci.expert.client.serdes.v1_0;
 
-import com.oecci.expert.client.dto.v1_0.LoadVisualRequest;
+import com.oecci.expert.client.dto.v1_0.UpdateCollaboRequest;
 import com.oecci.expert.client.json.BaseJSONParser;
 
 import java.util.Iterator;
@@ -21,24 +21,24 @@ import javax.annotation.Generated;
  * @generated
  */
 @Generated("")
-public class LoadVisualRequestSerDes {
+public class UpdateCollaboRequestSerDes {
 
-	public static LoadVisualRequest toDTO(String json) {
-		LoadVisualRequestJSONParser loadVisualRequestJSONParser =
-			new LoadVisualRequestJSONParser();
+	public static UpdateCollaboRequest toDTO(String json) {
+		UpdateCollaboRequestJSONParser updateCollaboRequestJSONParser =
+			new UpdateCollaboRequestJSONParser();
 
-		return loadVisualRequestJSONParser.parseToDTO(json);
+		return updateCollaboRequestJSONParser.parseToDTO(json);
 	}
 
-	public static LoadVisualRequest[] toDTOs(String json) {
-		LoadVisualRequestJSONParser loadVisualRequestJSONParser =
-			new LoadVisualRequestJSONParser();
+	public static UpdateCollaboRequest[] toDTOs(String json) {
+		UpdateCollaboRequestJSONParser updateCollaboRequestJSONParser =
+			new UpdateCollaboRequestJSONParser();
 
-		return loadVisualRequestJSONParser.parseToDTOs(json);
+		return updateCollaboRequestJSONParser.parseToDTOs(json);
 	}
 
-	public static String toJSON(LoadVisualRequest loadVisualRequest) {
-		if (loadVisualRequest == null) {
+	public static String toJSON(UpdateCollaboRequest updateCollaboRequest) {
+		if (updateCollaboRequest == null) {
 			return "null";
 		}
 
@@ -46,30 +46,44 @@ public class LoadVisualRequestSerDes {
 
 		sb.append("{");
 
-		if (loadVisualRequest.getVisualContent() != null) {
+		if (updateCollaboRequest.getContact() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"visualContent\": ");
+			sb.append("\"contact\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(loadVisualRequest.getVisualContent()));
+			sb.append(_escape(updateCollaboRequest.getContact()));
 
 			sb.append("\"");
 		}
 
-		if (loadVisualRequest.getVisualName() != null) {
+		if (updateCollaboRequest.getNom() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"visualName\": ");
+			sb.append("\"nom\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(loadVisualRequest.getVisualName()));
+			sb.append(_escape(updateCollaboRequest.getNom()));
+
+			sb.append("\"");
+		}
+
+		if (updateCollaboRequest.getPrenoms() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"prenoms\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(updateCollaboRequest.getPrenoms()));
 
 			sb.append("\"");
 		}
@@ -80,61 +94,69 @@ public class LoadVisualRequestSerDes {
 	}
 
 	public static Map<String, Object> toMap(String json) {
-		LoadVisualRequestJSONParser loadVisualRequestJSONParser =
-			new LoadVisualRequestJSONParser();
+		UpdateCollaboRequestJSONParser updateCollaboRequestJSONParser =
+			new UpdateCollaboRequestJSONParser();
 
-		return loadVisualRequestJSONParser.parseToMap(json);
+		return updateCollaboRequestJSONParser.parseToMap(json);
 	}
 
 	public static Map<String, String> toMap(
-		LoadVisualRequest loadVisualRequest) {
+		UpdateCollaboRequest updateCollaboRequest) {
 
-		if (loadVisualRequest == null) {
+		if (updateCollaboRequest == null) {
 			return null;
 		}
 
 		Map<String, String> map = new TreeMap<>();
 
-		if (loadVisualRequest.getVisualContent() == null) {
-			map.put("visualContent", null);
+		if (updateCollaboRequest.getContact() == null) {
+			map.put("contact", null);
 		}
 		else {
 			map.put(
-				"visualContent",
-				String.valueOf(loadVisualRequest.getVisualContent()));
+				"contact", String.valueOf(updateCollaboRequest.getContact()));
 		}
 
-		if (loadVisualRequest.getVisualName() == null) {
-			map.put("visualName", null);
+		if (updateCollaboRequest.getNom() == null) {
+			map.put("nom", null);
+		}
+		else {
+			map.put("nom", String.valueOf(updateCollaboRequest.getNom()));
+		}
+
+		if (updateCollaboRequest.getPrenoms() == null) {
+			map.put("prenoms", null);
 		}
 		else {
 			map.put(
-				"visualName",
-				String.valueOf(loadVisualRequest.getVisualName()));
+				"prenoms", String.valueOf(updateCollaboRequest.getPrenoms()));
 		}
 
 		return map;
 	}
 
-	public static class LoadVisualRequestJSONParser
-		extends BaseJSONParser<LoadVisualRequest> {
+	public static class UpdateCollaboRequestJSONParser
+		extends BaseJSONParser<UpdateCollaboRequest> {
 
 		@Override
-		protected LoadVisualRequest createDTO() {
-			return new LoadVisualRequest();
+		protected UpdateCollaboRequest createDTO() {
+			return new UpdateCollaboRequest();
 		}
 
 		@Override
-		protected LoadVisualRequest[] createDTOArray(int size) {
-			return new LoadVisualRequest[size];
+		protected UpdateCollaboRequest[] createDTOArray(int size) {
+			return new UpdateCollaboRequest[size];
 		}
 
 		@Override
 		protected boolean parseMaps(String jsonParserFieldName) {
-			if (Objects.equals(jsonParserFieldName, "visualContent")) {
+			if (Objects.equals(jsonParserFieldName, "contact")) {
 				return false;
 			}
-			else if (Objects.equals(jsonParserFieldName, "visualName")) {
+			else if (Objects.equals(jsonParserFieldName, "nom")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "prenoms")) {
 				return false;
 			}
 
@@ -143,18 +165,23 @@ public class LoadVisualRequestSerDes {
 
 		@Override
 		protected void setField(
-			LoadVisualRequest loadVisualRequest, String jsonParserFieldName,
-			Object jsonParserFieldValue) {
+			UpdateCollaboRequest updateCollaboRequest,
+			String jsonParserFieldName, Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "visualContent")) {
+			if (Objects.equals(jsonParserFieldName, "contact")) {
 				if (jsonParserFieldValue != null) {
-					loadVisualRequest.setVisualContent(
+					updateCollaboRequest.setContact(
 						(String)jsonParserFieldValue);
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "visualName")) {
+			else if (Objects.equals(jsonParserFieldName, "nom")) {
 				if (jsonParserFieldValue != null) {
-					loadVisualRequest.setVisualName(
+					updateCollaboRequest.setNom((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "prenoms")) {
+				if (jsonParserFieldValue != null) {
+					updateCollaboRequest.setPrenoms(
 						(String)jsonParserFieldValue);
 				}
 			}
@@ -239,4 +266,4 @@ public class LoadVisualRequestSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1198881299
+// LIFERAY-REST-BUILDER-HASH:-1900854615

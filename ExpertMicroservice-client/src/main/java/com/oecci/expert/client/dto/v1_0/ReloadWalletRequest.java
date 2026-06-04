@@ -25,27 +25,6 @@ public class ReloadWalletRequest implements Cloneable, Serializable {
 		return ReloadWalletRequestSerDes.toDTO(json);
 	}
 
-	public Long getExpert_ComptableID() {
-		return Expert_ComptableID;
-	}
-
-	public void setExpert_ComptableID(Long Expert_ComptableID) {
-		this.Expert_ComptableID = Expert_ComptableID;
-	}
-
-	public void setExpert_ComptableID(
-		UnsafeSupplier<Long, Exception> Expert_ComptableIDUnsafeSupplier) {
-
-		try {
-			Expert_ComptableID = Expert_ComptableIDUnsafeSupplier.get();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	protected Long Expert_ComptableID;
-
 	public Long getAmount() {
 		return amount;
 	}
@@ -66,6 +45,27 @@ public class ReloadWalletRequest implements Cloneable, Serializable {
 	}
 
 	protected Long amount;
+
+	public Long getExpertComptableID() {
+		return expertComptableID;
+	}
+
+	public void setExpertComptableID(Long expertComptableID) {
+		this.expertComptableID = expertComptableID;
+	}
+
+	public void setExpertComptableID(
+		UnsafeSupplier<Long, Exception> expertComptableIDUnsafeSupplier) {
+
+		try {
+			expertComptableID = expertComptableIDUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Long expertComptableID;
 
 	public Long getPaymentID() {
 		return paymentID;
@@ -141,4 +141,4 @@ public class ReloadWalletRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1665404988
+// LIFERAY-REST-BUILDER-HASH:918543546
