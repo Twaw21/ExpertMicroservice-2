@@ -708,8 +708,8 @@ public class Expert_ComptableResourceImpl
 
 		_log.info(">> Starting by updating accountant box datas...");
 
-		Map<String, Serializable> updateValues = new HashMap<>();
 		// Construire les valeurs de l'entité expert comptable
+		Map<String, Serializable> updateValues = new HashMap<>();
 		updateValues.put("nom",    updateCabinetRequest.getNom());
 		updateValues.put("prenoms", updateCabinetRequest.getPrenoms());
 

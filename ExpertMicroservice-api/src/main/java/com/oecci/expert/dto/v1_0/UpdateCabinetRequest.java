@@ -435,9 +435,6 @@ public class UpdateCabinetRequest implements Serializable {
 	@JsonIgnore
 	private Supplier<String> _prenomsSupplier;
 
-	@JsonIgnore
-	private Supplier<Option> _statutSupplier;
-
 
 	@Override
 	public boolean equals(Object object) {
