@@ -1287,11 +1287,11 @@ public class Expert_ComptableResourceImpl
 			paymentEntry, "paystatus");
 		_log.info(">> PAYMENT traces FOUND. Statut : " + payStatus);
 
-		if (!payStatus.equalsIgnoreCase("ACCEPTED") ||
-			!payStatus.equalsIgnoreCase("SUCCESS")
-				|| !payStatus.equalsIgnoreCase("succeeded")
-				|| !payStatus.equalsIgnoreCase("ACCEPT")
-				|| !payStatus.equalsIgnoreCase("COMPLETED")) {
+		if (!payStatus.equalsIgnoreCase("ACCEPTED") &&
+				!payStatus.equalsIgnoreCase("SUCCESS") &&
+				!payStatus.equalsIgnoreCase("succeeded") &&
+				!payStatus.equalsIgnoreCase("ACCEPT") &&
+				!payStatus.equalsIgnoreCase("COMPLETED")) {
 			_log.info(
 				"Payment trace found with this ID : " +
 					reloadWalletRequest.getPaymentID() +
