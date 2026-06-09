@@ -508,119 +508,6 @@ public class ObjectEntryHelper {
 		}
 	}
 
-	/**
-	 * Filtre in-memory une liste de maps selon une expression OData simplifiée.
-	 *
-	 * Supporte :
-	 *   - field eq 'value'   (String avec quotes)
-	 *   - field eq value     (valeur sans quotes)
-	 *   - field eq null
-	 *
-	 * La comparaison est faite en String pour absorber les écarts de type
-	 * (ex: champ de relation stocké en Long vs valeur passée en String).
-	 *
-	 * Supporte aussi les expressions composées avec "and" (insensible à la casse),
-	 * ex: "field1 eq 'val1' and field2 eq 'val2'"
-	 */
-	private List<Map<String, Serializable>> _filterMaps(
-			List<Map<String, Serializable>> allMaps, String filterString) {
-
-		if (filterString == null || filterString.isBlank()) {
-			return allMaps;
-		}
-
-		// Découper les clauses sur "and" (OData de base)
-		String[] clauses = filterString.split("(?i)\\s+and\\s+");
-
-		return allMaps.stream()
-				.filter(map -> {
-					for (String clause : clauses) {
-						if (!_matchClause(map, clause.trim())) {
-							return false;
-						}
-					}
-					return true;
-				})
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Évalue une clause unitaire "field op value" sur une map.
-	 * Opérateurs supportés : eq, ne, gt, ge, lt, le
-	 */
-	private boolean _matchClause(
-			Map<String, Serializable> map, String clause) {
-
-		// Regex : <champ> <op> <valeur>
-		// La valeur peut être : 'texte', null, ou un nombre
-		java.util.regex.Pattern p = java.util.regex.Pattern.compile(
-				"^(\\S+)\\s+(eq|ne|gt|ge|lt|le)\\s+(.+)$",
-				java.util.regex.Pattern.CASE_INSENSITIVE);
-
-		java.util.regex.Matcher m = p.matcher(clause);
-		if (!m.matches()) {
-			_log.warn("[ObjectEntryHelper] _filterMaps : clause non parseable : '" +
-					clause + "' — ignorée.");
-			return true; // clause inconnue → on ne filtre pas sur elle
-		}
-
-		String field    = m.group(1).trim();
-		String operator = m.group(2).trim().toLowerCase();
-		String rawValue = m.group(3).trim();
-
-		// Retirer les quotes simples éventuelles : 'valeur' → valeur
-		String expectedStr = rawValue.replaceAll("^'|'$", "");
-
-		Serializable actual = map.get(field);
-
-		// Cas null
-		if ("null".equalsIgnoreCase(expectedStr)) {
-			boolean isNull = (actual == null);
-			return operator.equals("eq") ? isNull : !isNull;
-		}
-
-		if (actual == null) {
-			return false;
-		}
-
-		String actualStr = String.valueOf(actual);
-
-		switch (operator) {
-			case "eq":
-				return actualStr.equals(expectedStr);
-			case "ne":
-				return !actualStr.equals(expectedStr);
-			case "gt":
-			case "ge":
-			case "lt":
-			case "le":
-				// Comparaison numérique si possible
-				try {
-					double actualNum   = Double.parseDouble(actualStr);
-					double expectedNum = Double.parseDouble(expectedStr);
-					switch (operator) {
-						case "gt": return actualNum >  expectedNum;
-						case "ge": return actualNum >= expectedNum;
-						case "lt": return actualNum <  expectedNum;
-						case "le": return actualNum <= expectedNum;
-					}
-				}
-				catch (NumberFormatException nfe) {
-					// Repli sur comparaison lexicographique
-					int cmp = actualStr.compareTo(expectedStr);
-					switch (operator) {
-						case "gt": return cmp >  0;
-						case "ge": return cmp >= 0;
-						case "lt": return cmp <  0;
-						case "le": return cmp <= 0;
-					}
-				}
-				return false;
-			default:
-				return true;
-		}
-	}
-
 	/** Variante paginée de {@link #searchByFilter(long, long, long, String, String)}. */
 	public List<ObjectEntry> searchByFilter(
 			long userId, long companyId, long groupId,
@@ -954,200 +841,78 @@ public class ObjectEntryHelper {
 	 * la valeur entre apostrophes.</p>
 	 */
 	private List<Map<String, Serializable>> _filterMaps(
-			List<Map<String, Serializable>> maps,
-			String filterString) {
+		List<Map<String, Serializable>> maps, String filterString) {
 
 		if (maps == null || maps.isEmpty()) {
-
-			_log.info("[FILTER MAPS] Aucun objet à filtrer");
-
 			return Collections.emptyList();
 		}
 
 		if (filterString == null || filterString.trim().isEmpty()) {
-
-			_log.info("[FILTER MAPS] Aucun filtre fourni");
-
 			return maps;
 		}
 
 		String trimmed = filterString.trim();
 
+		// Gestion AND récursive
 		List<String> andParts = _splitOnAnd(trimmed);
 
 		if (andParts.size() > 1) {
-
-			_log.info("[FILTER MAPS] Filtre AND détecté");
-
 			List<Map<String, Serializable>> result = maps;
 
 			for (String part : andParts) {
-
-				_log.info("[FILTER MAPS] Sous filtre : " + part);
-
 				result = _filterMaps(result, part);
-
-				_log.info(
-						"[FILTER MAPS] Résultat intermédiaire : "
-								+ result.size());
 			}
 
 			return result;
 		}
 
+		// Expression simple : fieldName eq 'value' ou fieldName ne 'value'
 		trimmed = _stripOuterParens(trimmed);
 
-		int eqIdx = trimmed.indexOf(" eq ");
-		int neIdx = trimmed.indexOf(" ne ");
-
-		// =====================================================
-		// EQ
-		// =====================================================
+		int eqIdx = trimmed.indexOf(" eq '");
+		int neIdx = trimmed.indexOf(" ne '");
 
 		if (eqIdx >= 0) {
+			String fieldName = trimmed.substring(0, eqIdx).trim();
+			String expected  = trimmed.substring(eqIdx + 5);
 
-			String fieldName =
-					trimmed.substring(0, eqIdx).trim();
-
-			String rawValue =
-					trimmed.substring(eqIdx + 4).trim();
-
-			rawValue = _stripQuotes(rawValue);
-
-			_log.info("=================================================");
-			_log.info("[FILTER EQ]");
-			_log.info("Champ demandé : " + fieldName);
-			_log.info("Valeur attendue : " + rawValue);
-
-			if (!maps.isEmpty()) {
-
-				_log.info(
-						"Clés disponibles : "
-								+ maps.get(0).keySet());
+			if (expected.endsWith("'")) {
+				expected = expected.substring(0, expected.length() - 1);
 			}
 
-			final String fField =
-					_resolveMapKey(maps, fieldName);
+			final String fField    = fieldName;
+			final String fExpected = expected;
 
-			final String fExpected =
-					rawValue;
-
-			_log.info("Champ résolu : " + fField);
-
-			if (!fField.equals(fieldName)) {
-
-				_log.info(
-						"[FILTER EQ] Champ remplacé : "
-								+ fieldName
-								+ " -> "
-								+ fField);
-			}
-
-			List<Map<String, Serializable>> result =
-					maps.stream()
-							.filter(map -> {
-
-								Object value =
-										map.get(fField);
-
-								_log.info("-------------------------------------");
-								_log.info("[FILTER EQ CHECK]");
-								_log.info("Champ : " + fField);
-								_log.info("Valeur attendue : " + fExpected);
-								_log.info("Valeur trouvée : " + value);
-								_log.info("Map : " + map);
-
-								boolean match =
-										value != null &&
-												fExpected.equals(
-														String.valueOf(value));
-
-								_log.info("MATCH = " + match);
-								_log.info("-------------------------------------");
-
-								return match;
-							})
-							.collect(Collectors.toList());
-
-			_log.info(
-					"[FILTER EQ] Résultat final : "
-							+ result.size());
-
-			return result;
+			return maps.stream()
+				.filter(map -> {
+					Object val = map.get(fField);
+					return val != null && fExpected.equals(String.valueOf(val));
+				})
+				.collect(Collectors.toList());
 		}
-
-		// =====================================================
-		// NE
-		// =====================================================
 
 		if (neIdx >= 0) {
+			String fieldName = trimmed.substring(0, neIdx).trim();
+			String expected  = trimmed.substring(neIdx + 5);
 
-			String fieldName =
-					trimmed.substring(0, neIdx).trim();
-
-			String rawValue =
-					trimmed.substring(neIdx + 4).trim();
-
-			rawValue = _stripQuotes(rawValue);
-
-			_log.info("=================================================");
-			_log.info("[FILTER NE]");
-			_log.info("Champ demandé : " + fieldName);
-			_log.info("Valeur attendue : " + rawValue);
-
-			if (!maps.isEmpty()) {
-
-				_log.info(
-						"Clés disponibles : "
-								+ maps.get(0).keySet());
+			if (expected.endsWith("'")) {
+				expected = expected.substring(0, expected.length() - 1);
 			}
 
-			final String fField =
-					_resolveMapKey(maps, fieldName);
+			final String fField    = fieldName;
+			final String fExpected = expected;
 
-			final String fExpected =
-					rawValue;
-
-			_log.info("Champ résolu : " + fField);
-
-			List<Map<String, Serializable>> result =
-					maps.stream()
-							.filter(map -> {
-
-								Object value =
-										map.get(fField);
-
-								_log.info("-------------------------------------");
-								_log.info("[FILTER NE CHECK]");
-								_log.info("Champ : " + fField);
-								_log.info("Valeur attendue : " + fExpected);
-								_log.info("Valeur trouvée : " + value);
-								_log.info("Map : " + map);
-
-								boolean match =
-										value == null ||
-												!fExpected.equals(
-														String.valueOf(value));
-
-								_log.info("MATCH = " + match);
-								_log.info("-------------------------------------");
-
-								return match;
-							})
-							.collect(Collectors.toList());
-
-			_log.info(
-					"[FILTER NE] Résultat final : "
-							+ result.size());
-
-			return result;
+			return maps.stream()
+				.filter(map -> {
+					Object val = map.get(fField);
+					return val == null || !fExpected.equals(String.valueOf(val));
+				})
+				.collect(Collectors.toList());
 		}
 
-		_log.info("=================================================");
-		_log.info("[FILTER MAPS]");
-		_log.info("Expression non reconnue : " + filterString);
-		_log.info("Aucun filtrage appliqué");
-		_log.info("=================================================");
+		_log.info(
+			"[ObjectEntryHelper] _filterMaps : expression non parseable '" +
+				filterString + "' — aucun filtrage appliqué.");
 
 		return maps;
 	}
