@@ -334,55 +334,171 @@ public class ObjectEntryHelper {
 	private List<ObjectEntry> _searchByFilter(
 			long userId, long companyId, long groupId,
 			String erc, String filterString, Sort[] sorts, int start, int end)
-		throws Exception {
+			throws Exception {
 
 		long odId = resolveObjectDefinitionId(companyId, erc);
 
 		_log.info(
-			"[ObjectEntryHelper] searchByFilter : erc=" + erc +
-				" filter='" + filterString + "' odId=" + odId);
+				"[ObjectEntryHelper] searchByFilter : erc=" + erc +
+						" filter='" + filterString + "' odId=" + odId);
 
 		ObjectDefinition od =
-			_objectDefinitionLocalService.getObjectDefinition(odId);
+				_objectDefinitionLocalService.getObjectDefinition(odId);
 
 		PermissionChecker previousChecker = switchPermissionChecker(userId);
 
 		try {
-			Predicate predicate = filterString != null ? _buildPredicate(filterString, od) : null;
+			Predicate predicate = filterString != null
+					? _buildPredicate(filterString, od)
+					: null;
 
 			List<Map<String, Serializable>> maps =
-				_objectEntryLocalService.getValuesList(
-						groupId,
-						companyId,
-						userId,
-						odId,
-						predicate,
-						null, // searchKeyword (pas de recherche plein texte)
-						start < 0 ? QueryUtil.ALL_POS : start, // begin (début de pagination, 0 = premier enregistrement)
-						end < 0  ? QueryUtil.ALL_POS : end, // end (fin de pagination, ALL_POS=-1 pour tout récupérer)
-						sorts);
+					_objectEntryLocalService.getValuesList(
+							groupId,
+							companyId,
+							userId,
+							odId,
+							predicate,
+							null,
+							start < 0 ? QueryUtil.ALL_POS : start,
+							end   < 0 ? QueryUtil.ALL_POS : end,
+							sorts);
 
 			return _resolveObjectEntries(maps, od);
 		}
 		catch (Exception e) {
 			_log.info(
-				"[ObjectEntryHelper] FilterFactory non supporté pour le filtre '" +
-					filterString + "' (erc=" + erc + ") — fallback getValuesList in-memory. " +
-					"Cause : " + e.getMessage());
+					"[ObjectEntryHelper] FilterFactory non supporté pour le filtre '" +
+							filterString + "' (erc=" + erc +
+							") — fallback getValuesList in-memory. " +
+							"Cause : " + e.getMessage());
 
 			List<Map<String, Serializable>> allMaps =
-				_objectEntryLocalService.getValuesList(
-					groupId, companyId, userId, odId,
-					null, null,
-					QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+					_objectEntryLocalService.getValuesList(
+							groupId, companyId, userId, odId,
+							null, null,
+							QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 
 			List<Map<String, Serializable>> filteredMaps =
-				_filterMaps(allMaps, filterString);
+					_filterMaps(allMaps, filterString);
 
 			return _resolveObjectEntries(filteredMaps, od);
 		}
 		finally {
 			PermissionThreadLocal.setPermissionChecker(previousChecker);
+		}
+	}
+
+	/**
+	 * Filtre in-memory une liste de maps selon une expression OData simplifiée.
+	 *
+	 * Supporte :
+	 *   - field eq 'value'   (String avec quotes)
+	 *   - field eq value     (valeur sans quotes)
+	 *   - field eq null
+	 *
+	 * La comparaison est faite en String pour absorber les écarts de type
+	 * (ex: champ de relation stocké en Long vs valeur passée en String).
+	 *
+	 * Supporte aussi les expressions composées avec "and" (insensible à la casse),
+	 * ex: "field1 eq 'val1' and field2 eq 'val2'"
+	 */
+	private List<Map<String, Serializable>> _filterMaps(
+			List<Map<String, Serializable>> allMaps, String filterString) {
+
+		if (filterString == null || filterString.isBlank()) {
+			return allMaps;
+		}
+
+		// Découper les clauses sur "and" (OData de base)
+		String[] clauses = filterString.split("(?i)\\s+and\\s+");
+
+		return allMaps.stream()
+				.filter(map -> {
+					for (String clause : clauses) {
+						if (!_matchClause(map, clause.trim())) {
+							return false;
+						}
+					}
+					return true;
+				})
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Évalue une clause unitaire "field op value" sur une map.
+	 * Opérateurs supportés : eq, ne, gt, ge, lt, le
+	 */
+	private boolean _matchClause(
+			Map<String, Serializable> map, String clause) {
+
+		// Regex : <champ> <op> <valeur>
+		// La valeur peut être : 'texte', null, ou un nombre
+		java.util.regex.Pattern p = java.util.regex.Pattern.compile(
+				"^(\\S+)\\s+(eq|ne|gt|ge|lt|le)\\s+(.+)$",
+				java.util.regex.Pattern.CASE_INSENSITIVE);
+
+		java.util.regex.Matcher m = p.matcher(clause);
+		if (!m.matches()) {
+			_log.warn("[ObjectEntryHelper] _filterMaps : clause non parseable : '" +
+					clause + "' — ignorée.");
+			return true; // clause inconnue → on ne filtre pas sur elle
+		}
+
+		String field    = m.group(1).trim();
+		String operator = m.group(2).trim().toLowerCase();
+		String rawValue = m.group(3).trim();
+
+		// Retirer les quotes simples éventuelles : 'valeur' → valeur
+		String expectedStr = rawValue.replaceAll("^'|'$", "");
+
+		Serializable actual = map.get(field);
+
+		// Cas null
+		if ("null".equalsIgnoreCase(expectedStr)) {
+			boolean isNull = (actual == null);
+			return operator.equals("eq") ? isNull : !isNull;
+		}
+
+		if (actual == null) {
+			return false;
+		}
+
+		String actualStr = String.valueOf(actual);
+
+		switch (operator) {
+			case "eq":
+				return actualStr.equals(expectedStr);
+			case "ne":
+				return !actualStr.equals(expectedStr);
+			case "gt":
+			case "ge":
+			case "lt":
+			case "le":
+				// Comparaison numérique si possible
+				try {
+					double actualNum   = Double.parseDouble(actualStr);
+					double expectedNum = Double.parseDouble(expectedStr);
+					switch (operator) {
+						case "gt": return actualNum >  expectedNum;
+						case "ge": return actualNum >= expectedNum;
+						case "lt": return actualNum <  expectedNum;
+						case "le": return actualNum <= expectedNum;
+					}
+				}
+				catch (NumberFormatException nfe) {
+					// Repli sur comparaison lexicographique
+					int cmp = actualStr.compareTo(expectedStr);
+					switch (operator) {
+						case "gt": return cmp >  0;
+						case "ge": return cmp >= 0;
+						case "lt": return cmp <  0;
+						case "le": return cmp <= 0;
+					}
+				}
+				return false;
+			default:
+				return true;
 		}
 	}
 
