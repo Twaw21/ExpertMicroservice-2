@@ -203,7 +203,7 @@ public class Constants {
 	public static final String ERC_EXPERT_COMPTABLE     = "93550d3d-9a50-5ed8-6691-18f0d524ccbb";
 
 	// Wallet & paiement
-	public static final String ERC_WALLET               = "5f086e7a-5284-2e30-8d37-76ac04ee141e";
+	public static final String ERC_WALLET               = "18e9dd50-bc6d-5145-4746-766891098121";
 	public static final String ERC_PAIEMENT             = "fd5c12cb-94a1-587a-097a-713cb17668ce";
 	public static final String ERC_DEMANDE_RECHARGEMENT = "7fe50100-78ed-8547-743f-15d871d57739";
 	public static final String ERC_WALLET_JOURNAL       = "5f086e7a-5284-2e30-8d37-76ac04ee141e";
