@@ -72,6 +72,7 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/canSignVisa/{expertId}")
+	@javax.ws.rs.Produces({"application/json"})
 	@Override
 	public Response canSignVisa(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -151,6 +152,7 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/demande-visas")
+	@javax.ws.rs.Produces({"application/json"})
 	@Override
 	public Response getDemandeVisas(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -228,6 +230,7 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/demande-visas/by-date")
+	@javax.ws.rs.Produces({"application/json"})
 	@Override
 	public Response getDemandeVisasByDate(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -304,6 +307,7 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/demande-visas/by-expert/{expertId}")
+	@javax.ws.rs.Produces({"application/json"})
 	@Override
 	public Response getDemandeVisasByExpert(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -416,7 +420,7 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	@javax.ws.rs.Consumes({"application/json", "application/xml"})
 	@javax.ws.rs.Path("/oecci/client/visa-quota-exts/validation/{demandeExtId}")
 	@javax.ws.rs.POST
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
+	@javax.ws.rs.Produces({"application/json"})
 	@Override
 	public Response validateDemandeExtQuotaVisa(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
