@@ -982,7 +982,7 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 
 		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
 		String[] roles = {"Regular COLLABO ADMIN Shared Object", "Regular COLLABO ASSISTANT Shared Object"
-				, "Regular COLLABO MODERATOR Shared Object"};
+				, "Regular COLLABO MODERATOR Shared Object", "Regular EXPERTS Shared Object"};
 		boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
 
 		JSONObject result = JSONFactoryUtil.createJSONObject();
@@ -1016,8 +1016,8 @@ public class CollaborateurResourceImpl extends BaseCollaborateurResourceImpl {
 				result.put("data", "");
 				return Response.status(Response.Status.OK).entity(result).build();
 			}
-			ObjectEntryHelper objH = new ObjectEntryHelper();
-			Sort[] sorts = objH.parseSorts(sort);
+
+			Sort[] sorts = _objectEntryHelper.parseSorts(sort);
 
 			List<ObjectEntry> entries = _objectEntryHelper.searchByFilter(
 					technicalUser.getUserId(), companyId, groupId,

@@ -819,97 +819,97 @@ public class ObjectEntryHelper {
 	// -------------------------------------------------------------------------
 	// Filtrage de Maps (retournées par getValuesList) en mémoire
 	// -------------------------------------------------------------------------
-
-	/**
-	 * Filtre une liste de Maps (issues de {@code getValuesList}) selon un
-	 * filtre OData simple de la forme {@code fieldName eq 'value'} ou
-	 * {@code fieldName ne 'value'}.
-	 *
-	 * <p>Contrairement à {@link #_applyODataFilter} qui opère sur des
-	 * {@link ObjectEntry} et ne voit pas les champs de relation, cette méthode
-	 * opère directement sur les Maps qui contiennent TOUS les champs y compris
-	 * les FK de relation ({@code r_iDXxx_c_xxxId}).</p>
-	 *
-	 * <p>La comparaison est toujours textuelle ({@code String.valueOf(val)})
-	 * pour rester cohérent avec {@link #buildEqFilter} qui encadre toujours
-	 * la valeur entre apostrophes.</p>
-	 */
-	private List<Map<String, Serializable>> _filterMaps(
-		List<Map<String, Serializable>> maps, String filterString) {
-
-		if (maps == null || maps.isEmpty()) {
-			return Collections.emptyList();
-		}
-
-		if (filterString == null || filterString.trim().isEmpty()) {
-			return maps;
-		}
-
-		String trimmed = filterString.trim();
-
-		// Gestion AND récursive
-		List<String> andParts = _splitOnAnd(trimmed);
-
-		if (andParts.size() > 1) {
-			List<Map<String, Serializable>> result = maps;
-
-			for (String part : andParts) {
-				result = _filterMaps(result, part);
-			}
-
-			return result;
-		}
-
-		// Expression simple : fieldName eq 'value' ou fieldName ne 'value'
-		trimmed = _stripOuterParens(trimmed);
-
-		int eqIdx = trimmed.indexOf(" eq '");
-		int neIdx = trimmed.indexOf(" ne '");
-
-		if (eqIdx >= 0) {
-			String fieldName = trimmed.substring(0, eqIdx).trim();
-			String expected  = trimmed.substring(eqIdx + 5);
-
-			if (expected.endsWith("'")) {
-				expected = expected.substring(0, expected.length() - 1);
-			}
-
-			final String fField    = fieldName;
-			final String fExpected = expected;
-
-			return maps.stream()
-				.filter(map -> {
-					Object val = map.get(fField);
-					return val != null && fExpected.equals(String.valueOf(val));
-				})
-				.collect(Collectors.toList());
-		}
-
-		if (neIdx >= 0) {
-			String fieldName = trimmed.substring(0, neIdx).trim();
-			String expected  = trimmed.substring(neIdx + 5);
-
-			if (expected.endsWith("'")) {
-				expected = expected.substring(0, expected.length() - 1);
-			}
-
-			final String fField    = fieldName;
-			final String fExpected = expected;
-
-			return maps.stream()
-				.filter(map -> {
-					Object val = map.get(fField);
-					return val == null || !fExpected.equals(String.valueOf(val));
-				})
-				.collect(Collectors.toList());
-		}
-
-		_log.info(
-			"[ObjectEntryHelper] _filterMaps : expression non parseable '" +
-				filterString + "' — aucun filtrage appliqué.");
-
-		return maps;
-	}
+//
+//	/**
+//	 * Filtre une liste de Maps (issues de {@code getValuesList}) selon un
+//	 * filtre OData simple de la forme {@code fieldName eq 'value'} ou
+//	 * {@code fieldName ne 'value'}.
+//	 *
+//	 * <p>Contrairement à {@link #_applyODataFilter} qui opère sur des
+//	 * {@link ObjectEntry} et ne voit pas les champs de relation, cette méthode
+//	 * opère directement sur les Maps qui contiennent TOUS les champs y compris
+//	 * les FK de relation ({@code r_iDXxx_c_xxxId}).</p>
+//	 *
+//	 * <p>La comparaison est toujours textuelle ({@code String.valueOf(val)})
+//	 * pour rester cohérent avec {@link #buildEqFilter} qui encadre toujours
+//	 * la valeur entre apostrophes.</p>
+//	 */
+//	private List<Map<String, Serializable>> _filterMaps(
+//		List<Map<String, Serializable>> maps, String filterString) {
+//
+//		if (maps == null || maps.isEmpty()) {
+//			return Collections.emptyList();
+//		}
+//
+//		if (filterString == null || filterString.trim().isEmpty()) {
+//			return maps;
+//		}
+//
+//		String trimmed = filterString.trim();
+//
+//		// Gestion AND récursive
+//		List<String> andParts = _splitOnAnd(trimmed);
+//
+//		if (andParts.size() > 1) {
+//			List<Map<String, Serializable>> result = maps;
+//
+//			for (String part : andParts) {
+//				result = _filterMaps(result, part);
+//			}
+//
+//			return result;
+//		}
+//
+//		// Expression simple : fieldName eq 'value' ou fieldName ne 'value'
+//		trimmed = _stripOuterParens(trimmed);
+//
+//		int eqIdx = trimmed.indexOf(" eq '");
+//		int neIdx = trimmed.indexOf(" ne '");
+//
+//		if (eqIdx >= 0) {
+//			String fieldName = trimmed.substring(0, eqIdx).trim();
+//			String expected  = trimmed.substring(eqIdx + 5);
+//
+//			if (expected.endsWith("'")) {
+//				expected = expected.substring(0, expected.length() - 1);
+//			}
+//
+//			final String fField    = fieldName;
+//			final String fExpected = expected;
+//
+//			return maps.stream()
+//				.filter(map -> {
+//					Object val = map.get(fField);
+//					return val != null && fExpected.equals(String.valueOf(val));
+//				})
+//				.collect(Collectors.toList());
+//		}
+//
+//		if (neIdx >= 0) {
+//			String fieldName = trimmed.substring(0, neIdx).trim();
+//			String expected  = trimmed.substring(neIdx + 5);
+//
+//			if (expected.endsWith("'")) {
+//				expected = expected.substring(0, expected.length() - 1);
+//			}
+//
+//			final String fField    = fieldName;
+//			final String fExpected = expected;
+//
+//			return maps.stream()
+//				.filter(map -> {
+//					Object val = map.get(fField);
+//					return val == null || !fExpected.equals(String.valueOf(val));
+//				})
+//				.collect(Collectors.toList());
+//		}
+//
+//		_log.info(
+//			"[ObjectEntryHelper] _filterMaps : expression non parseable '" +
+//				filterString + "' — aucun filtrage appliqué.");
+//
+//		return maps;
+//	}
 
 	// -------------------------------------------------------------------------
 	// Filtrage OData-lite en mémoire (conservé comme fallback interne)
