@@ -57,7 +57,7 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 	private static final String ERC_QUOTAT_VISA_CONFIGURATION = Constants.ERC_QUOTAT_VISA_CONFIGURATION;
 	private static final String ERC_EXPERT_VISA_COUNT         = Constants.ERC_EXPERT_VISA_COUNT;
 	private static final String ERC_DEMANDE_EXTENSION_QUOTA_VISA         = Constants.ERC_DEMANDE_EXTENSION_QUOTA_VISA;
-
+	private static final String ERC_COLLABORATEUR       = Constants.ERC_COLLABORATEUR;
 
 
 	@Override
@@ -120,29 +120,25 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 		_log.info("[createDemandeExtensionQuotaVisa] Expert demandeur : " + expertNomComplet);
 
 		// ------------------------------------------------------------------
-		// 2. Vérifier l'existence de l'administrateur de l'ordre
+		// 2. Récupérer TOUS les membres de l'ordre (sans filtre de profil)
+		//    La demande leur est transmise à tous. Seuls les admins pourront
+		//    valider, mais tous sont notifiés.
 		// ------------------------------------------------------------------
-		ObjectEntry ordreEntry;
-		try {
-			ordreEntry = _objectEntryHelper.getEntryOrThrow(
-					demandeExtensionQuotaVisaRequest.getOrdreExpertID());
-		}
-		catch (Exception e) {
-			_log.warn("[createDemandeExtensionQuotaVisa] Administrateur de l'ordre introuvable : id=" +
-					demandeExtensionQuotaVisaRequest.getOrdreExpertID());
+		List<ObjectEntry> tousMembreOrdre = _objectEntryHelper.searchByFilter(
+				techUserId, companyId, groupId, ERC_COLLABORATEUR, null);
+
+		if (tousMembreOrdre.isEmpty()) {
+			_log.warn("[createDemandeExtensionQuotaVisa] Aucun membre de l'ordre trouvé.");
 			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
-			result.put("message", "Administrateur de l'ordre ID " +
-					demandeExtensionQuotaVisaRequest.getOrdreExpertID() + " n'existe pas.");
+			result.put("message", "Aucun membre de l'ordre trouvé. " +
+					"Impossible de soumettre la demande d'extension.");
 			result.put("data",    "");
 			return Response.status(Response.Status.OK).entity(result).build();
 		}
 
-		String ordreEmail   = ObjectEntryHelper.getString(ordreEntry, "email");
-		String ordreNom     = ObjectEntryHelper.getString(ordreEntry, "nom");
-		String ordrePrenoms = ObjectEntryHelper.getString(ordreEntry, "prenoms");
-		String ordreNomComplet = ordrePrenoms + " " + ordreNom;
+		_log.info("[createDemandeExtensionQuotaVisa] " + tousMembreOrdre.size() +
+				" membre(s) de l'ordre trouvé(s).");
 
-		_log.info("[createDemandeExtensionQuotaVisa] Administrateur de l'ordre : " + ordreNomComplet);
 
 		// ------------------------------------------------------------------
 		// 3. Récupérer la configuration de quota visa globale
@@ -239,9 +235,6 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 				"r_expertDemandeur_c_expertComptableId",
 				expertEntry.getObjectEntryId());
 		extensionValues.put(
-				"r_iDExpertCoordinateur_c_expertCoordinateurId",
-				demandeExtensionQuotaVisaRequest.getOrdreExpertID());
-		extensionValues.put(
 				"motif",
 				demandeExtensionQuotaVisaRequest.getMotif() != null ?
 						demandeExtensionQuotaVisaRequest.getMotif() : "");
@@ -285,47 +278,61 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 		_log.info("[createDemandeExtensionQuotaVisa] Demande persistée — code=" + savedCode);
 
 		// ------------------------------------------------------------------
-		// 8. Notification à l'administrateur de l'ordre
+		// 8. Notification à TOUS les membres de l'ordre
+		//    Chacun reçoit le même email l'informant qu'une demande est en
+		//    attente de traitement. Seuls les admins pourront la valider,
+		//    mais tous sont tenus informés.
 		// ------------------------------------------------------------------
-		try {
-			String templatePath =
-					"/templates/email/notification_expert_dmd_ext_visa_quotat.ftl";
+		String templatePath =
+				"/templates/email/notification_expert_dmd_ext_visa_quotat.ftl";
+		String notifLink = Constants.LIFERAY_SEND_NOTIFICATION_EMAIL_URL
+				.replace("[baseUrl]", baseURL);
 
-			Map<String, Object> tplVars = new HashMap<>();
-			tplVars.put("nom_admin_ordre",     ordreNomComplet);
-			tplVars.put("nom_expert",          expertNomComplet);
-			tplVars.put("email_expert",        expertEmail);
-			tplVars.put("reference_demande",   savedCode);
-			tplVars.put("motif",               savedMotif != null ? savedMotif : "");
-			tplVars.put("date_demande",        dateCreatedFormatted);
-			tplVars.put("current_visa_count",  String.valueOf(currentVisaCount));
-			tplVars.put("min_limit_visa",      String.valueOf(minLimitVisa));
-			tplVars.put("max_limit_visa",      String.valueOf(maxLimitVisa));
-			tplVars.put("lien_plateforme",     baseURL + "/web/oecci_expert_ordre");
+		for (ObjectEntry membre : tousMembreOrdre) {
+			try {
+				String membreEmail   = ObjectEntryHelper.getString(membre, "email");
+				String membreNom     = ObjectEntryHelper.getString(membre, "nom");
+				String membrePrenoms = ObjectEntryHelper.getString(membre, "prenoms");
+				String membreNomComplet = membrePrenoms + " " + membreNom;
 
-			String mailContent = Utils.processMailTemplate(
-					templatePath, this.getClass(), tplVars);
+				if (membreEmail == null || membreEmail.isBlank()) {
+					_log.warn("[createDemandeExtensionQuotaVisa] Membre id=" +
+							membre.getObjectEntryId() + " sans email — ignoré.");
+					continue;
+				}
 
-			JSONObject notifPayload = JSONFactoryUtil.createJSONObject();
-			notifPayload.put("email",   ordreEmail);
-			notifPayload.put("content", mailContent);
-			notifPayload.put("subject", "OECCI : Nouvelle demande d'extension de quota visa");
+				Map<String, Object> tplVars = new HashMap<>();
+				tplVars.put("nom_admin_ordre",    membreNomComplet);
+				tplVars.put("nom_expert",         expertNomComplet);
+				tplVars.put("email_expert",       expertEmail);
+				tplVars.put("reference_demande",  savedCode);
+				tplVars.put("motif",              savedMotif != null ? savedMotif : "");
+				tplVars.put("date_demande",       dateCreatedFormatted);
+				tplVars.put("current_visa_count", String.valueOf(currentVisaCount));
+				tplVars.put("min_limit_visa",     String.valueOf(minLimitVisa));
+				tplVars.put("max_limit_visa",     String.valueOf(maxLimitVisa));
+				tplVars.put("lien_plateforme",    baseURL + "/web/oecci");
 
-			String notifLink = Constants.LIFERAY_SEND_NOTIFICATION_EMAIL_URL
-					.replace("[baseUrl]", baseURL);
+				String mailContent = Utils.processMailTemplate(
+						templatePath, this.getClass(), tplVars);
 
-			JSONObject notifResult = Utils.executeHttpRequest(
-					baseURL, notifLink, notifPayload, Constants.POST_REQUEST);
-			if (notifResult != null) {
+				JSONObject notifPayload = JSONFactoryUtil.createJSONObject();
+				notifPayload.put("email",   membreEmail);
+				notifPayload.put("content", mailContent);
+				notifPayload.put("subject",
+						"OECCI : Nouvelle demande d'extension de quota visa");
+
+				Utils.executeHttpRequest(baseURL, notifLink, notifPayload,
+						Constants.POST_REQUEST);
+
 				_log.info("[createDemandeExtensionQuotaVisa] Notification envoyée à " +
-						ordreEmail + " — code=" + notifResult.getInt("code"));
+						membreEmail);
+			}
+			catch (Exception e) {
+				_log.warn("[createDemandeExtensionQuotaVisa] Erreur notification membre id=" +
+						membre.getObjectEntryId() + " : " + e.getMessage(), e);
 			}
 		}
-		catch (Exception e) {
-			_log.warn("[createDemandeExtensionQuotaVisa] Erreur notification ordre : " +
-					e.getMessage(), e);
-		}
-
 		// ------------------------------------------------------------------
 		// 9. Réponse succès
 		// ------------------------------------------------------------------
@@ -338,6 +345,8 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 		dataObj.put("current_visa_count",    currentVisaCount);
 		dataObj.put("min_limit_visa",        minLimitVisa);
 		dataObj.put("max_limit_visa",        maxLimitVisa);
+		dataObj.put("membres_notifies",      tousMembreOrdre.size());
+
 
 		result.put("code",    Constants.HTTP_SUCCESS);
 		result.put("message", "La demande d'extension de quota visa de l'expert " +
@@ -673,8 +682,6 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 			// ------------------------------------------------------------------
 			long expertDemandeurId = ObjectEntryHelper.getLong(
 					extensionEntry, "r_expertDemandeur_c_expertComptableId");
-			long ordreTraiteurId   = ObjectEntryHelper.getLong(
-					extensionEntry, "r_iDExpertCoordinateur_c_expertCoordinateurId");
 
 			ObjectEntry expertEntry;
 			try {
@@ -690,24 +697,37 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 				return Response.status(Response.Status.OK).entity(result).build();
 			}
 
-			ObjectEntry ordreEntry;
-			try {
-				ordreEntry = _objectEntryHelper.getEntryOrThrow(ordreTraiteurId);
-			}
-			catch (Exception e) {
-				_log.warn("[validateDemandeExtQuotaVisa] Ordre introuvable : id=" + ordreTraiteurId +
-						" — traitement poursuivi sans les infos ordre.");
-				ordreEntry = null;
-			}
-
 			String expertNom       = ObjectEntryHelper.getString(expertEntry, "nom");
 			String expertPrenoms   = ObjectEntryHelper.getString(expertEntry, "prenoms");
 			String expertEmail     = ObjectEntryHelper.getString(expertEntry, "email");
 			String expertNomComplet = expertPrenoms + " " + expertNom;
 
-			String ordreNomComplet = (ordreEntry != null)
-					? ObjectEntryHelper.getString(ordreEntry, "prenoms") + " " +
-					ObjectEntryHelper.getString(ordreEntry, "nom")
+			// ------------------------------------------------------------------
+			// 3. Résoudre le membre admin traitant (l'utilisateur connecté)
+			//    On cherche son entrée dans ERC_EXPERT_COORDINATEUR via son userId
+			// ------------------------------------------------------------------
+			List<ObjectEntry> adminEntries = _objectEntryHelper.searchByFilter(
+					techUserId, companyId, groupId, ERC_COLLABORATEUR,
+					ObjectEntryHelper.buildEqFilter(
+							"r_iDUserCollabo_userId",
+							String.valueOf(userId)));
+
+			String adminNomComplet;
+			ObjectEntry adminEntry = null;
+			if (!adminEntries.isEmpty()) {
+				adminEntry = adminEntries.get(0);
+				adminNomComplet = ObjectEntryHelper.getString(adminEntry, "prenoms") +
+						" " + ObjectEntryHelper.getString(adminEntry, "nom");
+			}
+			else {
+				// Fallback : utiliser le nom de l'utilisateur Liferay connecté
+				adminNomComplet = contextUser.getFullName();
+				_log.warn("[validateDemandeExtQuotaVisa] Membre ordre introuvable pour userId=" +
+						userId + " — fallback nom Liferay : " + adminNomComplet);
+			}
+
+			String ordreNomComplet = (adminNomComplet != null)
+					? adminNomComplet
 					: "L'administrateur de l'ordre";
 
 			String extensionCode = ObjectEntryHelper.getString(extensionEntry, "code");
@@ -715,7 +735,9 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 					statutRequest.getMotif_refus() : "";
 
 			_log.info("[validateDemandeExtQuotaVisa] Expert=" + expertNomComplet +
+					" | Admin traitant=" + adminNomComplet +
 					" | Nouveau statut=" + statutRequest.getStatut().getKey());
+
 
 			// ------------------------------------------------------------------
 			// 3. Mettre à jour le statut de la demande d'extension
@@ -723,6 +745,7 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 			Map<String, Serializable> updateValues = new HashMap<>();
 			updateValues.put("extensionQuotatStatus", statutRequest.getStatut().getKey());
 			updateValues.put("motif",                 motifRefus);
+			updateValues.put("r_ordreTraiteur_c_collaborateurId", adminEntry.getObjectEntryId());
 
 			ObjectEntry updatedExtension = _objectEntryHelper.updateEntry(
 					userId, groupId, companyId,

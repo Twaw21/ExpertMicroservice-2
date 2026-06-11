@@ -37,7 +37,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Generated("")
 @GraphQLName("CreateDmdExtQuotVisaRequest")
 @io.swagger.v3.oas.annotations.media.Schema(
-	requiredProperties = {"expertID", "ordreExpertID"}
+	requiredProperties = {"expertID"}
 )
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "CreateDmdExtQuotVisaRequest")
@@ -136,48 +136,6 @@ public class CreateDmdExtQuotVisaRequest implements Serializable {
 	@JsonIgnore
 	private Supplier<String> _motifSupplier;
 
-	@io.swagger.v3.oas.annotations.media.Schema
-	public Long getOrdreExpertID() {
-		if (_ordreExpertIDSupplier != null) {
-			ordreExpertID = _ordreExpertIDSupplier.get();
-
-			_ordreExpertIDSupplier = null;
-		}
-
-		return ordreExpertID;
-	}
-
-	public void setOrdreExpertID(Long ordreExpertID) {
-		this.ordreExpertID = ordreExpertID;
-
-		_ordreExpertIDSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setOrdreExpertID(
-		UnsafeSupplier<Long, Exception> ordreExpertIDUnsafeSupplier) {
-
-		_ordreExpertIDSupplier = () -> {
-			try {
-				return ordreExpertIDUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	@NotNull
-	protected Long ordreExpertID;
-
-	@JsonIgnore
-	private Supplier<Long> _ordreExpertIDSupplier;
-
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -233,18 +191,6 @@ public class CreateDmdExtQuotVisaRequest implements Serializable {
 			sb.append(_escape(motif));
 
 			sb.append("\"");
-		}
-
-		Long ordreExpertID = getOrdreExpertID();
-
-		if (ordreExpertID != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"ordreExpertID\": ");
-
-			sb.append(ordreExpertID);
 		}
 
 		sb.append("}");

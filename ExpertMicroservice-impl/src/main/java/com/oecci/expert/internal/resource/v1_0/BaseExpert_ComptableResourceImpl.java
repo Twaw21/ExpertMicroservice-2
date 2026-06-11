@@ -70,6 +70,7 @@ public abstract class BaseExpert_ComptableResourceImpl
 	@javax.ws.rs.Consumes({"application/json", "application/xml"})
 	@javax.ws.rs.Path("/oecci/expert/experts-comptables")
 	@javax.ws.rs.POST
+	@javax.ws.rs.Produces({"application/json"})
 	@Override
 	public Response createExpertComptable(
 			CreateExpertComptable createExpertComptable)
@@ -115,7 +116,7 @@ public abstract class BaseExpert_ComptableResourceImpl
 	)
 	@javax.ws.rs.GET
 	@javax.ws.rs.Path("/oecci/expert/experts-comptables/{expertComptableId}")
-	@javax.ws.rs.Produces({"application/json", "application/xml"})
+	@javax.ws.rs.Produces({"application/json"})
 	@Override
 	public Response getExpertComptableById(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -322,6 +323,7 @@ public abstract class BaseExpert_ComptableResourceImpl
 		"/oecci/expert/experts-comptables/load-visual/{expertComptableId}"
 	)
 	@javax.ws.rs.POST
+
 	@Override
 	public Response loadSignVisual(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -466,6 +468,7 @@ public abstract class BaseExpert_ComptableResourceImpl
 		"/oecci/expert/experts-comptables/validation/{expertComptableId}"
 	)
 	@javax.ws.rs.POST
+	@javax.ws.rs.Produces({"application/json"})
 	@Override
 	public Response validateExpertComptable(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
