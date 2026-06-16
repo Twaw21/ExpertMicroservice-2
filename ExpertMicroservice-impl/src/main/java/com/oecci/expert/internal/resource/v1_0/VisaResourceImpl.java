@@ -631,14 +631,30 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 
 			_log.info(">> Début validateDemandeExtQuotaVisa — id=" + demandeExtId);
 
-			long userId    = contextUser.getUserId();
-			long companyId = contextCompany.getCompanyId();
-			long groupId   = 0;
+			//long userId    = contextUser.getUserId();
 			String baseURL = PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL) + "://" +
 					PropsUtil.get(PropsKeys.WEB_SERVER_HOST);
 
 			JSONObject result = JSONFactoryUtil.createJSONObject();
 
+			long groupId   = 0;
+			long companyId = contextCompany.getCompanyId();
+			User user = SecurityUtil.checkUser(_httpServletRequest, "validateDemandeExtQuotaVisa");
+			if (user == null) {
+				return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+			}
+			long userId = user.getUserId();
+
+			_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
+			String[] roles = {"Regular COLLABO ADMIN Shared Object"};
+			boolean hasAccess = SecurityUtil.checkAccess(_httpServletRequest, user, roles);
+
+			if (!hasAccess) {
+				result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
+				result.put("message", "Vous n'avez les permissions nécessaires.");
+				result.put("data", "");
+				return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+			}
 			// ------------------------------------------------------------------
 			// Compte technique
 			// ------------------------------------------------------------------
@@ -711,6 +727,16 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 					ObjectEntryHelper.buildEqFilter(
 							"r_iDUserCollabo_userId",
 							String.valueOf(userId)));
+			if(adminEntries.isEmpty() || adminEntries == null){
+				_log.error("[validateDemandeExtQuotaVisa] Administrateur de l'ordre introuvable : id=" +
+						expertDemandeurId);
+				result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+				result.put("message", "Aucun administrateur de l'ordre connecté. Utilisateur introuvable (id liferay =" +
+						userId + ").");
+				result.put("data",    "");
+				return Response.status(Response.Status.OK).entity(result).build();
+
+			}
 
 			String adminNomComplet;
 			ObjectEntry adminEntry = null;
