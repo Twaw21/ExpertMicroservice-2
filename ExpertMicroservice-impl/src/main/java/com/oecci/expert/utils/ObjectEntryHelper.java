@@ -64,7 +64,7 @@ public class ObjectEntryHelper {
 	 * Évite un appel base de données à chaque requête.
 	 */
 	private final ConcurrentHashMap<String, Long> _definitionIdCache =
-		new ConcurrentHashMap<>();
+			new ConcurrentHashMap<>();
 
 	// -------------------------------------------------------------------------
 	// Résolution de l'Object Definition
@@ -85,22 +85,22 @@ public class ObjectEntryHelper {
 		return _definitionIdCache.computeIfAbsent(cacheKey, k -> {
 			try {
 				ObjectDefinition od =
-					_objectDefinitionLocalService
-						.fetchObjectDefinitionByExternalReferenceCode(
-							erc, companyId);
+						_objectDefinitionLocalService
+								.fetchObjectDefinitionByExternalReferenceCode(
+										erc, companyId);
 
 				if (od == null) {
 					_log.error(
-						"[ObjectEntryHelper] Object Definition introuvable " +
-							"pour ERC='" + erc + "' et companyId=" + companyId +
-							". Vérifier dans Admin → Objects.");
+							"[ObjectEntryHelper] Object Definition introuvable " +
+									"pour ERC='" + erc + "' et companyId=" + companyId +
+									". Vérifier dans Admin → Objects.");
 					throw new IllegalStateException(
-						"Object Definition introuvable : ERC=" + erc);
+							"Object Definition introuvable : ERC=" + erc);
 				}
 
 				_log.info(
-					"[ObjectEntryHelper] ObjectDefinition résolue : ERC=" +
-						erc + " → id=" + od.getObjectDefinitionId());
+						"[ObjectEntryHelper] ObjectDefinition résolue : ERC=" +
+								erc + " → id=" + od.getObjectDefinitionId());
 
 				return od.getObjectDefinitionId();
 			}
@@ -109,7 +109,7 @@ public class ObjectEntryHelper {
 			}
 			catch (Exception e) {
 				throw new IllegalStateException(
-					"Erreur résolution ObjectDefinition ERC=" + erc, e);
+						"Erreur résolution ObjectDefinition ERC=" + erc, e);
 			}
 		});
 	}
@@ -135,17 +135,17 @@ public class ObjectEntryHelper {
 	public ObjectEntry addEntry(
 			long userId, long groupId, long companyId,
 			String erc, Map<String, Serializable> values)
-		throws Exception {
+			throws Exception {
 
 		long odId = resolveObjectDefinitionId(companyId, erc);
 		ServiceContext sc = _buildServiceContext(userId, groupId, companyId);
 
 		_log.info(
-			"[ObjectEntryHelper] addEntry : erc=" + erc +
-				" userId=" + userId + " groupId=" + groupId);
+				"[ObjectEntryHelper] addEntry : erc=" + erc +
+						" userId=" + userId + " groupId=" + groupId);
 
 		return _objectEntryLocalService.addObjectEntry(
-			userId, groupId, odId, values, sc);
+				userId, groupId, odId, values, sc);
 	}
 
 	// -------------------------------------------------------------------------
@@ -166,16 +166,16 @@ public class ObjectEntryHelper {
 	public ObjectEntry updateEntry(
 			long userId, long groupId, long companyId,
 			long objectEntryId, Map<String, Serializable> values)
-		throws Exception {
+			throws Exception {
 
 		ServiceContext sc = _buildServiceContext(userId, groupId, companyId);
 
 		_log.info(
-			"[ObjectEntryHelper] updateEntry : objectEntryId=" + objectEntryId +
-				" userId=" + userId);
+				"[ObjectEntryHelper] updateEntry : objectEntryId=" + objectEntryId +
+						" userId=" + userId);
 
 		return _objectEntryLocalService.updateObjectEntry(
-			userId, objectEntryId, values, sc);
+				userId, objectEntryId, values, sc);
 	}
 
 	// -------------------------------------------------------------------------
@@ -195,8 +195,8 @@ public class ObjectEntryHelper {
 		}
 		catch (Exception e) {
 			_log.info(
-				"[ObjectEntryHelper] getEntry : objectEntryId=" +
-					objectEntryId + " introuvable — " + e.getMessage());
+					"[ObjectEntryHelper] getEntry : objectEntryId=" +
+							objectEntryId + " introuvable — " + e.getMessage());
 			return null;
 		}
 	}
@@ -206,11 +206,11 @@ public class ObjectEntryHelper {
 	 */
 	public ObjectEntry getEntryOrThrow(long objectEntryId) throws Exception {
 		ObjectEntry entry = _objectEntryLocalService.fetchObjectEntry(
-			objectEntryId);
+				objectEntryId);
 
 		if (entry == null) {
 			throw new IllegalArgumentException(
-				"ObjectEntry introuvable : id=" + objectEntryId);
+					"ObjectEntry introuvable : id=" + objectEntryId);
 		}
 
 		return entry;
@@ -240,7 +240,7 @@ public class ObjectEntryHelper {
 	 * @return le {@link PermissionChecker} précédent, à restaurer dans finally
 	 */
 	public PermissionChecker switchPermissionChecker(long userId)
-		throws com.liferay.portal.kernel.exception.PortalException {
+			throws com.liferay.portal.kernel.exception.PortalException {
 
 		PermissionChecker previous = PermissionThreadLocal.getPermissionChecker();
 
@@ -249,8 +249,8 @@ public class ObjectEntryHelper {
 		PermissionThreadLocal.setPermissionChecker(checker);
 
 		_log.info(
-			"[ObjectEntryHelper] switchPermissionChecker — userId=" + userId +
-				" isOmniadmin=" + checker.isOmniadmin());
+				"[ObjectEntryHelper] switchPermissionChecker — userId=" + userId +
+						" isOmniadmin=" + checker.isOmniadmin());
 
 		return previous;
 	}
@@ -287,7 +287,7 @@ public class ObjectEntryHelper {
 			long userId, long companyId, long groupId,
 			String erc, String filterString, OrderByExpression[] orderByExpressions, Long page, Long pageSize)
 					throws Exception {
-		
+
 		int _page = (page != null && page > 0) ? page.intValue() : 1;
 		int start = (_page - 1) * pageSize.intValue();
 		int end = start + ((pageSize != null && pageSize > 0) ? pageSize.intValue() : 20);
@@ -332,25 +332,53 @@ public class ObjectEntryHelper {
 	 * @return liste des ObjectEntry correspondantes
 	 */
 	private List<ObjectEntry> _searchByFilter(
-			long userId, long companyId, long groupId,
-			String erc, String filterString, Sort[] sorts, int start, int end)
+			long userId,
+			long companyId,
+			long groupId,
+			String erc,
+			String filterString,
+			Sort[] sorts,
+			int start,
+			int end)
 			throws Exception {
 
 		long odId = resolveObjectDefinitionId(companyId, erc);
 
-		_log.info(
-				"[ObjectEntryHelper] searchByFilter : erc=" + erc +
-						" filter='" + filterString + "' odId=" + odId);
+		_log.info("=================================================");
+		_log.info("[DEBUG SEARCH BY FILTER]");
+		_log.info("ERC          = " + erc);
+		_log.info("Filter       = " + filterString);
+		_log.info("CompanyId    = " + companyId);
+		_log.info("GroupId      = " + groupId);
+		_log.info("UserId       = " + userId);
+		_log.info("ObjectDefId  = " + odId);
+		_log.info("=================================================");
 
 		ObjectDefinition od =
 				_objectDefinitionLocalService.getObjectDefinition(odId);
 
-		PermissionChecker previousChecker = switchPermissionChecker(userId);
+		_log.info("=================================================");
+		_log.info("[DEBUG OBJECT DEFINITION]");
+		_log.info("Object Name  = " + od.getName());
+		_log.info("Short Name   = " + od.getShortName());
+		_log.info("DB Table     = " + od.getDBTableName());
+		_log.info("Active       = " + od.isActive());
+		_log.info("=================================================");
+
+		PermissionChecker previousChecker =
+				switchPermissionChecker(userId);
 
 		try {
-			Predicate predicate = filterString != null
-					? _buildPredicate(filterString, od)
-					: null;
+
+			Predicate predicate =
+					filterString != null
+							? _buildPredicate(filterString, od)
+							: null;
+
+			_log.info("=================================================");
+			_log.info("[DEBUG PREDICATE]");
+			_log.info("Predicate construit avec succès");
+			_log.info("=================================================");
 
 			List<Map<String, Serializable>> maps =
 					_objectEntryLocalService.getValuesList(
@@ -361,16 +389,157 @@ public class ObjectEntryHelper {
 							predicate,
 							null,
 							start < 0 ? QueryUtil.ALL_POS : start,
-							end   < 0 ? QueryUtil.ALL_POS : end,
+							end < 0 ? QueryUtil.ALL_POS : end,
 							sorts);
+
+			_log.info("=================================================");
+			_log.info("[DEBUG RESULT]");
+			_log.info("Nombre d'entrées trouvées = " + maps.size());
+
+			if (!maps.isEmpty()) {
+
+				_log.info("-----------------------------------------");
+				_log.info("Première entrée récupérée");
+				_log.info("-----------------------------------------");
+
+				Map<String, Serializable> first = maps.get(0);
+
+				for (Map.Entry<String, Serializable> entry : first.entrySet()) {
+
+					_log.info(
+							entry.getKey() +
+									" = " +
+									String.valueOf(entry.getValue()));
+				}
+			}
+
+			_log.info("=================================================");
+
+			return _resolveObjectEntries(maps, od);
+
+		}
+		catch (Exception e) {
+
+			_log.error(
+					"[ObjectEntryHelper] FilterFactory non supporté pour : "
+							+ filterString,
+					e);
+
+			_log.info("=================================================");
+			_log.info("[DEBUG FALLBACK]");
+			_log.info("Passage en filtrage mémoire");
+			_log.info("Cause : " + e.getMessage());
+			_log.info("=================================================");
+
+			List<Map<String, Serializable>> allMaps =
+					_objectEntryLocalService.getValuesList(
+							groupId,
+							companyId,
+							userId,
+							odId,
+							null,
+							null,
+							QueryUtil.ALL_POS,
+							QueryUtil.ALL_POS,
+							null);
+
+			_log.info("=================================================");
+			_log.info("[DEBUG ALL DATA]");
+			_log.info("Nombre total d'entrées = " + allMaps.size());
+
+			if (!allMaps.isEmpty()) {
+
+				Map<String, Serializable> first = allMaps.get(0);
+
+				_log.info("-----------------------------------------");
+				_log.info("CLÉS DISPONIBLES DANS LE PREMIER OBJET");
+				_log.info("-----------------------------------------");
+
+				for (String key : first.keySet()) {
+					_log.info("FIELD => " + key);
+				}
+
+				_log.info("-----------------------------------------");
+				_log.info("CONTENU COMPLET DU PREMIER OBJET");
+				_log.info("-----------------------------------------");
+
+				for (Map.Entry<String, Serializable> entry : first.entrySet()) {
+
+					_log.info(
+							entry.getKey() +
+									" = " +
+									String.valueOf(entry.getValue()));
+				}
+			}
+
+			_log.info("=================================================");
+
+			List<Map<String, Serializable>> filteredMaps =
+					_filterMaps(allMaps, filterString);
+
+			_log.info("=================================================");
+			_log.info("[DEBUG FILTER RESULT]");
+			_log.info("Nombre d'entrées après filtrage = "
+					+ filteredMaps.size());
+
+			if (!filteredMaps.isEmpty()) {
+
+				Map<String, Serializable> first = filteredMaps.get(0);
+
+				_log.info("-----------------------------------------");
+				_log.info("PREMIER RÉSULTAT FILTRÉ");
+				_log.info("-----------------------------------------");
+
+				for (Map.Entry<String, Serializable> entry : first.entrySet()) {
+
+					_log.info(
+							entry.getKey() +
+									" = " +
+									String.valueOf(entry.getValue()));
+				}
+			}
+
+			_log.info("=================================================");
+
+			return _resolveObjectEntries(filteredMaps, od);
+		}
+		finally {
+			PermissionThreadLocal.setPermissionChecker(previousChecker);
+		}
+	}
+
+	/** Variante paginée de {@link #searchByFilter(long, long, long, String, String)}. */
+	public List<ObjectEntry> searchByFilter(
+			long userId, long companyId, long groupId,
+			String erc, String filterString, int start, int end)
+			throws Exception {
+
+		long odId = resolveObjectDefinitionId(companyId, erc);
+
+		_log.info(
+				"[ObjectEntryHelper] searchByFilter paginé : erc=" + erc +
+						" filter='" + filterString + "' start=" + start + " end=" + end);
+
+		ObjectDefinition od =
+				_objectDefinitionLocalService.getObjectDefinition(odId);
+
+		PermissionChecker previousChecker = switchPermissionChecker(userId);
+
+		try {
+			Predicate predicate = _buildPredicate(filterString, od);
+
+			List<Map<String, Serializable>> maps =
+					_objectEntryLocalService.getValuesList(
+							groupId, companyId, userId, odId,
+							predicate, null,
+							start, end, null);
 
 			return _resolveObjectEntries(maps, od);
 		}
 		catch (Exception e) {
 			_log.info(
 					"[ObjectEntryHelper] FilterFactory non supporté pour le filtre '" +
-							filterString + "' (erc=" + erc +
-							") — fallback getValuesList in-memory. " +
+							filterString + "' (erc=" + erc + ") — fallback getValuesList in-memory paginé. " +
 							"Cause : " + e.getMessage());
 
 			List<Map<String, Serializable>> allMaps =
@@ -381,169 +550,6 @@ public class ObjectEntryHelper {
 
 			List<Map<String, Serializable>> filteredMaps =
 					_filterMaps(allMaps, filterString);
-
-			return _resolveObjectEntries(filteredMaps, od);
-		}
-		finally {
-			PermissionThreadLocal.setPermissionChecker(previousChecker);
-		}
-	}
-
-	/**
-	 * Filtre in-memory une liste de maps selon une expression OData simplifiée.
-	 *
-	 * Supporte :
-	 *   - field eq 'value'   (String avec quotes)
-	 *   - field eq value     (valeur sans quotes)
-	 *   - field eq null
-	 *
-	 * La comparaison est faite en String pour absorber les écarts de type
-	 * (ex: champ de relation stocké en Long vs valeur passée en String).
-	 *
-	 * Supporte aussi les expressions composées avec "and" (insensible à la casse),
-	 * ex: "field1 eq 'val1' and field2 eq 'val2'"
-	 */
-	private List<Map<String, Serializable>> _filterMaps(
-			List<Map<String, Serializable>> allMaps, String filterString) {
-
-		if (filterString == null || filterString.isBlank()) {
-			return allMaps;
-		}
-
-		// Découper les clauses sur "and" (OData de base)
-		String[] clauses = filterString.split("(?i)\\s+and\\s+");
-
-		return allMaps.stream()
-				.filter(map -> {
-					for (String clause : clauses) {
-						if (!_matchClause(map, clause.trim())) {
-							return false;
-						}
-					}
-					return true;
-				})
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Évalue une clause unitaire "field op value" sur une map.
-	 * Opérateurs supportés : eq, ne, gt, ge, lt, le
-	 */
-	private boolean _matchClause(
-			Map<String, Serializable> map, String clause) {
-
-		// Regex : <champ> <op> <valeur>
-		// La valeur peut être : 'texte', null, ou un nombre
-		java.util.regex.Pattern p = java.util.regex.Pattern.compile(
-				"^(\\S+)\\s+(eq|ne|gt|ge|lt|le)\\s+(.+)$",
-				java.util.regex.Pattern.CASE_INSENSITIVE);
-
-		java.util.regex.Matcher m = p.matcher(clause);
-		if (!m.matches()) {
-			_log.warn("[ObjectEntryHelper] _filterMaps : clause non parseable : '" +
-					clause + "' — ignorée.");
-			return true; // clause inconnue → on ne filtre pas sur elle
-		}
-
-		String field    = m.group(1).trim();
-		String operator = m.group(2).trim().toLowerCase();
-		String rawValue = m.group(3).trim();
-
-		// Retirer les quotes simples éventuelles : 'valeur' → valeur
-		String expectedStr = rawValue.replaceAll("^'|'$", "");
-
-		Serializable actual = map.get(field);
-
-		// Cas null
-		if ("null".equalsIgnoreCase(expectedStr)) {
-			boolean isNull = (actual == null);
-			return operator.equals("eq") ? isNull : !isNull;
-		}
-
-		if (actual == null) {
-			return false;
-		}
-
-		String actualStr = String.valueOf(actual);
-
-		switch (operator) {
-			case "eq":
-				return actualStr.equals(expectedStr);
-			case "ne":
-				return !actualStr.equals(expectedStr);
-			case "gt":
-			case "ge":
-			case "lt":
-			case "le":
-				// Comparaison numérique si possible
-				try {
-					double actualNum   = Double.parseDouble(actualStr);
-					double expectedNum = Double.parseDouble(expectedStr);
-					switch (operator) {
-						case "gt": return actualNum >  expectedNum;
-						case "ge": return actualNum >= expectedNum;
-						case "lt": return actualNum <  expectedNum;
-						case "le": return actualNum <= expectedNum;
-					}
-				}
-				catch (NumberFormatException nfe) {
-					// Repli sur comparaison lexicographique
-					int cmp = actualStr.compareTo(expectedStr);
-					switch (operator) {
-						case "gt": return cmp >  0;
-						case "ge": return cmp >= 0;
-						case "lt": return cmp <  0;
-						case "le": return cmp <= 0;
-					}
-				}
-				return false;
-			default:
-				return true;
-		}
-	}
-
-	/** Variante paginée de {@link #searchByFilter(long, long, long, String, String)}. */
-	public List<ObjectEntry> searchByFilter(
-			long userId, long companyId, long groupId,
-			String erc, String filterString, int start, int end)
-		throws Exception {
-
-		long odId = resolveObjectDefinitionId(companyId, erc);
-
-		_log.info(
-			"[ObjectEntryHelper] searchByFilter paginé : erc=" + erc +
-				" filter='" + filterString + "' start=" + start + " end=" + end);
-
-		ObjectDefinition od =
-			_objectDefinitionLocalService.getObjectDefinition(odId);
-
-		PermissionChecker previousChecker = switchPermissionChecker(userId);
-
-		try {
-			Predicate predicate = _buildPredicate(filterString, od);
-
-			List<Map<String, Serializable>> maps =
-				_objectEntryLocalService.getValuesList(
-					groupId, companyId, userId, odId,
-					predicate, null,
-					start, end, null);
-
-			return _resolveObjectEntries(maps, od);
-		}
-		catch (Exception e) {
-			_log.info(
-				"[ObjectEntryHelper] FilterFactory non supporté pour le filtre '" +
-					filterString + "' (erc=" + erc + ") — fallback getValuesList in-memory paginé. " +
-					"Cause : " + e.getMessage());
-
-			List<Map<String, Serializable>> allMaps =
-				_objectEntryLocalService.getValuesList(
-					groupId, companyId, userId, odId,
-					null, null,
-					QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
-
-			List<Map<String, Serializable>> filteredMaps =
-				_filterMaps(allMaps, filterString);
 
 			List<ObjectEntry> filtered = _resolveObjectEntries(filteredMaps, od);
 
@@ -579,17 +585,17 @@ public class ObjectEntryHelper {
 			String erc, String filterString,
 			String sortField, boolean ascending,
 			int start, int end)
-		throws Exception {
+			throws Exception {
 
 		long odId = resolveObjectDefinitionId(companyId, erc);
 
 		_log.info(
-			"[ObjectEntryHelper] searchByFilterSorted : erc=" + erc +
-				" filter='" + filterString + "' sort=" + sortField +
-				" asc=" + ascending);
+				"[ObjectEntryHelper] searchByFilterSorted : erc=" + erc +
+						" filter='" + filterString + "' sort=" + sortField +
+						" asc=" + ascending);
 
 		ObjectDefinition od =
-			_objectDefinitionLocalService.getObjectDefinition(odId);
+				_objectDefinitionLocalService.getObjectDefinition(odId);
 
 		PermissionChecker previousChecker = switchPermissionChecker(userId);
 
@@ -600,19 +606,19 @@ public class ObjectEntryHelper {
 
 			// start/end passés directement (ALL_POS = pas de borne).
 			List<Map<String, Serializable>> maps =
-				_objectEntryLocalService.getValuesList(
-					groupId, companyId, userId, odId,
-					predicate, null,
-					start, end, null);
+					_objectEntryLocalService.getValuesList(
+							groupId, companyId, userId, odId,
+							predicate, null,
+							start, end, null);
 
 			return _resolveObjectEntries(maps, od);
 		}
 		catch (Exception e) {
 			// Fallback : tri SQL via DynamicQuery + filtre en mémoire scopé.
 			_log.info(
-				"[ObjectEntryHelper] FilterFactory non supporté pour le filtre '" +
-					filterString + "' (erc=" + erc + ") — fallback DynamicQuery+mémoire. " +
-					"Cause : " + e.getMessage());
+					"[ObjectEntryHelper] FilterFactory non supporté pour le filtre '" +
+							filterString + "' (erc=" + erc + ") — fallback DynamicQuery+mémoire. " +
+							"Cause : " + e.getMessage());
 
 			DynamicQuery dq = _objectEntryLocalService.dynamicQuery();
 			dq.add(RestrictionsFactoryUtil.eq("objectDefinitionId", odId));
@@ -622,15 +628,15 @@ public class ObjectEntryHelper {
 			}
 
 			dq.addOrder(
-				ascending
-					? OrderFactoryUtil.asc(sortField)
-					: OrderFactoryUtil.desc(sortField));
+					ascending
+							? OrderFactoryUtil.asc(sortField)
+							: OrderFactoryUtil.desc(sortField));
 
 			// Pagination SQL dans le DynamicQuery si des bornes sont demandées.
 			@SuppressWarnings("unchecked")
 			List<ObjectEntry> sorted = (start == QueryUtil.ALL_POS || end == QueryUtil.ALL_POS)
-				? (List<ObjectEntry>) (List<?>) _objectEntryLocalService.dynamicQuery(dq)
-				: (List<ObjectEntry>) (List<?>) _objectEntryLocalService.dynamicQuery(dq, start, end);
+					? (List<ObjectEntry>) (List<?>) _objectEntryLocalService.dynamicQuery(dq)
+					: (List<ObjectEntry>) (List<?>) _objectEntryLocalService.dynamicQuery(dq, start, end);
 
 			List<ObjectEntry> filtered = _applyODataFilter(sorted, filterString);
 
@@ -657,7 +663,7 @@ public class ObjectEntryHelper {
 	 * (= pas de restriction, équivalent au SELECT sans WHERE).
 	 */
 	private Predicate _buildPredicate(String filterString, ObjectDefinition od)
-		throws Exception {
+			throws Exception {
 
 		if (filterString == null || filterString.trim().isEmpty()) {
 			return null;
@@ -687,7 +693,7 @@ public class ObjectEntryHelper {
 	 * </ol>
 	 */
 	private List<ObjectEntry> _resolveObjectEntries(
-		List<Map<String, Serializable>> maps, ObjectDefinition od) {
+			List<Map<String, Serializable>> maps, ObjectDefinition od) {
 
 		if (maps == null || maps.isEmpty()) {
 			return Collections.emptyList();
@@ -696,10 +702,10 @@ public class ObjectEntryHelper {
 		String derivedIdKey = _resolveIdKey(od);
 
 		_log.info(
-			"[ObjectEntryHelper] _resolveObjectEntries — od='" + od.getName() +
-				"' derivedIdKey='" + derivedIdKey +
-				"' count=" + maps.size() +
-				"' mapKeys=" + maps.get(0).keySet());
+				"[ObjectEntryHelper] _resolveObjectEntries — od='" + od.getName() +
+						"' derivedIdKey='" + derivedIdKey +
+						"' count=" + maps.size() +
+						"' mapKeys=" + maps.get(0).keySet());
 
 		// 1. Extraction des IDs depuis toutes les Maps
 		List<Long> ids = new ArrayList<>(maps.size());
@@ -712,21 +718,21 @@ public class ObjectEntryHelper {
 			}
 			else {
 				_log.info(
-					"[ObjectEntryHelper] _resolveObjectEntries — impossible d'extraire " +
-						"l'ID de la map (derivedKey='" + derivedIdKey +
-						"', mapKeys=" + map.keySet() + ")");
+						"[ObjectEntryHelper] _resolveObjectEntries — impossible d'extraire " +
+								"l'ID de la map (derivedKey='" + derivedIdKey +
+								"', mapKeys=" + map.keySet() + ")");
 			}
 		}
 
 		if (ids.isEmpty()) {
 			_log.info(
-				"[ObjectEntryHelper] _resolveObjectEntries — aucun ID valide extrait " +
-					"sur " + maps.size() + " map(s)");
+					"[ObjectEntryHelper] _resolveObjectEntries — aucun ID valide extrait " +
+							"sur " + maps.size() + " map(s)");
 			return Collections.emptyList();
 		}
 
 		_log.info(
-			"[ObjectEntryHelper] _resolveObjectEntries — IDs extraits : " + ids);
+				"[ObjectEntryHelper] _resolveObjectEntries — IDs extraits : " + ids);
 
 		// 2. Chargement des ObjectEntry en bulk via DynamicQuery
 		//    Fiable quelle que soit la relation PK extension ↔ objectEntryId
@@ -741,12 +747,12 @@ public class ObjectEntryHelper {
 
 		@SuppressWarnings("unchecked")
 		List<ObjectEntry> entries =
-			(List<ObjectEntry>) (List<?>) _objectEntryLocalService.dynamicQuery(dq);
+				(List<ObjectEntry>) (List<?>) _objectEntryLocalService.dynamicQuery(dq);
 
 		_log.info(
-			"[ObjectEntryHelper] _resolveObjectEntries — " +
-				entries.size() + " ObjectEntry(s) résolue(s) pour " +
-				ids.size() + " ID(s)");
+				"[ObjectEntryHelper] _resolveObjectEntries — " +
+						entries.size() + " ObjectEntry(s) résolue(s) pour " +
+						ids.size() + " ID(s)");
 
 		return entries;
 	}
@@ -792,9 +798,9 @@ public class ObjectEntryHelper {
 
 			if (id > 0) {
 				_log.info(
-					"[ObjectEntryHelper] _extractEntryId — key='" + key +
-						"' type=" + val.getClass().getSimpleName() +
-						" → id=" + id);
+						"[ObjectEntryHelper] _extractEntryId — key='" + key +
+								"' type=" + val.getClass().getSimpleName() +
+								" → id=" + id);
 				return id;
 			}
 		}
@@ -819,112 +825,192 @@ public class ObjectEntryHelper {
 	// -------------------------------------------------------------------------
 	// Filtrage de Maps (retournées par getValuesList) en mémoire
 	// -------------------------------------------------------------------------
-//
-//	/**
-//	 * Filtre une liste de Maps (issues de {@code getValuesList}) selon un
-//	 * filtre OData simple de la forme {@code fieldName eq 'value'} ou
-//	 * {@code fieldName ne 'value'}.
-//	 *
-//	 * <p>Contrairement à {@link #_applyODataFilter} qui opère sur des
-//	 * {@link ObjectEntry} et ne voit pas les champs de relation, cette méthode
-//	 * opère directement sur les Maps qui contiennent TOUS les champs y compris
-//	 * les FK de relation ({@code r_iDXxx_c_xxxId}).</p>
-//	 *
-//	 * <p>La comparaison est toujours textuelle ({@code String.valueOf(val)})
-//	 * pour rester cohérent avec {@link #buildEqFilter} qui encadre toujours
-//	 * la valeur entre apostrophes.</p>
-//	 */
-//	private List<Map<String, Serializable>> _filterMaps(
-//		List<Map<String, Serializable>> maps, String filterString) {
-//
-//		if (maps == null || maps.isEmpty()) {
-//			return Collections.emptyList();
-//		}
-//
-//		if (filterString == null || filterString.trim().isEmpty()) {
-//			return maps;
-//		}
-//
-//		String trimmed = filterString.trim();
-//
-//		// Gestion AND récursive
-//		List<String> andParts = _splitOnAnd(trimmed);
-//
-//		if (andParts.size() > 1) {
-//			List<Map<String, Serializable>> result = maps;
-//
-//			for (String part : andParts) {
-//				result = _filterMaps(result, part);
-//			}
-//
-//			return result;
-//		}
-//
-//		// Expression simple : fieldName eq 'value' ou fieldName ne 'value'
-//		trimmed = _stripOuterParens(trimmed);
-//
-//		int eqIdx = trimmed.indexOf(" eq '");
-//		int neIdx = trimmed.indexOf(" ne '");
-//
-//		if (eqIdx >= 0) {
-//			String fieldName = trimmed.substring(0, eqIdx).trim();
-//			String expected  = trimmed.substring(eqIdx + 5);
-//
-//			if (expected.endsWith("'")) {
-//				expected = expected.substring(0, expected.length() - 1);
-//			}
-//
-//			final String fField    = fieldName;
-//			final String fExpected = expected;
-//
-//			return maps.stream()
-//				.filter(map -> {
-//					Object val = map.get(fField);
-//					return val != null && fExpected.equals(String.valueOf(val));
-//				})
-//				.collect(Collectors.toList());
-//		}
-//
-//		if (neIdx >= 0) {
-//			String fieldName = trimmed.substring(0, neIdx).trim();
-//			String expected  = trimmed.substring(neIdx + 5);
-//
-//			if (expected.endsWith("'")) {
-//				expected = expected.substring(0, expected.length() - 1);
-//			}
-//
-//			final String fField    = fieldName;
-//			final String fExpected = expected;
-//
-//			return maps.stream()
-//				.filter(map -> {
-//					Object val = map.get(fField);
-//					return val == null || !fExpected.equals(String.valueOf(val));
-//				})
-//				.collect(Collectors.toList());
-//		}
-//
-//		_log.info(
-//			"[ObjectEntryHelper] _filterMaps : expression non parseable '" +
-//				filterString + "' — aucun filtrage appliqué.");
-//
-//		return maps;
-//	}
+
+	/**
+	 * Filtre une liste de Maps (issues de {@code getValuesList}) selon un
+	 * filtre OData simple de la forme {@code fieldName eq 'value'} ou
+	 * {@code fieldName ne 'value'}.
+	 *
+	 * <p>Contrairement à {@link #_applyODataFilter} qui opère sur des
+	 * {@link ObjectEntry} et ne voit pas les champs de relation, cette méthode
+	 * opère directement sur les Maps qui contiennent TOUS les champs y compris
+	 * les FK de relation ({@code r_iDXxx_c_xxxId}).</p>
+	 *
+	 * <p>La comparaison est toujours textuelle ({@code String.valueOf(val)})
+	 * pour rester cohérent avec {@link #buildEqFilter} qui encadre toujours
+	 * la valeur entre apostrophes.</p>
+	 */
+	private List<Map<String, Serializable>> _filterMaps(
+		List<Map<String, Serializable>> maps, String filterString) {
+
+		if (maps == null || maps.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		if (filterString == null || filterString.trim().isEmpty()) {
+			return maps;
+		}
+
+		String trimmed = filterString.trim();
+
+		// Gestion AND récursive
+		List<String> andParts = _splitOnAnd(trimmed);
+
+		if (andParts.size() > 1) {
+			List<Map<String, Serializable>> result = maps;
+
+			for (String part : andParts) {
+				result = _filterMaps(result, part);
+			}
+
+			return result;
+		}
+
+		// Expression simple : fieldName eq 'value' ou fieldName ne 'value'
+		trimmed = _stripOuterParens(trimmed);
+
+		int eqIdx = trimmed.indexOf(" eq '");
+		int neIdx = trimmed.indexOf(" ne '");
+
+		if (eqIdx >= 0) {
+			String fieldName = trimmed.substring(0, eqIdx).trim();
+			String expected  = trimmed.substring(eqIdx + 5);
+
+			if (expected.endsWith("'")) {
+				expected = expected.substring(0, expected.length() - 1);
+			}
+
+			final String fField    = fieldName;
+			final String fExpected = expected;
+
+			return maps.stream()
+				.filter(map -> {
+					Object val = map.get(fField);
+					return val != null && fExpected.equals(String.valueOf(val));
+				})
+				.collect(Collectors.toList());
+		}
+
+		if (neIdx >= 0) {
+			String fieldName = trimmed.substring(0, neIdx).trim();
+			String expected  = trimmed.substring(neIdx + 5);
+
+			if (expected.endsWith("'")) {
+				expected = expected.substring(0, expected.length() - 1);
+			}
+
+			final String fField    = fieldName;
+			final String fExpected = expected;
+
+			return maps.stream()
+				.filter(map -> {
+					Object val = map.get(fField);
+					return val == null || !fExpected.equals(String.valueOf(val));
+				})
+				.collect(Collectors.toList());
+		}
+
+		_log.info(
+			"[ObjectEntryHelper] _filterMaps : expression non parseable '" +
+				filterString + "' — aucun filtrage appliqué.");
+
+		return maps;
+	}
+
+	/**
+	 * Supprime toutes les apostrophes encadrantes d'une valeur OData.
+	 *
+	 * <p>Cas couverts :</p>
+	 * <ul>
+	 *   <li>{@code 'value'}   → {@code value}   (cas normal)</li>
+	 *   <li>{@code ''value''} → {@code value}   (apostrophes imbriquées quand
+	 *       buildEqFilter(long) est appelé sur une valeur déjà citée)</li>
+	 *   <li>{@code value}     → {@code value}   (sans apostrophes)</li>
+	 * </ul>
+	 */
+	private String _stripQuotes(String value) {
+		if (value == null) {
+			return "";
+		}
+
+		// Retirer itérativement les apostrophes encadrantes
+		while (value.startsWith("'") && value.endsWith("'") && value.length() >= 2) {
+			value = value.substring(1, value.length() - 1);
+		}
+
+		return value;
+	}
+
+	/**
+	 * Résout la clé effective à utiliser dans une map retournée par
+	 * {@code getValuesList}, en partant du nom de champ demandé.
+	 *
+	 * <p>Stratégie (dans l'ordre) :</p>
+	 * <ol>
+	 *   <li>Correspondance exacte — retourne {@code fieldName} directement.</li>
+	 *   <li>Correspondance insensible à la casse.</li>
+	 *   <li>La clé de la map se <em>termine</em> par {@code "_" + fieldName}
+	 *       (cas des relations dont Liferay peut préfixer autrement).</li>
+	 *   <li>Le {@code fieldName} se <em>termine</em> par la clé de la map
+	 *       (cas inverse).</li>
+	 *   <li>Aucune correspondance : retourne {@code fieldName} tel quel
+	 *       (le filtre retournera 0 résultat, le log ci-dessus aura signalé
+	 *       le problème).</li>
+	 * </ol>
+	 */
+	private String _resolveMapKey(
+			List<Map<String, Serializable>> maps, String fieldName) {
+
+		if (maps == null || maps.isEmpty()) {
+			return fieldName;
+		}
+
+		Set<String> availableKeys = maps.get(0).keySet();
+
+		// 1. Correspondance exacte
+		if (availableKeys.contains(fieldName)) {
+			return fieldName;
+		}
+
+		String lowerFieldName = fieldName.toLowerCase();
+
+		for (String key : availableKeys) {
+			String lowerKey = key.toLowerCase();
+
+			// 2. Insensible à la casse
+			if (lowerKey.equals(lowerFieldName)) {
+				return key;
+			}
+
+			// 3. La clé de la map se termine par "_" + fieldName (ex : préfixe r_ tronqué)
+			if (lowerKey.endsWith("_" + lowerFieldName)) {
+				return key;
+			}
+
+			// 4. Le fieldName se termine par la clé de la map (ex : suffixe raccourci)
+			if (lowerFieldName.endsWith("_" + lowerKey)) {
+				return key;
+			}
+		}
+
+		// 5. Aucune correspondance trouvée
+		return fieldName;
+	}
 
 	// -------------------------------------------------------------------------
 	// Filtrage OData-lite en mémoire (conservé comme fallback interne)
 	// -------------------------------------------------------------------------
 
 	private List<ObjectEntry> _applyODataFilter(
-		List<ObjectEntry> entries, String filterString) {
+			List<ObjectEntry> entries, String filterString) {
 
 		if (filterString == null || filterString.isEmpty()) {
 			return entries;
 		}
 
 		return entries.stream()
-			.filter(e -> _matchesFilter(e, filterString.trim()))
-			.collect(Collectors.toList());
+				.filter(e -> _matchesFilter(e, filterString.trim()))
+				.collect(Collectors.toList());
 	}
 
 	private boolean _matchesFilter(ObjectEntry entry, String filter) {
@@ -969,7 +1055,7 @@ public class ObjectEntryHelper {
 				depth--;
 			}
 			else if ((depth == 0) && (i + 5 <= filter.length()) &&
-					 lower.substring(i).startsWith(" and ")) {
+					lower.substring(i).startsWith(" and ")) {
 
 				parts.add(filter.substring(start, i).trim());
 				start = i + 5;
@@ -1046,8 +1132,8 @@ public class ObjectEntryHelper {
 		}
 
 		_log.info(
-			"[ObjectEntryHelper] Expression OData non parseable, entrée " +
-				"incluse par défaut : '" + expr + "'");
+				"[ObjectEntryHelper] Expression OData non parseable, entrée " +
+						"incluse par défaut : '" + expr + "'");
 
 		return true;
 	}
@@ -1201,7 +1287,7 @@ public class ObjectEntryHelper {
 	}
 
 	public ServiceContext _buildServiceContext(
-		long userId, long groupId, long companyId) {
+			long userId, long groupId, long companyId) {
 
 		ServiceContext sc = new ServiceContext();
 		sc.setUserId(userId);
@@ -1400,7 +1486,7 @@ public class ObjectEntryHelper {
 					ObjectEntry relatedEntry = null;
 					try {
 						_log.info(">> Getting entry by ID");
-						 relatedEntry = _objectEntryLocalService.fetchObjectEntry(relatedEntryId);
+						relatedEntry = _objectEntryLocalService.fetchObjectEntry(relatedEntryId);
 					}
 					catch (Exception e) {
 						_log.info(

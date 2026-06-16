@@ -1232,7 +1232,7 @@ public class Expert_ComptableResourceImpl
 	// -------------------------------------------------------------------------
 
 	public Response reloadWallet(ReloadWalletRequest reloadWalletRequest)
-		throws Exception {
+			throws Exception {
 
 		_log.info(">> EXPERT WALLET's update starting..");
 
@@ -1252,210 +1252,329 @@ public class Expert_ComptableResourceImpl
 			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
 		}
 
-		long userId    = user.getUserId();//contextUser.getUserId();
-//		long companyId = contextCompany.getCompanyId();
-		long companyId = PortalUtil.getDefaultCompanyId();;
-//		long groupId   = Constants.DEV_OECCI_SITE_ID;
-		long groupId = 0 ;//requis par Liferay pour les ObjectEntry de scope "company"
+		long userId    = user.getUserId();
+		long companyId = PortalUtil.getDefaultCompanyId();
+		long groupId   = 0; // requis par Liferay pour les ObjectEntry de scope "company"
 
-		// 1. Vérifier que le paiement existe
+		_log.info("[reloadWallet] >> Paramètres contexte — userId=" + userId
+				+ " companyId=" + companyId + " groupId=" + groupId);
+		_log.info("[reloadWallet] >> Requête reçue — paymentID=" + reloadWalletRequest.getPaymentID()
+				+ " expertComptableID=" + reloadWalletRequest.getExpertComptableID()
+				+ " amount=" + reloadWalletRequest.getAmount());
 
-		_log.info(
-			"> Verifying if payment exist with this ID : " +
-				reloadWalletRequest.getPaymentID());
+		// ── Utilisateur technique ────────────────────────────────────────────────
+		// L'utilisateur courant peut ne pas être omniadmin → il ne voit pas tous
+		// les ObjectEntry. On utilise le compte technique pour toutes les opérations
+		// sur les entités (wallet, rechargement, journal).
+
+		_log.info("[reloadWallet] STEP 0 — Récupération de l'utilisateur technique...");
+
+		User technicalUser;
+		try {
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+			_log.info("[reloadWallet] STEP 0 OK — technicalUser=" + technicalUser.getFullName()
+					+ " (id=" + technicalUser.getUserId() + ")");
+		}
+		catch (Exception e) {
+			_log.error("[reloadWallet] STEP 0 FAIL — Compte technique introuvable : "
+					+ e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", "Compte technique manquant. Contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+		long technicalUserId = technicalUser.getUserId();
+
+		// ── STEP 1 : Vérifier que le paiement existe ────────────────────────────
+
+		_log.info("[reloadWallet] STEP 1 — Recherche du paiement id="
+				+ reloadWalletRequest.getPaymentID() + "...");
 
 		ObjectEntry paymentEntry;
 		try {
 			paymentEntry = _objectEntryHelper.getEntryOrThrow(
-				reloadWalletRequest.getPaymentID());
+					reloadWalletRequest.getPaymentID());
+			_log.info("[reloadWallet] STEP 1 OK — paiement trouvé, objectEntryId="
+					+ paymentEntry.getObjectEntryId());
 		}
 		catch (Exception e) {
-			_log.info(
-				"No payment trace found with this ID : " +
-					reloadWalletRequest.getPaymentID());
+			_log.info("[reloadWallet] STEP 1 FAIL — Aucun paiement avec id="
+					+ reloadWalletRequest.getPaymentID() + " : " + e.getMessage());
 			result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
-			result.put(
-				"message",
-				"Aucune trace de paiement effectué avec ce ID : " +
-					reloadWalletRequest.getPaymentID() +
-					". Le rechargement du wallet ne peut être effectué. Veuillez reprendre la procédure ou contacter un administrateur si cela persiste. ");
+			result.put("message",
+					"Aucune trace de paiement effectué avec ce ID : "
+							+ reloadWalletRequest.getPaymentID()
+							+ ". Le rechargement du wallet ne peut être effectué."
+							+ " Veuillez reprendre la procédure ou contacter un administrateur si cela persiste.");
 			result.put("data", "");
 			return Response.status(Response.Status.OK).entity(result).build();
 		}
 
-		String payStatus = ObjectEntryHelper.getString(
-			paymentEntry, "paystatus");
-		_log.info(">> PAYMENT traces FOUND. Statut : " + payStatus);
+		String payStatus = ObjectEntryHelper.getString(paymentEntry, "paystatus");
+		_log.info("[reloadWallet] STEP 1 — paystatus='" + payStatus + "'");
 
 		if (!payStatus.equalsIgnoreCase("ACCEPTED") &&
-				!payStatus.equalsIgnoreCase("SUCCESS") &&
+				!payStatus.equalsIgnoreCase("SUCCESS")   &&
 				!payStatus.equalsIgnoreCase("succeeded") &&
-				!payStatus.equalsIgnoreCase("ACCEPT") &&
+				!payStatus.equalsIgnoreCase("ACCEPT")    &&
 				!payStatus.equalsIgnoreCase("COMPLETED")) {
-			_log.info(
-				"Payment trace found with this ID : " +
-					reloadWalletRequest.getPaymentID() +
-					". But not successfull.");
+			_log.info("[reloadWallet] STEP 1 FAIL — Paiement id="
+					+ reloadWalletRequest.getPaymentID()
+					+ " non accepté (paystatus='" + payStatus + "'). Rechargement annulé.");
 			result.put("code", Constants.HTTP_ACTION_NOT_ABLE);
-			result.put(
-				"message",
-				"Le paiement n'a pas pu être effectué avec succès. Le rechargement du wallet ne peut être effectué. Veuillez reprendre la procédure ou contacter un administrateur si cela persiste. ");
+			result.put("message",
+					"Le paiement n'a pas pu être effectué avec succès."
+							+ " Le rechargement du wallet ne peut être effectué."
+							+ " Veuillez reprendre la procédure ou contacter un administrateur si cela persiste.");
 			result.put("data", "");
 			return Response.status(Response.Status.OK).entity(result).build();
 		}
+		_log.info("[reloadWallet] STEP 1 OK — Paiement validé (paystatus='" + payStatus + "').");
 
-		// 2. Vérifier que l'expert comptable existe
+		// ── STEP 2 : Vérifier que l'expert comptable existe ─────────────────────
 
-		_log.info(">> Accountant existence checking");
+		_log.info("[reloadWallet] STEP 2 — Recherche de l'expert comptable id="
+				+ reloadWalletRequest.getExpertComptableID() + "...");
 
 		ObjectEntry accountantEntry;
 		try {
 			accountantEntry = _objectEntryHelper.getEntryOrThrow(
-				reloadWalletRequest.getExpertComptableID());
+					reloadWalletRequest.getExpertComptableID());
+			_log.info("[reloadWallet] STEP 2 OK — expert comptable trouvé, objectEntryId="
+					+ accountantEntry.getObjectEntryId());
 		}
 		catch (Exception e) {
-			_log.info(
-				"No accountant exists with this ID : " +
-					reloadWalletRequest.getExpertComptableID() + ".");
+			_log.info("[reloadWallet] STEP 2 FAIL — Aucun expert comptable avec id="
+					+ reloadWalletRequest.getExpertComptableID() + " : " + e.getMessage());
 			result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
-			result.put(
-				"message",
-				"Aucun expert comptable n'existe avec cet ID : " +
-					reloadWalletRequest.getExpertComptableID() + ".");
+			result.put("message",
+					"Aucun expert comptable n'existe avec cet ID : "
+							+ reloadWalletRequest.getExpertComptableID() + ".");
 			result.put("data", "");
 			return Response.status(Response.Status.OK).entity(result).build();
 		}
 
 		String accountant_name =
-			ObjectEntryHelper.getString(accountantEntry, "prenoms") + " " +
-				ObjectEntryHelper.getString(accountantEntry, "nom");
-		_log.info(">> Accountant found : " + accountant_name);
+				ObjectEntryHelper.getString(accountantEntry, "prenoms") + " "
+						+ ObjectEntryHelper.getString(accountantEntry, "nom");
+		_log.info("[reloadWallet] STEP 2 OK — Expert : " + accountant_name
+				+ " (objectEntryId=" + accountantEntry.getObjectEntryId() + ")");
 
-		// 3. Vérifier que le Wallet existe
+		// ── STEP 3 : Vérifier que le Wallet existe ───────────────────────────────
 
-		_log.info(">> Now we got to verify that the wallet exists.");
-
-		List<ObjectEntry> wallets = _objectEntryHelper.searchByFilter(
-			userId, companyId, groupId, ERC_WALLET,
-			ObjectEntryHelper.buildEqFilter(
+		String walletFilter = ObjectEntryHelper.buildEqFilter(
 				"r_iDExpertWallet_c_expertComptableId",
-				accountantEntry.getObjectEntryId()));
+				accountantEntry.getObjectEntryId());
+
+		_log.info("[reloadWallet] STEP 3 — Recherche du wallet"
+				+ " (ERC=" + ERC_WALLET + ")"
+				+ " filtre='" + walletFilter + "'"
+				+ " technicalUserId=" + technicalUserId
+				+ " companyId=" + companyId
+				+ " groupId=" + groupId + "...");
+
+		List<ObjectEntry> wallets;
+		try {
+			_log.info("=================================================");
+			_log.info("[DEBUG WALLET SEARCH]");
+			_log.info("ERC_WALLET      = " + ERC_WALLET);
+			_log.info("walletFilter    = " + walletFilter);
+			_log.info("technicalUserId = " + technicalUserId);
+			_log.info("companyId       = " + companyId);
+			_log.info("groupId         = " + groupId);
+			_log.info("=================================================");
+			wallets = _objectEntryHelper.searchByFilter(
+					technicalUserId, companyId, groupId, ERC_WALLET, walletFilter);
+			_log.info("[reloadWallet] STEP 3 — searchByFilter retourné : "
+					+ wallets.size() + " wallet(s).");
+		}
+		catch (Exception e) {
+			_log.error("[reloadWallet] STEP 3 FAIL — Exception lors de la recherche du wallet : "
+					+ e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+					"Erreur lors de la recherche du wallet de l'expert " + accountant_name
+							+ ". Veuillez contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
 
 		if (wallets.isEmpty()) {
-			_log.info(
-				"> Wallet not FOUND for this accountant : " + accountant_name +
-					"(" + accountantEntry.getObjectEntryId() + ")");
+			_log.info("[reloadWallet] STEP 3 FAIL — Aucun wallet trouvé pour " + accountant_name
+					+ " (expertComptableId=" + accountantEntry.getObjectEntryId() + ")."
+					+ " Vérifier que le wallet a bien été créé lors de la validation de l'expert.");
 			result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
-			result.put(
-				"message",
-				"Aucun Wallet trouvé pour l'expert " + accountant_name +
-					". Veuillez réessayer, ou activer son DEPOSIT, ou contacter l'administrateur si cela persiste. ");
+			result.put("message",
+					"Aucun Wallet trouvé pour l'expert " + accountant_name
+							+ ". Veuillez réessayer, ou activer son DEPOSIT,"
+							+ " ou contacter l'administrateur si cela persiste.");
 			result.put("data", "");
 			return Response.status(Response.Status.OK).entity(result).build();
 		}
 
 		ObjectEntry walletEntry = wallets.get(0);
-		long currentSolde = ObjectEntryHelper.getLong(walletEntry, "solde");
-		_log.info(">> WALLET well FOUND. BALANCE : " + currentSolde);
+		long walletEntryId = walletEntry.getObjectEntryId();
+		long currentSolde  = ObjectEntryHelper.getLong(walletEntry, "solde");
+		long newSoldeExpected = currentSolde + reloadWalletRequest.getAmount();
 
-		// 4. Mettre à jour le solde du Wallet
+		_log.info("[reloadWallet] STEP 3 OK — Wallet trouvé : objectEntryId=" + walletEntryId
+				+ " soldeActuel=" + currentSolde
+				+ " montantAjouter=" + reloadWalletRequest.getAmount()
+				+ " nouveauSoldeAttendu=" + newSoldeExpected);
+
+		// ── STEP 4 : Mettre à jour le solde du Wallet ────────────────────────────
+
+		_log.info("[reloadWallet] STEP 4 — Mise à jour du solde du wallet id=" + walletEntryId
+				+ " (" + currentSolde + " → " + newSoldeExpected + ")...");
 
 		Map<String, Serializable> walletUpdateValues = new HashMap<>();
+		walletUpdateValues.put("solde", newSoldeExpected);
 		walletUpdateValues.put(
-			"solde", currentSolde + reloadWalletRequest.getAmount());
-		walletUpdateValues.put(
-			"r_iDExpertWallet_c_expertComptableId",
-			accountantEntry.getObjectEntryId());
+				"r_iDExpertWallet_c_expertComptableId",
+				accountantEntry.getObjectEntryId());
 
-		ObjectEntry updatedWalletEntry = _objectEntryHelper.updateEntry(
-			userId, groupId, companyId,
-			walletEntry.getObjectEntryId(), walletUpdateValues);
+		_log.info("[reloadWallet] STEP 4 — Valeurs pour updateEntry : " + walletUpdateValues);
+
+		ObjectEntry updatedWalletEntry;
+		try {
+			updatedWalletEntry = _objectEntryHelper.updateEntry(
+					technicalUserId, groupId, companyId, walletEntryId, walletUpdateValues);
+		}
+		catch (Exception e) {
+			_log.error("[reloadWallet] STEP 4 FAIL — Exception lors du updateEntry wallet id="
+					+ walletEntryId + " : " + e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+					"Le solde du wallet de l'expert " + accountant_name
+							+ " n'a pas pu être mis à jour (exception)."
+							+ " Veuillez réessayer ou contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
 
 		if (updatedWalletEntry == null) {
-			_log.info(
-				">> BALANCE's Wallet has not been updated. retry or contact administrator.");
+			_log.info("[reloadWallet] STEP 4 FAIL — updateEntry a retourné null pour wallet id="
+					+ walletEntryId + ". Vérifier les droits du compte technique et les contraintes Liferay.");
 			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
-			result.put(
-				"message",
-				"le solde du Wallet de l'expert comptable " + accountant_name +
-					" n'a pas pu être mis à jour. Veuillez réessayer ou contacter l'administrateur si cela persiste. ");
+			result.put("message",
+					"Le solde du wallet de l'expert " + accountant_name
+							+ " n'a pas pu être mis à jour."
+							+ " Veuillez réessayer ou contacter l'administrateur si cela persiste.");
 			result.put("data", "");
 			return Response.status(Response.Status.OK).entity(result).build();
 		}
 
 		long newSolde = ObjectEntryHelper.getLong(updatedWalletEntry, "solde");
-		_log.info(">> Wallet SOLD well updated. NEW BALANCE : " + newSolde);
+		_log.info("[reloadWallet] STEP 4 OK — Wallet mis à jour. Nouveau solde confirmé : " + newSolde);
 
-		// 5. Créer la trace de rechargement
+		// ── STEP 5 : Créer la trace de rechargement ──────────────────────────────
 
-		_log.info("> Setting reloading trace..");
+		_log.info("[reloadWallet] STEP 5 — Création de la trace de rechargement"
+				+ " (ERC=" + ERC_DEMANDE_RECHARGEMENT + ")"
+				+ " walletId=" + updatedWalletEntry.getObjectEntryId()
+				+ " paiementId=" + paymentEntry.getObjectEntryId()
+				+ " amount=" + reloadWalletRequest.getAmount() + "...");
 
 		Map<String, Serializable> rechargementValues = new HashMap<>();
-		rechargementValues.put(
-			"r_iDWallet_c_walletId", updatedWalletEntry.getObjectEntryId());
-		rechargementValues.put(
-			"r_iDPaymentReloading_c_paiementId",
-			paymentEntry.getObjectEntryId());
-		rechargementValues.put("amount", reloadWalletRequest.getAmount());
+		rechargementValues.put("r_iDWallet_c_walletId",          updatedWalletEntry.getObjectEntryId());
+		rechargementValues.put("r_iDPaymentReloading_c_paiementId", paymentEntry.getObjectEntryId());
+		rechargementValues.put("amount",                           reloadWalletRequest.getAmount());
 
-		ObjectEntry rechargementEntry = _objectEntryHelper.addEntry(
-			userId, groupId, companyId, ERC_DEMANDE_RECHARGEMENT,
-			rechargementValues);
+		ObjectEntry rechargementEntry;
+		try {
+			rechargementEntry = _objectEntryHelper.addEntry(
+					technicalUserId, groupId, companyId,
+					ERC_DEMANDE_RECHARGEMENT, rechargementValues);
+		}
+		catch (Exception e) {
+			_log.error("[reloadWallet] STEP 5 FAIL — Exception lors de la création du rechargement : "
+					+ e.getMessage(), e);
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+					"La trace de rechargement du wallet de l'expert " + accountant_name
+							+ " n'a pas pu être créée (exception)."
+							+ " Veuillez réessayer ou contacter l'administrateur.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
 
 		if (rechargementEntry == null) {
-			_log.info(
-				"> Wallet RELOADING has not been created. retry or contact administrator.");
+			_log.info("[reloadWallet] STEP 5 FAIL — addEntry rechargement a retourné null."
+					+ " Vérifier ERC=" + ERC_DEMANDE_RECHARGEMENT + " et les droits du compte technique.");
 			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
-			result.put(
-				"message",
-				"le Wallet de l'expert comptable " + accountant_name +
-					" n'a pas pu être mis à jour. Veuillez réessayer ou contacter l'administrateur si cela persiste. ");
+			result.put("message",
+					"La trace de rechargement du wallet de l'expert " + accountant_name
+							+ " n'a pas pu être créée."
+							+ " Veuillez réessayer ou contacter l'administrateur si cela persiste.");
 			result.put("data", "");
 			return Response.status(Response.Status.OK).entity(result).build();
 		}
 
-		_log.info(">> Wallet RELOADING well created. ");
+		_log.info("[reloadWallet] STEP 5 OK — Trace de rechargement créée, objectEntryId="
+				+ rechargementEntry.getObjectEntryId());
 
-		// 6. Créer l'entrée dans le journal du Wallet
+		// ── STEP 6 : Créer l'entrée dans le journal du Wallet ───────────────────
 
-		_log.info(">> Now we fill the wallet journal..");
+		_log.info("[reloadWallet] STEP 6 — Création de l'entrée journal"
+				+ " (ERC=" + ERC_WALLET_JOURNAL + ")"
+				+ " walletId=" + updatedWalletEntry.getObjectEntryId()
+				+ " typeMouvement=" + Constants.MOVMENT_TYPE_IN_KEY
+				+ " typeOperation=" + Constants.OPERATION_TYPE_RELOAD_KEY
+				+ " amount=" + reloadWalletRequest.getAmount() + "...");
 
 		Map<String, Serializable> journalValues = new HashMap<>();
-		journalValues.put("amount",         reloadWalletRequest.getAmount());
-		journalValues.put("typeMouvement",   Constants.MOVMENT_TYPE_IN_KEY);
-		journalValues.put("typeOperation",   Constants.OPERATION_TYPE_RELOAD_KEY);
-		journalValues.put(
-			"r_iDWalletJournal_c_walletId",
-			updatedWalletEntry.getObjectEntryId());
+		journalValues.put("amount",                        reloadWalletRequest.getAmount());
+		journalValues.put("typeMouvement",                 Constants.MOVMENT_TYPE_IN_KEY);
+		journalValues.put("typeOperation",                 Constants.OPERATION_TYPE_RELOAD_KEY);
+		journalValues.put("r_iDWalletJournal_c_walletId", updatedWalletEntry.getObjectEntryId());
 
-		ObjectEntry journalEntry = _objectEntryHelper.addEntry(
-			userId, groupId, companyId, ERC_WALLET_JOURNAL, journalValues);
-
-		if (journalEntry == null) {
-			_log.info(
-				">> Wallet JOURNAL trace has not been created. retry or contact administrator.");
+		ObjectEntry journalEntry;
+		try {
+			journalEntry = _objectEntryHelper.addEntry(
+					technicalUserId, groupId, companyId,
+					ERC_WALLET_JOURNAL, journalValues);
+		}
+		catch (Exception e) {
+			_log.error("[reloadWallet] STEP 6 FAIL — Exception lors de la création du journal : "
+					+ e.getMessage(), e);
 			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
-			result.put(
-				"message",
-				"le Wallet de l'expert comptable " + accountant_name +
-					" n'a pas pu être mis à jour. Veuillez réessayer ou contacter l'administrateur si cela persiste. ");
+			result.put("message",
+					"L'entrée journal du wallet de l'expert " + accountant_name
+							+ " n'a pas pu être créée (exception)."
+							+ " Veuillez réessayer ou contacter l'administrateur.");
 			result.put("data", "");
 			return Response.status(Response.Status.OK).entity(result).build();
 		}
 
-		_log.info(">> Wallet JOURNAL well created. ");
+		if (journalEntry == null) {
+			_log.info("[reloadWallet] STEP 6 FAIL — addEntry journal a retourné null."
+					+ " Vérifier ERC=" + ERC_WALLET_JOURNAL + " et les droits du compte technique.");
+			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message",
+					"L'entrée journal du wallet de l'expert " + accountant_name
+							+ " n'a pas pu être créée."
+							+ " Veuillez réessayer ou contacter l'administrateur si cela persiste.");
+			result.put("data", "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		_log.info("[reloadWallet] STEP 6 OK — Entrée journal créée, objectEntryId="
+				+ journalEntry.getObjectEntryId());
+
+		// ── Réponse finale ───────────────────────────────────────────────────────
+
+		_log.info("[reloadWallet] SUCCES — Wallet de " + accountant_name
+				+ " rechargé avec succès. Ancien solde=" + currentSolde
+				+ " Montant=" + reloadWalletRequest.getAmount()
+				+ " Nouveau solde=" + newSolde);
 
 		result.put("code", Constants.HTTP_SUCCESS);
-		result.put(
-			"message",
-			"le Wallet de l'expert comptable " + accountant_name +
-				" a bien été mis à jour.");
-		result.put(
-			"data",
-			JSONFactoryUtil.createJSONObject().put(
-				"sold", newSolde));
+		result.put("message",
+				"Le wallet de l'expert comptable " + accountant_name + " a bien été mis à jour.");
+		result.put("data",
+				JSONFactoryUtil.createJSONObject().put("sold", newSolde));
 
-		_log.info("> Returning response");
+		_log.info("[reloadWallet] >> Returning response");
 		return Response.status(Response.Status.OK).entity(result).build();
 	}
 
