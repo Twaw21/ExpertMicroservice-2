@@ -34,6 +34,7 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.osgi.service.component.annotations.Component;
@@ -1238,7 +1239,10 @@ public class Expert_ComptableResourceImpl
 
 		User user = SecurityUtil.checkUser(_httpServletRequest, "reloadWallet");
 		if (user == null) {
-			return Response.status(Response.Status.OK).entity(SecurityUtil.getResult()).build();
+			return Response.status(Response.Status.OK)
+					.entity(SecurityUtil.getResult().toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 		_log.info("[ CurrentUser ] >>>>: " + user.getFullName());
 		String[] roles = {"Regular EXPERTS Shared Object"};
@@ -1249,12 +1253,15 @@ public class Expert_ComptableResourceImpl
 			result.put("code", Constants.HTTP_RESOURCE_FORBIDEN);
 			result.put("message", "Vous n'avez les permissions nécessaires.");
 			result.put("data", "");
-			return Response.status(Response.Status.FORBIDDEN).entity(result).build();
+			return Response.status(Response.Status.FORBIDDEN)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		long userId    = user.getUserId();
 		long companyId = PortalUtil.getDefaultCompanyId();
-		long groupId   = 0; // requis par Liferay pour les ObjectEntry de scope "company"
+		long groupId   = 0;
 
 		_log.info("[reloadWallet] >> Paramètres contexte — userId=" + userId
 				+ " companyId=" + companyId + " groupId=" + groupId);
@@ -1263,9 +1270,6 @@ public class Expert_ComptableResourceImpl
 				+ " amount=" + reloadWalletRequest.getAmount());
 
 		// ── Utilisateur technique ────────────────────────────────────────────────
-		// L'utilisateur courant peut ne pas être omniadmin → il ne voit pas tous
-		// les ObjectEntry. On utilise le compte technique pour toutes les opérations
-		// sur les entités (wallet, rechargement, journal).
 
 		_log.info("[reloadWallet] STEP 0 — Récupération de l'utilisateur technique...");
 
@@ -1281,7 +1285,10 @@ public class Expert_ComptableResourceImpl
 			result.put("code", Constants.HTTP_INTERNAL_ERROR_CODE);
 			result.put("message", "Compte technique manquant. Contacter l'administrateur.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 		long technicalUserId = technicalUser.getUserId();
 
@@ -1307,7 +1314,10 @@ public class Expert_ComptableResourceImpl
 							+ ". Le rechargement du wallet ne peut être effectué."
 							+ " Veuillez reprendre la procédure ou contacter un administrateur si cela persiste.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		String payStatus = ObjectEntryHelper.getString(paymentEntry, "paystatus");
@@ -1327,7 +1337,10 @@ public class Expert_ComptableResourceImpl
 							+ " Le rechargement du wallet ne peut être effectué."
 							+ " Veuillez reprendre la procédure ou contacter un administrateur si cela persiste.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 		_log.info("[reloadWallet] STEP 1 OK — Paiement validé (paystatus='" + payStatus + "').");
 
@@ -1351,7 +1364,10 @@ public class Expert_ComptableResourceImpl
 					"Aucun expert comptable n'existe avec cet ID : "
 							+ reloadWalletRequest.getExpertComptableID() + ".");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		String accountant_name =
@@ -1396,7 +1412,10 @@ public class Expert_ComptableResourceImpl
 					"Erreur lors de la recherche du wallet de l'expert " + accountant_name
 							+ ". Veuillez contacter l'administrateur.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		if (wallets.isEmpty()) {
@@ -1409,7 +1428,10 @@ public class Expert_ComptableResourceImpl
 							+ ". Veuillez réessayer, ou activer son DEPOSIT,"
 							+ " ou contacter l'administrateur si cela persiste.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		ObjectEntry walletEntry = wallets.get(0);
@@ -1449,7 +1471,10 @@ public class Expert_ComptableResourceImpl
 							+ " n'a pas pu être mis à jour (exception)."
 							+ " Veuillez réessayer ou contacter l'administrateur.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		if (updatedWalletEntry == null) {
@@ -1461,7 +1486,10 @@ public class Expert_ComptableResourceImpl
 							+ " n'a pas pu être mis à jour."
 							+ " Veuillez réessayer ou contacter l'administrateur si cela persiste.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		long newSolde = ObjectEntryHelper.getLong(updatedWalletEntry, "solde");
@@ -1476,9 +1504,9 @@ public class Expert_ComptableResourceImpl
 				+ " amount=" + reloadWalletRequest.getAmount() + "...");
 
 		Map<String, Serializable> rechargementValues = new HashMap<>();
-		rechargementValues.put("r_iDWallet_c_walletId",          updatedWalletEntry.getObjectEntryId());
+		rechargementValues.put("r_iDWallet_c_walletId",             updatedWalletEntry.getObjectEntryId());
 		rechargementValues.put("r_iDPaymentReloading_c_paiementId", paymentEntry.getObjectEntryId());
-		rechargementValues.put("amount",                           reloadWalletRequest.getAmount());
+		rechargementValues.put("amount",                             reloadWalletRequest.getAmount());
 
 		ObjectEntry rechargementEntry;
 		try {
@@ -1495,7 +1523,10 @@ public class Expert_ComptableResourceImpl
 							+ " n'a pas pu être créée (exception)."
 							+ " Veuillez réessayer ou contacter l'administrateur.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		if (rechargementEntry == null) {
@@ -1507,7 +1538,10 @@ public class Expert_ComptableResourceImpl
 							+ " n'a pas pu être créée."
 							+ " Veuillez réessayer ou contacter l'administrateur si cela persiste.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		_log.info("[reloadWallet] STEP 5 OK — Trace de rechargement créée, objectEntryId="
@@ -1543,7 +1577,10 @@ public class Expert_ComptableResourceImpl
 							+ " n'a pas pu être créée (exception)."
 							+ " Veuillez réessayer ou contacter l'administrateur.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		if (journalEntry == null) {
@@ -1555,7 +1592,10 @@ public class Expert_ComptableResourceImpl
 							+ " n'a pas pu être créée."
 							+ " Veuillez réessayer ou contacter l'administrateur si cela persiste.");
 			result.put("data", "");
-			return Response.status(Response.Status.OK).entity(result).build();
+			return Response.status(Response.Status.OK)
+					.entity(result.toString())
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 
 		_log.info("[reloadWallet] STEP 6 OK — Entrée journal créée, objectEntryId="
@@ -1575,7 +1615,10 @@ public class Expert_ComptableResourceImpl
 				JSONFactoryUtil.createJSONObject().put("sold", newSolde));
 
 		_log.info("[reloadWallet] >> Returning response");
-		return Response.status(Response.Status.OK).entity(result).build();
+		return Response.status(Response.Status.OK)
+				.entity(result.toString())
+				.type(MediaType.APPLICATION_JSON)
+				.build();
 	}
 
 	// -------------------------------------------------------------------------
