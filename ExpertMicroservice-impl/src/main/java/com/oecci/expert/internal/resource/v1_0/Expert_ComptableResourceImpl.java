@@ -1298,7 +1298,7 @@ public class Expert_ComptableResourceImpl
 					+ paymentEntry.getObjectEntryId());
 		}
 		catch (Exception e) {
-			_log.info("[reloadWallet] STEP 1 FAIL — Aucun paiement avec id="
+			_log.info("[reloadWallet] STEP 1 FAIL — Aucun paiement trouvé avec id="
 					+ reloadWalletRequest.getPaymentID() + " : " + e.getMessage());
 			result.put("code", Constants.HTTP_ERROR_NOT_FOUND);
 			result.put("message",
