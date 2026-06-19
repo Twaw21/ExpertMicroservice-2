@@ -1,5 +1,5 @@
 dependencies {
-	compileOnly project(":modules:ExpertMicroservice-2:ExpertMicroservice-api")
+	compileOnly project(":modules:ExpertMicroservice:ExpertMicroservice-api")
 
 	restBuilder group: "com.liferay", name: "com.liferay.portal.tools.rest.builder", version: "1.0.222"
 	compileOnly group: "com.liferay.portal", name: "release.portal.api", version: "7.4.3.105-ga105"
