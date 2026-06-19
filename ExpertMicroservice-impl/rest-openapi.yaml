@@ -8,6 +8,11 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 
 paths:
+
+  # ===========================================================================
+  #  COLLABORATEUR
+  # ===========================================================================
+
   /oecci/expert/collaborateurs:
     post:
       operationId: createCollabos
@@ -113,6 +118,10 @@ paths:
           $ref: '#/components/responses/DataResult200'
       tags: ["Collaborateur"]
 
+  # ===========================================================================
+  #  EXPERT COMPTABLE
+  # ===========================================================================
+
   /oecci/expert/experts-comptables:
     post:
       operationId: createExpertComptable
@@ -122,10 +131,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExpertComptable'   # CORRIGE: etait CreateExpert_Comptable
+              $ref: '#/components/schemas/CreateExpertComptable'
           application/xml:
             schema:
-              $ref: '#/components/schemas/CreateExpertComptable'   # CORRIGE: etait CreateExpert_Comptable
+              $ref: '#/components/schemas/CreateExpertComptable'
       responses:
         '201':
           $ref: '#/components/responses/DataResult201'
@@ -147,10 +156,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateExpertRequest'   # CORRIGE: etait updateExpertRequest
+              $ref: '#/components/schemas/UpdateExpertRequest'
           application/xml:
             schema:
-              $ref: '#/components/schemas/UpdateExpertRequest'   # CORRIGE: etait updateExpertRequest
+              $ref: '#/components/schemas/UpdateExpertRequest'
       responses:
         '201':
           $ref: '#/components/responses/DataResult201'
@@ -172,10 +181,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateCabinetRequest'   # CORRIGE: etait updateCabinetRequest
+              $ref: '#/components/schemas/UpdateCabinetRequest'
           application/xml:
             schema:
-              $ref: '#/components/schemas/UpdateCabinetRequest'   # CORRIGE: etait updateCabinetRequest
+              $ref: '#/components/schemas/UpdateCabinetRequest'
       responses:
         '201':
           $ref: '#/components/responses/DataResult201'
@@ -311,6 +320,10 @@ paths:
           $ref: '#/components/responses/DataResult201'
       tags: ["Expert_Comptable"]
 
+  # ===========================================================================
+  #  TRANSFERT CLIENT
+  # ===========================================================================
+
   /oecci/expert/transfert-client:
     post:
       operationId: createTransfertClient
@@ -417,6 +430,10 @@ paths:
           $ref: '#/components/responses/DataResult200'
       tags: ["Transfert_Client"]
 
+  # ===========================================================================
+  #  VISA
+  # ===========================================================================
+
   /oecci/expert/demande-visas/by-date:
     get:
       operationId: getDemandeVisasByDate
@@ -482,8 +499,8 @@ paths:
 
   /oecci/expert/visa-quota-exts:
     post:
-      description: Permet de demander l'extension du nombre de visa pouvant etre signe par un expert
       operationId: createDemandeExtensionQuotaVisa
+      description: Permet de demander l'extension du nombre de visa pouvant etre signe par un expert
       requestBody:
         required: true
         content:
@@ -495,102 +512,44 @@ paths:
               $ref: '#/components/schemas/CreateDmdExtQuotVisaRequest'
       responses:
         '201':
-          description: Demande cree avec succes
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DataResult"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/DataResult"
+          $ref: '#/components/responses/DataResult201'
       tags: ["Visa"]
 
   /oecci/expert/visa-quota-exts/demandes-extension-quota-visa:
     get:
-    summary: Lister les demandes d'extension de quota visa d'un admin de l'ordre
-    operationId: getDemandesExtensionQuotaVisa
-    description: >
-      Retourne la liste paginée des demandes d'extension de quota visa
-      adressées à un administrateur de l'ordre donné.
-      
-      
-      Chaque entrée est enrichie avec :
-        - les données de l'expert demandeur (nom, email, contact)
-        - le compteur de visas courant de l'expert (signés, restants, plafonds)
-      
-      
-      Un bloc `statusCounts` est retourné pour afficher les compteurs
-      par statut dans le tableau de bord de l'administrateur.
-      
-      
-      **Filtrage par statut :**
-      Passer le paramètre `statut` pour ne voir que les demandes
-      d'un statut donné (ex. `eNCOURS` pour les demandes en attente).
-      Si absent, toutes les demandes sont retournées.
-    tags:
-      - Extension Quota Visa
-    security:
-      - bearerAuth: []
-    parameters:
-      - name: ordreExpertId
-        in: query
-        required: true
-        description: Identifiant (objectEntryId) de l'administrateur de l'ordre
-        schema:
-          type: integer
-          format: int64
-          example: 10045
-      - name: statut
-        in: query
-        required: false
-        description: >
-          Filtre optionnel sur le statut de la demande.
-          Valeurs possibles : `eNCOURS`, `aCCEPTE`, `rEFUSE`.
-          Si absent, toutes les demandes sont retournées.
-        schema:
-          type: string
-          enum: [eNCOURS, aCCEPTE, rEFUSE]
-          example: eNCOURS
-      - name: page
-        in: query
-        required: false
-        description: Numéro de page (base 1). Défaut  1.
-        schema:
-          type: integer
-          format: int32
-          default: 1
-          minimum: 1
-          example: 1
-      - name: pageSize
-        in: query
-        required: false
-        description: Nombre item par page. Defaut 20. Maximum  100.
-        schema:
-          type: integer
-          format: int32
-          default: 20
-          minimum: 1
-          maximum: 100
-          example: 20
-
-    responses:
-      '201':
-        description: Réponse unique pour tous les cas métier.
-          Le champ `code` et `message` détaillent le résultat.
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DataResult"
-          application/xml:
-            schema:
-              $ref: "#/components/schemas/DataResult"
+      operationId: getDemandesExtensionQuotaVisa
+      description: >
+        Retourne la liste paginee des demandes d'extension de quota visa
+        adressees a un administrateur de l'ordre donne.
+        Chaque entree est enrichie avec les donnees de l'expert demandeur
+        et le compteur de visas courant. Un bloc statusCounts est retourne
+        pour le tableau de bord de l'administrateur.
+      parameters:
+        - name: ordreExpertId
+          in: query
+          required: true
+          description: Identifiant (objectEntryId) de l'administrateur de l'ordre
+          schema:
+            type: integer
+            format: int64
+        - name: statut
+          in: query
+          required: false
+          description: Filtre optionnel sur le statut. Valeurs possibles [eNCOURS, aCCEPTE, rEFUSE].
+          schema:
+            type: string
+            enum: [eNCOURS, aCCEPTE, rEFUSE]
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '201':
+          $ref: '#/components/responses/DataResult201'
       tags: ["Visa"]
-
 
   /oecci/expert/visa-quota-exts/validation/{demandeExtId}:
     post:
-      summary: Valider/Invalider la demande d'extension de quota visa signe
       operationId: validateDemandeExtQuotaVisa
+      description: Valider ou invalider la demande d'extension de quota visa signe
       parameters:
         - name: demandeExtId
           in: path
@@ -598,7 +557,6 @@ paths:
           schema:
             type: integer
             format: int64
-          description: ID de la demande d'extension
       requestBody:
         required: true
         content:
@@ -610,20 +568,13 @@ paths:
               $ref: '#/components/schemas/StatutRequest'
       responses:
         '201':
-          description: Changement de statut effectue avec succes
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DataResult"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/DataResult"
+          $ref: '#/components/responses/DataResult201'
       tags: ["Visa"]
 
   /oecci/expert/canSignVisa/{expertId}:
     get:
-      summary: Verifie qu'un expert comptable peut encore signer des visa
       operationId: canSignVisa
+      description: Verifie qu'un expert comptable peut encore signer des visa
       parameters:
         - name: expertId
           in: path
@@ -631,14 +582,168 @@ paths:
           schema:
             type: integer
             format: int64
-          description: L'ID de l'expert
       responses:
         '200':
           $ref: '#/components/responses/DataResult200'
       tags: ["Visa"]
 
+  # ===========================================================================
+  #  RECOUVREMENT VEP
+  # ===========================================================================
+
+  /oecci/expert/recouvrement/stats:
+    get:
+      operationId: getRecouvrementStats
+      description: >
+        Cards d'accueil du module recouvrement.
+        Retourne les 4 indicateurs clés :
+        montantARestituer (somme des lignes isRecouvre=false),
+        expertsCrediteurs (nombre d'experts avec une ligne ouverte),
+        visasVepSignes (nombre de visas VEP au statut VISE),
+        clientsConcernes (nombre de clients VEP distincts avec visa VISE).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecouvrementStatsResult'
+      tags: ["Recouvrement"]
+
+  /oecci/expert/recouvrement/stats/global:
+    get:
+      operationId: getRecouvrementStatsGlobal
+      description: >
+        Lecture comparative et badges d'exclusion (capture 2 du module recouvrement).
+        Retourne :
+        - lectureComparative : total paiements VEP, montant retenu (VISE + paiement SUCCESS),
+          montant exclu du recouvrement.
+        - statutsVisaExclus : compteurs par statut visa exclu (attenteVisa, valide, aModifier).
+        - paiementsNonFinalises : compteurs processing / initiated.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecouvrementStatsGlobalResult'
+      tags: ["Recouvrement"]
+
+  /oecci/expert/recouvrement/by-expert:
+    get:
+      operationId: getRecouvrementByExpert
+      description: >
+        Tableau récapitulatif des remboursements à effectuer, groupé par expert comptable.
+        Chaque ligne inclut : expertLabel, paiementsVep, clientsConcernes,
+        montantARestituer, dernierVisaSigne, isRecouvre (badge front),
+        recouvrementId (ID de la ligne active à valider).
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+            maximum: 100
+        - name: expertFilter
+          in: query
+          required: false
+          description: Filtre texte libre sur le nom ou le cabinet de l'expert
+          schema:
+            type: string
+        - name: periodeDebut
+          in: query
+          required: false
+          description: Debut de periode ISO 8601 (ex. 2025-01-01)
+          schema:
+            type: string
+        - name: periodeFin
+          in: query
+          required: false
+          description: Fin de periode ISO 8601 (ex. 2025-12-31)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecouvrementByExpertResult'
+      tags: ["Recouvrement"]
+
+  /oecci/expert/recouvrement/{recouvrementId}:
+    get:
+      operationId: getRecouvrementDetail
+      description: >
+        Detail complet d'une ligne de recouvrement (panneau lateral capture 3).
+        Retourne : resume de l'expert (nom, cabinet, paiementsVep, clients),
+        montantARestituer, dernierVisaSigne, dossiersConcernes,
+        isRecouvre, docPreuve, preuve,
+        et la liste paginee des visas VEP VISE avec numeroDemande, client,
+        paiementStatut, montantTTC et date.
+      parameters:
+        - name: recouvrementId
+          in: path
+          required: true
+          description: ID de la ligne de recouvrement
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecouvrementDetailResult'
+      tags: ["Recouvrement"]
+
+  /oecci/expert/recouvrement/{recouvrementId}/valider:
+    post:
+      operationId: updateRecouvrement
+      description: >
+        Valide un recouvrement : passe isRecouvre a true, upload la preuve de
+        remboursement physique (base64) dans Documents et Medias, stocke le
+        fileEntryId dans docPreuve. Le remboursement physique s'effectue
+        hors systeme ; cet endpoint en enregistre uniquement la preuve.
+      parameters:
+        - name: recouvrementId
+          in: path
+          required: true
+          description: ID de la ligne de recouvrement a valider
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRecouvrementRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UpdateRecouvrementRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/DataResult200'
+      tags: ["Recouvrement"]
+
+
+# =============================================================================
+#  COMPONENTS
+# =============================================================================
 
 components:
+
   parameters:
     page:
       name: page
@@ -691,6 +796,9 @@ components:
             $ref: '#/components/schemas/DataResult'
 
   schemas:
+
+    # ── Collaborateur ─────────────────────────────────────────────────────────
+
     CreateCollaboRequest:
       type: object
       properties:
@@ -698,10 +806,14 @@ components:
         prenoms: {type: string}
         email: {type: string, format: email}
         contact: {type: string}
-        role: {type: string, enum: [admin, moderateur, assistant]}
+        role:
+          type: string
+          enum: [admin, moderateur, assistant]
         statut: {type: boolean}
         creatorID: {type: integer, format: int64}
-        creatorLevel: {type: string, enum: [admin, moderateur, assistant]}
+        creatorLevel:
+          type: string
+          enum: [admin, moderateur, assistant]
       required: [nom, prenoms, email, role, statut]
 
     UpdateCollaboRequest:
@@ -713,6 +825,8 @@ components:
         statut: {type: boolean}
       required: [nom, prenoms, statut]
 
+    # ── Expert comptable ──────────────────────────────────────────────────────
+
     CreateExpertComptable:
       type: object
       properties:
@@ -723,11 +837,17 @@ components:
         matricule: {type: string}
         annee_inscription: {type: string}
         contact: {type: string}
-        inscription_by: {type: string, enum: [by_admin, by_moderateur, by_assistant]}
-        inscription_type: {type: string, enum: [individuel, cabinet, collaborateur]}
+        inscription_by:
+          type: string
+          enum: [by_admin, by_moderateur, by_assistant]
+        inscription_type:
+          type: string
+          enum: [individuel, cabinet, collaborateur]
         nomCabinet: {type: string}
         numeroCabinet: {type: string}
-        inscription_mode: {type: string, enum: [for_assoc, for_coord, for_adj, for_na]}
+        inscription_mode:
+          type: string
+          enum: [for_assoc, for_coord, for_adj, for_na]
         expertAssoID: {type: integer, format: int64}
       required: [nom, prenoms, email, matricule, inscription_type, inscription_mode]
 
@@ -754,7 +874,10 @@ components:
         nomCabinet: {type: string}
         numeroCabinet: {type: string}
         categorie: {$ref: '#/components/schemas/Option'}
-      required: [nom, prenoms, adressePostale, annee_inscription, matricule, contact, nomCabinet, numeroCabinet, categorie]
+      required: [nom, prenoms, adressePostale, annee_inscription, matricule,
+                 contact, nomCabinet, numeroCabinet, categorie]
+
+    # ── Transfert client ──────────────────────────────────────────────────────
 
     CreateForwardRequest:
       type: object
@@ -764,6 +887,203 @@ components:
         expertDestinataireID: {type: integer, format: int64}
         motif: {type: string}
       required: [expertExpediteurID, expertDestinataireID]
+
+    # ── Visa ──────────────────────────────────────────────────────────────────
+
+    CreateDmdExtQuotVisaRequest:
+      type: object
+      properties:
+        expertID: {type: integer, format: int64}
+        ordreExpertID: {type: integer, format: int64}
+        motif: {type: string}
+      required: [expertID, ordreExpertID]
+
+    # ── Recouvrement ──────────────────────────────────────────────────────────
+
+    UpdateRecouvrementRequest:
+      type: object
+      description: >
+        Corps de la requete de validation d'un recouvrement.
+        Le document est la preuve physique du remboursement encodée en base64.
+      properties:
+        document:
+          $ref: '#/components/schemas/DocumentRequest'
+      required: [document]
+
+    DocumentRequest:
+      type: object
+      description: Document encodé en base64 pour upload dans Documents et Medias.
+      properties:
+        documentName:
+          type: string
+          description: Nom du fichier avec extension (ex. preuve_remboursement.pdf)
+          example: preuve_remboursement_AKO_2025.pdf
+        documentContent:
+          type: string
+          description: Contenu du fichier encodé en Base64 (sans prefixe data URI)
+          example: JVBERi0xLjQK...
+      required: [documentName, documentContent]
+
+    # ── Réponses recouvrement (schémas de détail) ─────────────────────────────
+
+    RecouvrementStatsResult:
+      type: object
+      description: Statistiques pour les cards d'accueil du module recouvrement.
+      properties:
+        code: {type: integer}
+        message: {type: string}
+        data:
+          type: object
+          properties:
+            montantARestituer:
+              type: integer
+              format: int64
+              description: Somme des montants des lignes de recouvrement non encore recouvrées (FCFA)
+            expertsCrediteurs:
+              type: integer
+              description: Nombre d'experts ayant au moins une ligne de recouvrement ouverte
+            visasVepSignes:
+              type: integer
+              description: Nombre de visas VEP au statut VISE
+            clientsConcernes:
+              type: integer
+              description: Nombre de clients VEP distincts avec visa VISE
+
+    RecouvrementStatsGlobalResult:
+      type: object
+      description: Lecture comparative et badges d'exclusion.
+      properties:
+        code: {type: integer}
+        message: {type: string}
+        data:
+          type: object
+          properties:
+            lectureComparative:
+              type: object
+              properties:
+                totalPaiementsVepMontant:
+                  type: integer
+                  format: int64
+                  description: Somme TTC de tous les visas VEP avec paiement SUCCESS
+                totalPaiementsVepCount:
+                  type: integer
+                  description: Nombre de dossiers VEP avec paiement positif
+                retenuMontant:
+                  type: integer
+                  format: int64
+                  description: Somme TTC des visas VEP VISE retenus pour restitution
+                retenuCount:
+                  type: integer
+                  description: Nombre de dossiers VEP VISE avec paiement valide
+                excluMontant:
+                  type: integer
+                  format: int64
+                  description: Montant exclu du recouvrement (total - retenu)
+                excluCount:
+                  type: integer
+                  description: Nombre de dossiers exclus
+            statutsVisaExclus:
+              type: object
+              properties:
+                attenteVisa: {type: integer}
+                valide: {type: integer}
+                aModifier: {type: integer}
+            paiementsNonFinalises:
+              type: object
+              properties:
+                processing: {type: integer}
+                initiated: {type: integer}
+
+    RecouvrementByExpertResult:
+      type: object
+      description: Tableau recapitulatif des recouvrements par expert.
+      properties:
+        code: {type: integer}
+        message: {type: string}
+        total: {type: integer}
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              expertComptableId:
+                type: integer
+                format: int64
+              expertLabel:
+                type: string
+                description: Nom du cabinet ou prenom + nom de l'expert
+              paiementsVep:
+                type: integer
+                description: Nombre de visas VEP VISE pour cet expert
+              clientsConcernes:
+                type: integer
+                description: Nombre de clients VEP distincts
+              montantARestituer:
+                type: integer
+                format: int64
+                description: Total des montants de toutes les lignes de recouvrement de l'expert (FCFA)
+              dernierVisaSigne:
+                type: string
+                description: Date du dernier visa VEP signe (ISO 8601)
+              isRecouvre:
+                type: boolean
+                description: >
+                  true si toutes les lignes de recouvrement de l'expert sont recouvrées.
+                  false si au moins une ligne est encore ouverte.
+                  Utilisé par le front pour afficher le badge de statut.
+              recouvrementId:
+                type: integer
+                format: int64
+                description: ID de la ligne de recouvrement active (-1 si toutes recouvrées)
+
+    RecouvrementDetailResult:
+      type: object
+      description: Detail complet d'une ligne de recouvrement.
+      properties:
+        code: {type: integer}
+        message: {type: string}
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            montant:
+              type: integer
+              format: int64
+              description: Montant total a restituer pour cette ligne (FCFA)
+            isRecouvre:
+              type: boolean
+            docPreuve:
+              type: integer
+              format: int64
+              description: fileEntryId du document de preuve dans Documents et Medias (0 si absent)
+            preuve:
+              type: string
+              description: JSON serialise contenant fileEntryId et fileName de la preuve
+            dateCreated: {type: string}
+            dateModified: {type: string}
+            expert:
+              type: object
+              properties:
+                expertComptableId: {type: integer, format: int64}
+                expertLabel: {type: string}
+                paiementsVep: {type: integer}
+                clients: {type: integer}
+            dernierVisaSigne: {type: string}
+            visas:
+              type: array
+              items:
+                type: object
+                properties:
+                  numeroDemande: {type: string}
+                  client: {type: string}
+                  paiementStatut: {type: string}
+                  visaStatut: {type: string}
+                  montantTTC: {type: integer, format: int64}
+                  date: {type: string}
+
+    # ── Commun ────────────────────────────────────────────────────────────────
 
     StatutRequest:
       type: object
@@ -798,19 +1118,6 @@ components:
     DataResult:
       type: object
       properties:
-        designation: {type: string}
-
-    CreateDmdExtQuotVisaRequest:
-      type: object
-      properties:
-        expertID:
-          type: integer
-          format: int64
-        ordreExpertID:
-          type: integer
-          format: int64
-        motif:
-          type: string
-      required:
-        - expertID
-        - ordreExpertID
+        code: {type: integer}
+        message: {type: string}
+        data: {}

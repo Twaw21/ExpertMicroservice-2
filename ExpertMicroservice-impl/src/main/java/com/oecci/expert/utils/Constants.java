@@ -233,13 +233,13 @@ public class Constants {
 
 
 	public static final String ERC_DEMANDE_VISA              = "4380b202-f551-91be-0aa8-901a2a63037e";
-
 	public static final String ERC_QUOTAT_VISA_CONFIGURATION = "b8a05d7a-09d1-5894-4548-e65eff228f72";
 	public static final String ERC_EXPERT_VISA_COUNT         = "67d35ce2-4b70-07eb-ed7a-be3a139a2397";
-
-	// Quotas & compteurs
+	public static final String ERC_RECOUVREMENT = "299ff77b-0780-8098-8210-9b5aab53f949";
 	public static final String ERC_QUOTA_CONFIG      = "07ae94ed-4ce5-5b59-057c-7afd6cc21785";
-
 	public static final String ERC_DEMANDE_EXTENSION_QUOTA_VISA = "e7987dff-0d98-e1f1-d9ee-7492f072f695";
+
 	public static final String EXTENSION_QUOTA_ACCEPTE_STATUS = "ACCEPTE";
+
+	public static final String OECCI_RECOUV_FOLDER = "oecci_visa_recouv_folders";
 }
