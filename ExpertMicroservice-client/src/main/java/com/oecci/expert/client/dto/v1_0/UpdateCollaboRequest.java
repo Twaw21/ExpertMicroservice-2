@@ -86,6 +86,27 @@ public class UpdateCollaboRequest implements Cloneable, Serializable {
 
 	protected String prenoms;
 
+	public Boolean getStatut() {
+		return statut;
+	}
+
+	public void setStatut(Boolean statut) {
+		this.statut = statut;
+	}
+
+	public void setStatut(
+		UnsafeSupplier<Boolean, Exception> statutUnsafeSupplier) {
+
+		try {
+			statut = statutUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean statut;
+
 	@Override
 	public UpdateCollaboRequest clone() throws CloneNotSupportedException {
 		return (UpdateCollaboRequest)super.clone();
@@ -119,4 +140,4 @@ public class UpdateCollaboRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1998424561
+// LIFERAY-REST-BUILDER-HASH:-1540763813

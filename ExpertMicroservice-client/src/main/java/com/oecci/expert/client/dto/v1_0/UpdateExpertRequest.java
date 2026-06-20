@@ -46,16 +46,16 @@ public class UpdateExpertRequest implements Cloneable, Serializable {
 
 	protected String adressePostale;
 
-	public String getAnnee_inscription() {
+	public Long getAnnee_inscription() {
 		return annee_inscription;
 	}
 
-	public void setAnnee_inscription(String annee_inscription) {
+	public void setAnnee_inscription(Long annee_inscription) {
 		this.annee_inscription = annee_inscription;
 	}
 
 	public void setAnnee_inscription(
-		UnsafeSupplier<String, Exception> annee_inscriptionUnsafeSupplier) {
+		UnsafeSupplier<Long, Exception> annee_inscriptionUnsafeSupplier) {
 
 		try {
 			annee_inscription = annee_inscriptionUnsafeSupplier.get();
@@ -65,7 +65,7 @@ public class UpdateExpertRequest implements Cloneable, Serializable {
 		}
 	}
 
-	protected String annee_inscription;
+	protected Long annee_inscription;
 
 	public String getContact() {
 		return contact;
@@ -149,35 +149,6 @@ public class UpdateExpertRequest implements Cloneable, Serializable {
 
 	protected String prenoms;
 
-	public Update_by getUpdate_by() {
-		return update_by;
-	}
-
-	public String getUpdate_byAsString() {
-		if (update_by == null) {
-			return null;
-		}
-
-		return update_by.toString();
-	}
-
-	public void setUpdate_by(Update_by update_by) {
-		this.update_by = update_by;
-	}
-
-	public void setUpdate_by(
-		UnsafeSupplier<Update_by, Exception> update_byUnsafeSupplier) {
-
-		try {
-			update_by = update_byUnsafeSupplier.get();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	protected Update_by update_by;
-
 	@Override
 	public UpdateExpertRequest clone() throws CloneNotSupportedException {
 		return (UpdateExpertRequest)super.clone();
@@ -209,39 +180,5 @@ public class UpdateExpertRequest implements Cloneable, Serializable {
 		return UpdateExpertRequestSerDes.toJSON(this);
 	}
 
-	public static enum Update_by {
-
-		BY_ADMIN("by_admin"), BY_MODERATEUR("by_moderateur"),
-		BY_ASSISTANT("by_assistant");
-
-		public static Update_by create(String value) {
-			for (Update_by update_by : values()) {
-				if (Objects.equals(update_by.getValue(), value) ||
-					Objects.equals(update_by.name(), value)) {
-
-					return update_by;
-				}
-			}
-
-			return null;
-		}
-
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Update_by(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
-	}
-
 }
-// LIFERAY-REST-BUILDER-HASH:2109882539
+// LIFERAY-REST-BUILDER-HASH:-1598818495

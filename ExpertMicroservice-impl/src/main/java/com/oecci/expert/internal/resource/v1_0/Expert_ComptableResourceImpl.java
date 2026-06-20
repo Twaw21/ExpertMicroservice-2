@@ -496,7 +496,7 @@ public class Expert_ComptableResourceImpl
 				"> Before accountant's notification, we got to create his wallet.");
 
 			List<ObjectEntry> wallets = _objectEntryHelper.searchByFilter(
-				userId, companyId, groupId, ERC_WALLET,
+				technicalUser.getUserId(), companyId, groupId, ERC_WALLET,
 				ObjectEntryHelper.buildEqFilter(
 					"r_iDExpertWallet_c_expertComptableId",
 					expertComptableEntry.getObjectEntryId()));

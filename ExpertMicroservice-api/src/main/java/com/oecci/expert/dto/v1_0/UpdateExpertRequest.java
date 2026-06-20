@@ -5,12 +5,9 @@
 
 package com.oecci.expert.dto.v1_0;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
@@ -29,7 +26,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.Generated;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -43,7 +39,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @GraphQLName("UpdateExpertRequest")
 @io.swagger.v3.oas.annotations.media.Schema(
 	requiredProperties = {
-			"nom", "prenoms", "adressePostale", "matricule", "annee_inscription", "contact"
+		"nom", "prenoms", "adressePostale", "matricule", "annee_inscription",
+		"contact"
 	}
 )
 @JsonFilter("Liferay.Vulcan")
@@ -95,13 +92,14 @@ public class UpdateExpertRequest implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotEmpty
 	protected String adressePostale;
 
 	@JsonIgnore
 	private Supplier<String> _adressePostaleSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
-	public Integer getAnnee_inscription() {
+	public Long getAnnee_inscription() {
 		if (_annee_inscriptionSupplier != null) {
 			annee_inscription = _annee_inscriptionSupplier.get();
 
@@ -111,7 +109,7 @@ public class UpdateExpertRequest implements Serializable {
 		return annee_inscription;
 	}
 
-	public void setAnnee_inscription(Integer annee_inscription) {
+	public void setAnnee_inscription(Long annee_inscription) {
 		this.annee_inscription = annee_inscription;
 
 		_annee_inscriptionSupplier = null;
@@ -119,7 +117,7 @@ public class UpdateExpertRequest implements Serializable {
 
 	@JsonIgnore
 	public void setAnnee_inscription(
-		UnsafeSupplier<Integer, Exception> annee_inscriptionUnsafeSupplier) {
+		UnsafeSupplier<Long, Exception> annee_inscriptionUnsafeSupplier) {
 
 		_annee_inscriptionSupplier = () -> {
 			try {
@@ -137,10 +135,10 @@ public class UpdateExpertRequest implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	@NotNull
-	protected Integer annee_inscription;
+	protected Long annee_inscription;
 
 	@JsonIgnore
-	private Supplier<Integer> _annee_inscriptionSupplier;
+	private Supplier<Long> _annee_inscriptionSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
 	public String getContact() {
@@ -351,7 +349,7 @@ public class UpdateExpertRequest implements Serializable {
 			sb.append("\"");
 		}
 
-		Integer annee_inscription = getAnnee_inscription();
+		Long annee_inscription = getAnnee_inscription();
 
 		if (annee_inscription != null) {
 			if (sb.length() > 1) {
@@ -360,11 +358,7 @@ public class UpdateExpertRequest implements Serializable {
 
 			sb.append("\"annee_inscription\": ");
 
-			sb.append("\"");
-
-			sb.append(_escape(annee_inscription));
-
-			sb.append("\"");
+			sb.append(annee_inscription);
 		}
 
 		String contact = getContact();
@@ -442,45 +436,6 @@ public class UpdateExpertRequest implements Serializable {
 		name = "x-class-name"
 	)
 	public String xClassName;
-
-	@GraphQLName("Update_by")
-	public static enum Update_by {
-
-		BY_ADMIN("by_admin"), BY_MODERATEUR("by_moderateur"),
-		BY_ASSISTANT("by_assistant");
-
-		@JsonCreator
-		public static Update_by create(String value) {
-			if ((value == null) || value.equals("")) {
-				return null;
-			}
-
-			for (Update_by update_by : values()) {
-				if (Objects.equals(update_by.getValue(), value)) {
-					return update_by;
-				}
-			}
-
-			throw new IllegalArgumentException("Invalid enum value: " + value);
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Update_by(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
-	}
 
 	private static String _escape(Object object) {
 		return StringUtil.replace(
@@ -571,4 +526,4 @@ public class UpdateExpertRequest implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1659674926
+// LIFERAY-REST-BUILDER-HASH:1948542872

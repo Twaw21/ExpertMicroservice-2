@@ -29,7 +29,7 @@ import com.liferay.portal.vulcan.util.TransformUtil;
 
 import com.oecci.expert.client.http.HttpInvoker;
 import com.oecci.expert.client.pagination.Page;
-import com.oecci.expert.client.resource.v1_0.CollaborateurResource;
+import com.oecci.expert.client.resource.v1_0.RecouvrementResource;
 
 import java.lang.reflect.Method;
 
@@ -63,7 +63,7 @@ import org.junit.Test;
  * @generated
  */
 @Generated("")
-public abstract class BaseCollaborateurResourceTestCase {
+public abstract class BaseRecouvrementResourceTestCase {
 
 	@ClassRule
 	@Rule
@@ -84,12 +84,12 @@ public abstract class BaseCollaborateurResourceTestCase {
 		testCompany = CompanyLocalServiceUtil.getCompany(
 			testGroup.getCompanyId());
 
-		_collaborateurResource.setContextCompany(testCompany);
+		_recouvrementResource.setContextCompany(testCompany);
 
 		_testCompanyAdminUser = UserTestUtil.getAdminUser(
 			testCompany.getCompanyId());
 
-		collaborateurResource = CollaborateurResource.builder(
+		recouvrementResource = RecouvrementResource.builder(
 		).authentication(
 			_testCompanyAdminUser.getEmailAddress(),
 			PropsValues.DEFAULT_ADMIN_PASSWORD
@@ -108,37 +108,37 @@ public abstract class BaseCollaborateurResourceTestCase {
 	}
 
 	@Test
-	public void testCreateCollabos() throws Exception {
+	public void testGetRecouvrementByExpert() throws Exception {
 		Assert.assertTrue(false);
 	}
 
 	@Test
-	public void testGetAllCollabos() throws Exception {
+	public void testGetRecouvrementDetail() throws Exception {
 		Assert.assertTrue(false);
 	}
 
 	@Test
-	public void testGetCollaborateurByUser() throws Exception {
+	public void testGetRecouvrementStats() throws Exception {
 		Assert.assertTrue(false);
 	}
 
 	@Test
-	public void testGetCollaborateurs() throws Exception {
+	public void testGetRecouvrementStatsGlobal() throws Exception {
 		Assert.assertTrue(false);
 	}
 
 	@Test
-	public void testUpdateCollabo() throws Exception {
+	public void testUpdateRecouvrement() throws Exception {
 		Assert.assertTrue(false);
 	}
 
 	protected void assertContains(
-		Object collaborateur, List<Object> collaborateurs) {
+		Object recouvrement, List<Object> recouvrements) {
 
 		boolean contains = false;
 
-		for (Object item : collaborateurs) {
-			if (equals(collaborateur, item)) {
+		for (Object item : recouvrements) {
+			if (equals(recouvrement, item)) {
 				contains = true;
 
 				break;
@@ -146,7 +146,7 @@ public abstract class BaseCollaborateurResourceTestCase {
 		}
 
 		Assert.assertTrue(
-			collaborateurs + " does not contain " + collaborateur, contains);
+			recouvrements + " does not contain " + recouvrement, contains);
 	}
 
 	protected void assertHttpResponseStatusCode(
@@ -157,35 +157,35 @@ public abstract class BaseCollaborateurResourceTestCase {
 			expectedHttpResponseStatusCode, actualHttpResponse.getStatusCode());
 	}
 
-	protected void assertEquals(Object collaborateur1, Object collaborateur2) {
+	protected void assertEquals(Object recouvrement1, Object recouvrement2) {
 		Assert.assertTrue(
-			collaborateur1 + " does not equal " + collaborateur2,
-			equals(collaborateur1, collaborateur2));
+			recouvrement1 + " does not equal " + recouvrement2,
+			equals(recouvrement1, recouvrement2));
 	}
 
 	protected void assertEquals(
-		List<Object> collaborateurs1, List<Object> collaborateurs2) {
+		List<Object> recouvrements1, List<Object> recouvrements2) {
 
-		Assert.assertEquals(collaborateurs1.size(), collaborateurs2.size());
+		Assert.assertEquals(recouvrements1.size(), recouvrements2.size());
 
-		for (int i = 0; i < collaborateurs1.size(); i++) {
-			Object collaborateur1 = collaborateurs1.get(i);
-			Object collaborateur2 = collaborateurs2.get(i);
+		for (int i = 0; i < recouvrements1.size(); i++) {
+			Object recouvrement1 = recouvrements1.get(i);
+			Object recouvrement2 = recouvrements2.get(i);
 
-			assertEquals(collaborateur1, collaborateur2);
+			assertEquals(recouvrement1, recouvrement2);
 		}
 	}
 
 	protected void assertEqualsIgnoringOrder(
-		List<Object> collaborateurs1, List<Object> collaborateurs2) {
+		List<Object> recouvrements1, List<Object> recouvrements2) {
 
-		Assert.assertEquals(collaborateurs1.size(), collaborateurs2.size());
+		Assert.assertEquals(recouvrements1.size(), recouvrements2.size());
 
-		for (Object collaborateur1 : collaborateurs1) {
+		for (Object recouvrement1 : recouvrements1) {
 			boolean contains = false;
 
-			for (Object collaborateur2 : collaborateurs2) {
-				if (equals(collaborateur1, collaborateur2)) {
+			for (Object recouvrement2 : recouvrements2) {
+				if (equals(recouvrement1, recouvrement2)) {
 					contains = true;
 
 					break;
@@ -193,12 +193,12 @@ public abstract class BaseCollaborateurResourceTestCase {
 			}
 
 			Assert.assertTrue(
-				collaborateurs2 + " does not contain " + collaborateur1,
+				recouvrements2 + " does not contain " + recouvrement1,
 				contains);
 		}
 	}
 
-	protected void assertValid(Object collaborateur) throws Exception {
+	protected void assertValid(Object recouvrement) throws Exception {
 		boolean valid = true;
 
 		for (String additionalAssertFieldName :
@@ -221,9 +221,9 @@ public abstract class BaseCollaborateurResourceTestCase {
 
 		boolean valid = false;
 
-		java.util.Collection<Object> collaborateurs = page.getItems();
+		java.util.Collection<Object> recouvrements = page.getItems();
 
-		int size = collaborateurs.size();
+		int size = recouvrements.size();
 
 		if ((page.getLastPage() > 0) && (page.getPage() > 0) &&
 			(page.getPageSize() > 0) && (page.getTotalCount() > 0) &&
@@ -298,8 +298,8 @@ public abstract class BaseCollaborateurResourceTestCase {
 		return new String[0];
 	}
 
-	protected boolean equals(Object collaborateur1, Object collaborateur2) {
-		if (collaborateur1 == collaborateur2) {
+	protected boolean equals(Object recouvrement1, Object recouvrement2) {
+		if (recouvrement1 == recouvrement2) {
 			return true;
 		}
 
@@ -362,13 +362,13 @@ public abstract class BaseCollaborateurResourceTestCase {
 	protected java.util.Collection<EntityField> getEntityFields()
 		throws Exception {
 
-		if (!(_collaborateurResource instanceof EntityModelResource)) {
+		if (!(_recouvrementResource instanceof EntityModelResource)) {
 			throw new UnsupportedOperationException(
 				"Resource is not an instance of EntityModelResource");
 		}
 
 		EntityModelResource entityModelResource =
-			(EntityModelResource)_collaborateurResource;
+			(EntityModelResource)_recouvrementResource;
 
 		EntityModel entityModel = entityModelResource.getEntityModel(
 			new MultivaluedHashMap());
@@ -401,7 +401,7 @@ public abstract class BaseCollaborateurResourceTestCase {
 	}
 
 	protected String getFilterString(
-		EntityField entityField, String operator, Object collaborateur) {
+		EntityField entityField, String operator, Object recouvrement) {
 
 		StringBundler sb = new StringBundler();
 
@@ -457,7 +457,7 @@ public abstract class BaseCollaborateurResourceTestCase {
 			invoke(queryGraphQLField.toString()));
 	}
 
-	protected CollaborateurResource collaborateurResource;
+	protected RecouvrementResource recouvrementResource;
 	protected com.liferay.portal.kernel.model.Group irrelevantGroup;
 	protected com.liferay.portal.kernel.model.Company testCompany;
 	protected com.liferay.portal.kernel.model.Group testGroup;
@@ -656,15 +656,15 @@ public abstract class BaseCollaborateurResourceTestCase {
 	}
 
 	private static final com.liferay.portal.kernel.log.Log _log =
-		LogFactoryUtil.getLog(BaseCollaborateurResourceTestCase.class);
+		LogFactoryUtil.getLog(BaseRecouvrementResourceTestCase.class);
 
 	private static Format _format;
 
 	private com.liferay.portal.kernel.model.User _testCompanyAdminUser;
 
 	@Inject
-	private com.oecci.expert.resource.v1_0.CollaborateurResource
-		_collaborateurResource;
+	private com.oecci.expert.resource.v1_0.RecouvrementResource
+		_recouvrementResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1992088673
+// LIFERAY-REST-BUILDER-HASH:-447045671

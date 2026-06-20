@@ -70,11 +70,11 @@ public interface CollaborateurResource {
 			Pagination pagination, String sortString)
 		throws Exception;
 
-	public void updateCollabos(
+	public void updateCollabo(
 			Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
 		throws Exception;
 
-	public HttpInvoker.HttpResponse updateCollabosHttpResponse(
+	public HttpInvoker.HttpResponse updateCollaboHttpResponse(
 			Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
 		throws Exception;
 
@@ -663,11 +663,11 @@ public interface CollaborateurResource {
 			return httpInvoker.invoke();
 		}
 
-		public void updateCollabos(
+		public void updateCollabo(
 				Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
 			throws Exception {
 
-			HttpInvoker.HttpResponse httpResponse = updateCollabosHttpResponse(
+			HttpInvoker.HttpResponse httpResponse = updateCollaboHttpResponse(
 				collaborateurId, updateCollaboRequest);
 
 			String content = httpResponse.getContent();
@@ -718,7 +718,7 @@ public interface CollaborateurResource {
 			}
 		}
 
-		public HttpInvoker.HttpResponse updateCollabosHttpResponse(
+		public HttpInvoker.HttpResponse updateCollaboHttpResponse(
 				Long collaborateurId, UpdateCollaboRequest updateCollaboRequest)
 			throws Exception {
 
@@ -773,4 +773,4 @@ public interface CollaborateurResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-797319311
+// LIFERAY-REST-BUILDER-HASH:1580616790

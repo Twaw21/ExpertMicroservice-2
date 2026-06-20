@@ -67,11 +67,7 @@ public class UpdateCabinetRequestSerDes {
 
 			sb.append("\"annee_inscription\": ");
 
-			sb.append("\"");
-
-			sb.append(_escape(updateCabinetRequest.getAnnee_inscription()));
-
-			sb.append("\"");
+			sb.append(updateCabinetRequest.getAnnee_inscription());
 		}
 
 		if (updateCabinetRequest.getCategorie() != null) {
@@ -94,20 +90,6 @@ public class UpdateCabinetRequestSerDes {
 			sb.append("\"");
 
 			sb.append(_escape(updateCabinetRequest.getContact()));
-
-			sb.append("\"");
-		}
-
-		if (updateCabinetRequest.getEmail() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"email\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(updateCabinetRequest.getEmail()));
 
 			sb.append("\"");
 		}
@@ -182,28 +164,6 @@ public class UpdateCabinetRequestSerDes {
 			sb.append("\"");
 		}
 
-		if (updateCabinetRequest.getStatut() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"statut\": ");
-
-			sb.append(updateCabinetRequest.getStatut());
-		}
-
-		if (updateCabinetRequest.getUpdate_by() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"update_by\": ");
-
-			sb.append("\"");
-			sb.append(updateCabinetRequest.getUpdate_by());
-			sb.append("\"");
-		}
-
 		sb.append("}");
 
 		return sb.toString();
@@ -260,13 +220,6 @@ public class UpdateCabinetRequestSerDes {
 				"contact", String.valueOf(updateCabinetRequest.getContact()));
 		}
 
-		if (updateCabinetRequest.getEmail() == null) {
-			map.put("email", null);
-		}
-		else {
-			map.put("email", String.valueOf(updateCabinetRequest.getEmail()));
-		}
-
 		if (updateCabinetRequest.getMatricule() == null) {
 			map.put("matricule", null);
 		}
@@ -309,22 +262,6 @@ public class UpdateCabinetRequestSerDes {
 				"prenoms", String.valueOf(updateCabinetRequest.getPrenoms()));
 		}
 
-		if (updateCabinetRequest.getStatut() == null) {
-			map.put("statut", null);
-		}
-		else {
-			map.put("statut", String.valueOf(updateCabinetRequest.getStatut()));
-		}
-
-		if (updateCabinetRequest.getUpdate_by() == null) {
-			map.put("update_by", null);
-		}
-		else {
-			map.put(
-				"update_by",
-				String.valueOf(updateCabinetRequest.getUpdate_by()));
-		}
-
 		return map;
 	}
 
@@ -355,9 +292,6 @@ public class UpdateCabinetRequestSerDes {
 			else if (Objects.equals(jsonParserFieldName, "contact")) {
 				return false;
 			}
-			else if (Objects.equals(jsonParserFieldName, "email")) {
-				return false;
-			}
 			else if (Objects.equals(jsonParserFieldName, "matricule")) {
 				return false;
 			}
@@ -371,12 +305,6 @@ public class UpdateCabinetRequestSerDes {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "prenoms")) {
-				return false;
-			}
-			else if (Objects.equals(jsonParserFieldName, "statut")) {
-				return false;
-			}
-			else if (Objects.equals(jsonParserFieldName, "update_by")) {
 				return false;
 			}
 
@@ -397,7 +325,7 @@ public class UpdateCabinetRequestSerDes {
 			else if (Objects.equals(jsonParserFieldName, "annee_inscription")) {
 				if (jsonParserFieldValue != null) {
 					updateCabinetRequest.setAnnee_inscription(
-						(String)jsonParserFieldValue);
+						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "categorie")) {
@@ -410,11 +338,6 @@ public class UpdateCabinetRequestSerDes {
 				if (jsonParserFieldValue != null) {
 					updateCabinetRequest.setContact(
 						(String)jsonParserFieldValue);
-				}
-			}
-			else if (Objects.equals(jsonParserFieldName, "email")) {
-				if (jsonParserFieldValue != null) {
-					updateCabinetRequest.setEmail((String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "matricule")) {
@@ -444,19 +367,6 @@ public class UpdateCabinetRequestSerDes {
 				if (jsonParserFieldValue != null) {
 					updateCabinetRequest.setPrenoms(
 						(String)jsonParserFieldValue);
-				}
-			}
-			else if (Objects.equals(jsonParserFieldName, "statut")) {
-				if (jsonParserFieldValue != null) {
-					updateCabinetRequest.setStatut(
-						(Boolean)jsonParserFieldValue);
-				}
-			}
-			else if (Objects.equals(jsonParserFieldName, "update_by")) {
-				if (jsonParserFieldValue != null) {
-					updateCabinetRequest.setUpdate_by(
-						UpdateCabinetRequest.Update_by.create(
-							(String)jsonParserFieldValue));
 				}
 			}
 		}
@@ -540,4 +450,4 @@ public class UpdateCabinetRequestSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:896272536
+// LIFERAY-REST-BUILDER-HASH:103396394

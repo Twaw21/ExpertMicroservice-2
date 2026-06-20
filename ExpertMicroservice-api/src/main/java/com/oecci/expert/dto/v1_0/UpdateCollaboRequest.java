@@ -27,8 +27,8 @@ import java.util.function.Supplier;
 import javax.annotation.Generated;
 
 import javax.validation.constraints.NotEmpty;
-
 import javax.validation.constraints.NotNull;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -195,7 +195,7 @@ public class UpdateCollaboRequest implements Serializable {
 
 	@JsonIgnore
 	public void setStatut(
-			UnsafeSupplier<Boolean, Exception> statutUnsafeSupplier) {
+		UnsafeSupplier<Boolean, Exception> statutUnsafeSupplier) {
 
 		_statutSupplier = () -> {
 			try {
@@ -217,7 +217,6 @@ public class UpdateCollaboRequest implements Serializable {
 
 	@JsonIgnore
 	private Supplier<Boolean> _statutSupplier;
-
 
 	@Override
 	public boolean equals(Object object) {
@@ -293,6 +292,18 @@ public class UpdateCollaboRequest implements Serializable {
 			sb.append(_escape(prenoms));
 
 			sb.append("\"");
+		}
+
+		Boolean statut = getStatut();
+
+		if (statut != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"statut\": ");
+
+			sb.append(statut);
 		}
 
 		sb.append("}");
@@ -396,4 +407,4 @@ public class UpdateCollaboRequest implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1722617895
+// LIFERAY-REST-BUILDER-HASH:1001258123

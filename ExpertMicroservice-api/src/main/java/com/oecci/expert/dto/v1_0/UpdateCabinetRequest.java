@@ -5,12 +5,9 @@
 
 package com.oecci.expert.dto.v1_0;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
@@ -43,9 +40,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @GraphQLName("UpdateCabinetRequest")
 @io.swagger.v3.oas.annotations.media.Schema(
 	requiredProperties = {
-		"nom", "prenoms", "email", "matricule", "nomCabinet",
-		"numeroCabinet", "categorie", "annee_inscription", "contact", "adressePostale"
-
+		"nom", "prenoms", "adressePostale", "annee_inscription", "matricule",
+		"contact", "nomCabinet", "numeroCabinet", "categorie"
 	}
 )
 @JsonFilter("Liferay.Vulcan")
@@ -97,13 +93,14 @@ public class UpdateCabinetRequest implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotEmpty
 	protected String adressePostale;
 
 	@JsonIgnore
 	private Supplier<String> _adressePostaleSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
-	public Integer getAnnee_inscription() {
+	public Long getAnnee_inscription() {
 		if (_annee_inscriptionSupplier != null) {
 			annee_inscription = _annee_inscriptionSupplier.get();
 
@@ -113,7 +110,7 @@ public class UpdateCabinetRequest implements Serializable {
 		return annee_inscription;
 	}
 
-	public void setAnnee_inscription(Integer annee_inscription) {
+	public void setAnnee_inscription(Long annee_inscription) {
 		this.annee_inscription = annee_inscription;
 
 		_annee_inscriptionSupplier = null;
@@ -121,7 +118,7 @@ public class UpdateCabinetRequest implements Serializable {
 
 	@JsonIgnore
 	public void setAnnee_inscription(
-		UnsafeSupplier<Integer, Exception> annee_inscriptionUnsafeSupplier) {
+		UnsafeSupplier<Long, Exception> annee_inscriptionUnsafeSupplier) {
 
 		_annee_inscriptionSupplier = () -> {
 			try {
@@ -138,10 +135,11 @@ public class UpdateCabinetRequest implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Integer annee_inscription;
+	@NotNull
+	protected Long annee_inscription;
 
 	@JsonIgnore
-	private Supplier<Integer> _annee_inscriptionSupplier;
+	private Supplier<Long> _annee_inscriptionSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
 	@Valid
@@ -222,6 +220,7 @@ public class UpdateCabinetRequest implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@NotEmpty
 	protected String contact;
 
 	@JsonIgnore
@@ -435,7 +434,6 @@ public class UpdateCabinetRequest implements Serializable {
 	@JsonIgnore
 	private Supplier<String> _prenomsSupplier;
 
-
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -480,7 +478,7 @@ public class UpdateCabinetRequest implements Serializable {
 			sb.append("\"");
 		}
 
-		Integer annee_inscription = getAnnee_inscription();
+		Long annee_inscription = getAnnee_inscription();
 
 		if (annee_inscription != null) {
 			if (sb.length() > 1) {
@@ -489,11 +487,7 @@ public class UpdateCabinetRequest implements Serializable {
 
 			sb.append("\"annee_inscription\": ");
 
-			sb.append("\"");
-
-			sb.append(_escape(annee_inscription));
-
-			sb.append("\"");
+			sb.append(annee_inscription);
 		}
 
 		Option categorie = getCategorie();
@@ -705,4 +699,4 @@ public class UpdateCabinetRequest implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:842119396
+// LIFERAY-REST-BUILDER-HASH:-1008538299

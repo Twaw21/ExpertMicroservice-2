@@ -67,11 +67,7 @@ public class UpdateExpertRequestSerDes {
 
 			sb.append("\"annee_inscription\": ");
 
-			sb.append("\"");
-
-			sb.append(_escape(updateExpertRequest.getAnnee_inscription()));
-
-			sb.append("\"");
+			sb.append(updateExpertRequest.getAnnee_inscription());
 		}
 
 		if (updateExpertRequest.getContact() != null) {
@@ -127,18 +123,6 @@ public class UpdateExpertRequestSerDes {
 
 			sb.append(_escape(updateExpertRequest.getPrenoms()));
 
-			sb.append("\"");
-		}
-
-		if (updateExpertRequest.getUpdate_by() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"update_by\": ");
-
-			sb.append("\"");
-			sb.append(updateExpertRequest.getUpdate_by());
 			sb.append("\"");
 		}
 
@@ -213,15 +197,6 @@ public class UpdateExpertRequestSerDes {
 				"prenoms", String.valueOf(updateExpertRequest.getPrenoms()));
 		}
 
-		if (updateExpertRequest.getUpdate_by() == null) {
-			map.put("update_by", null);
-		}
-		else {
-			map.put(
-				"update_by",
-				String.valueOf(updateExpertRequest.getUpdate_by()));
-		}
-
 		return map;
 	}
 
@@ -258,9 +233,6 @@ public class UpdateExpertRequestSerDes {
 			else if (Objects.equals(jsonParserFieldName, "prenoms")) {
 				return false;
 			}
-			else if (Objects.equals(jsonParserFieldName, "update_by")) {
-				return false;
-			}
 
 			return false;
 		}
@@ -279,7 +251,7 @@ public class UpdateExpertRequestSerDes {
 			else if (Objects.equals(jsonParserFieldName, "annee_inscription")) {
 				if (jsonParserFieldValue != null) {
 					updateExpertRequest.setAnnee_inscription(
-						(String)jsonParserFieldValue);
+						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "contact")) {
@@ -303,13 +275,6 @@ public class UpdateExpertRequestSerDes {
 				if (jsonParserFieldValue != null) {
 					updateExpertRequest.setPrenoms(
 						(String)jsonParserFieldValue);
-				}
-			}
-			else if (Objects.equals(jsonParserFieldName, "update_by")) {
-				if (jsonParserFieldValue != null) {
-					updateExpertRequest.setUpdate_by(
-						UpdateExpertRequest.Update_by.create(
-							(String)jsonParserFieldValue));
 				}
 			}
 		}
@@ -393,4 +358,4 @@ public class UpdateExpertRequestSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:823187999
+// LIFERAY-REST-BUILDER-HASH:-1032618828

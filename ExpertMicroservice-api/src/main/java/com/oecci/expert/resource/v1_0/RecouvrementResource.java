@@ -43,134 +43,134 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface RecouvrementResource {
 
-    /**
-     * POST /recouvrement/{recouvrementId}/valider
-     * Valide un recouvrement : isRecouvre → true + upload preuve.
-     */
-    public Response updateRecouvrement(
-            Long recouvrementId,
-            UpdateRecouvrementRequest updateRecouvrementRequest)
-        throws Exception;
+	/**
+	 * POST /recouvrement/{recouvrementId}/valider
+	 * Valide un recouvrement : isRecouvre → true + upload preuve.
+	 */
+	public Response updateRecouvrement(
+			Long recouvrementId,
+			UpdateRecouvrementRequest updateRecouvrementRequest)
+			throws Exception;
 
-    /**
-     * GET /recouvrement/stats
-     * Cards accueil : montantARestituer, expertsCrediteurs,
-     * visasVepSignes, clientsConcernes.
-     */
-    public Response getRecouvrementStats() throws Exception;
+	/**
+	 * GET /recouvrement/stats
+	 * Cards accueil : montantARestituer, expertsCrediteurs,
+	 * visasVepSignes, clientsConcernes.
+	 */
+	public Response getRecouvrementStats() throws Exception;
 
-    /**
-     * GET /recouvrement/stats/global
-     * Lecture comparative + statuts visa exclus + paiements non finalisés.
-     */
-    public Response getRecouvrementStatsGlobal() throws Exception;
+	/**
+	 * GET /recouvrement/stats/global
+	 * Lecture comparative + statuts visa exclus + paiements non finalisés.
+	 */
+	public Response getRecouvrementStatsGlobal() throws Exception;
 
-    /**
-     * GET /recouvrement/by-expert
-     * Tableau récapitulatif : 1 ligne par expert avec montant, badge
-     * isRecouvre et recouvrementId.
-     */
-    public Response getRecouvrementByExpert(
-            Integer page, Integer pageSize,
-            String expertFilter, String periodeDebut, String periodeFin)
-        throws Exception;
+	/**
+	 * GET /recouvrement/by-expert
+	 * Tableau récapitulatif : 1 ligne par expert avec montant, badge
+	 * isRecouvre et recouvrementId.
+	 */
+	public Response getRecouvrementByExpert(
+			Integer page, Integer pageSize,
+			String expertFilter, String periodeDebut, String periodeFin)
+			throws Exception;
 
-    /**
-     * GET /recouvrement/{recouvrementId}
-     * Détail complet : résumé expert + liste des visas VEP + infos preuve.
-     */
-    public Response getRecouvrementDetail(Long recouvrementId)
-        throws Exception;
+	/**
+	 * GET /recouvrement/{recouvrementId}
+	 * Détail complet : résumé expert + liste des visas VEP + infos preuve.
+	 */
+	public Response getRecouvrementDetail(Long recouvrementId)
+			throws Exception;
 
-    // -------------------------------------------------------------------------
-    // Setters injectés par le framework Liferay Vulcan (ne pas modifier)
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// Setters injectés par le framework Liferay Vulcan (ne pas modifier)
+	// -------------------------------------------------------------------------
 
-    public default void setContextAcceptLanguage(
-        AcceptLanguage contextAcceptLanguage) {
-    }
+	public default void setContextAcceptLanguage(
+			AcceptLanguage contextAcceptLanguage) {
+	}
 
-    public void setContextCompany(
-        com.liferay.portal.kernel.model.Company contextCompany);
+	public void setContextCompany(
+			com.liferay.portal.kernel.model.Company contextCompany);
 
-    public default void setContextHttpServletRequest(
-        HttpServletRequest contextHttpServletRequest) {
-    }
+	public default void setContextHttpServletRequest(
+			HttpServletRequest contextHttpServletRequest) {
+	}
 
-    public default void setContextHttpServletResponse(
-        HttpServletResponse contextHttpServletResponse) {
-    }
+	public default void setContextHttpServletResponse(
+			HttpServletResponse contextHttpServletResponse) {
+	}
 
-    public default void setContextUriInfo(UriInfo contextUriInfo) {
-    }
+	public default void setContextUriInfo(UriInfo contextUriInfo) {
+	}
 
-    public void setContextUser(
-        com.liferay.portal.kernel.model.User contextUser);
+	public void setContextUser(
+			com.liferay.portal.kernel.model.User contextUser);
 
-    public void setExpressionConvert(
-        ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
-            expressionConvert);
+	public void setExpressionConvert(
+			ExpressionConvert<com.liferay.portal.kernel.search.filter.Filter>
+					expressionConvert);
 
-    public void setFilterParserProvider(
-        FilterParserProvider filterParserProvider);
+	public void setFilterParserProvider(
+			FilterParserProvider filterParserProvider);
 
-    public void setGroupLocalService(GroupLocalService groupLocalService);
+	public void setGroupLocalService(GroupLocalService groupLocalService);
 
-    public void setResourceActionLocalService(
-        ResourceActionLocalService resourceActionLocalService);
+	public void setResourceActionLocalService(
+			ResourceActionLocalService resourceActionLocalService);
 
-    public void setResourcePermissionLocalService(
-        ResourcePermissionLocalService resourcePermissionLocalService);
+	public void setResourcePermissionLocalService(
+			ResourcePermissionLocalService resourcePermissionLocalService);
 
-    public void setRoleLocalService(RoleLocalService roleLocalService);
+	public void setRoleLocalService(RoleLocalService roleLocalService);
 
-    public void setSortParserProvider(SortParserProvider sortParserProvider);
+	public void setSortParserProvider(SortParserProvider sortParserProvider);
 
-    public default com.liferay.portal.kernel.search.filter.Filter toFilter(
-        String filterString) {
+	public default com.liferay.portal.kernel.search.filter.Filter toFilter(
+			String filterString) {
 
-        return toFilter(
-            filterString, Collections.<String, List<String>>emptyMap());
-    }
+		return toFilter(
+				filterString, Collections.<String, List<String>>emptyMap());
+	}
 
-    public default com.liferay.portal.kernel.search.filter.Filter toFilter(
-        String filterString, Map<String, List<String>> multivaluedMap) {
+	public default com.liferay.portal.kernel.search.filter.Filter toFilter(
+			String filterString, Map<String, List<String>> multivaluedMap) {
 
-        return null;
-    }
+		return null;
+	}
 
-    public default com.liferay.portal.kernel.search.Sort[] toSorts(
-        String sortsString) {
+	public default com.liferay.portal.kernel.search.Sort[] toSorts(
+			String sortsString) {
 
-        return new com.liferay.portal.kernel.search.Sort[0];
-    }
+		return new com.liferay.portal.kernel.search.Sort[0];
+	}
 
-    @ProviderType
-    public interface Builder {
+	@ProviderType
+	public interface Builder {
 
-        public RecouvrementResource build();
+		public RecouvrementResource build();
 
-        public Builder checkPermissions(boolean checkPermissions);
+		public Builder checkPermissions(boolean checkPermissions);
 
-        public Builder httpServletRequest(
-            HttpServletRequest httpServletRequest);
+		public Builder httpServletRequest(
+				HttpServletRequest httpServletRequest);
 
-        public Builder httpServletResponse(
-            HttpServletResponse httpServletResponse);
+		public Builder httpServletResponse(
+				HttpServletResponse httpServletResponse);
 
-        public Builder preferredLocale(Locale preferredLocale);
+		public Builder preferredLocale(Locale preferredLocale);
 
-        public Builder uriInfo(UriInfo uriInfo);
+		public Builder uriInfo(UriInfo uriInfo);
 
-        public Builder user(
-            com.liferay.portal.kernel.model.User user);
-    }
+		public Builder user(
+				com.liferay.portal.kernel.model.User user);
+	}
 
-    @ProviderType
-    public interface Factory {
+	@ProviderType
+	public interface Factory {
 
-        public Builder create();
-    }
+		public Builder create();
+	}
 
 }
 // LIFERAY-REST-BUILDER-HASH:OECCI-RECOUVREMENT-2026

@@ -88,6 +88,16 @@ public class UpdateCollaboRequestSerDes {
 			sb.append("\"");
 		}
 
+		if (updateCollaboRequest.getStatut() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"statut\": ");
+
+			sb.append(updateCollaboRequest.getStatut());
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -132,6 +142,13 @@ public class UpdateCollaboRequestSerDes {
 				"prenoms", String.valueOf(updateCollaboRequest.getPrenoms()));
 		}
 
+		if (updateCollaboRequest.getStatut() == null) {
+			map.put("statut", null);
+		}
+		else {
+			map.put("statut", String.valueOf(updateCollaboRequest.getStatut()));
+		}
+
 		return map;
 	}
 
@@ -159,6 +176,9 @@ public class UpdateCollaboRequestSerDes {
 			else if (Objects.equals(jsonParserFieldName, "prenoms")) {
 				return false;
 			}
+			else if (Objects.equals(jsonParserFieldName, "statut")) {
+				return false;
+			}
 
 			return false;
 		}
@@ -183,6 +203,12 @@ public class UpdateCollaboRequestSerDes {
 				if (jsonParserFieldValue != null) {
 					updateCollaboRequest.setPrenoms(
 						(String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "statut")) {
+				if (jsonParserFieldValue != null) {
+					updateCollaboRequest.setStatut(
+						(Boolean)jsonParserFieldValue);
 				}
 			}
 		}
@@ -266,4 +292,4 @@ public class UpdateCollaboRequestSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1900854615
+// LIFERAY-REST-BUILDER-HASH:-161816240

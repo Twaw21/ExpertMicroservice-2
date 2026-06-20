@@ -242,4 +242,9 @@ public class Constants {
 	public static final String EXTENSION_QUOTA_ACCEPTE_STATUS = "ACCEPTE";
 
 	public static final String OECCI_RECOUV_FOLDER = "oecci_visa_recouv_folders";
+
+	public static final String CLIENT_CATEGORIE_VEP = "vEP";
+	public static final String VISA_STATUT_VISE_KEY = "vISE";
+
 }
+

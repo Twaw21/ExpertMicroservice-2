@@ -5,9 +5,7 @@
 
 package com.oecci.expert.client.resource.v1_0;
 
-import com.oecci.expert.client.dto.v1_0.CreateDmdExtQuotVisaRequest;
-import com.oecci.expert.client.dto.v1_0.DataResult;
-import com.oecci.expert.client.dto.v1_0.StatutRequest;
+import com.oecci.expert.client.dto.v1_0.UpdateRecouvrementRequest;
 import com.oecci.expert.client.http.HttpInvoker;
 import com.oecci.expert.client.pagination.Pagination;
 import com.oecci.expert.client.problem.Problem;
@@ -28,61 +26,46 @@ import javax.annotation.Generated;
  * @generated
  */
 @Generated("")
-public interface VisaResource {
+public interface RecouvrementResource {
 
 	public static Builder builder() {
 		return new Builder();
 	}
 
-	public String canSignVisa(Long expertId) throws Exception;
-
-	public HttpInvoker.HttpResponse canSignVisaHttpResponse(Long expertId)
+	public String getRecouvrementByExpert(
+			String expertFilter, String periodeDebut, String periodeFin,
+			Pagination pagination)
 		throws Exception;
 
-	public DataResult createDemandeExtensionQuotaVisa(
-			CreateDmdExtQuotVisaRequest createDmdExtQuotVisaRequest)
+	public HttpInvoker.HttpResponse getRecouvrementByExpertHttpResponse(
+			String expertFilter, String periodeDebut, String periodeFin,
+			Pagination pagination)
 		throws Exception;
 
-	public HttpInvoker.HttpResponse createDemandeExtensionQuotaVisaHttpResponse(
-			CreateDmdExtQuotVisaRequest createDmdExtQuotVisaRequest)
+	public String getRecouvrementDetail(Long recouvrementId) throws Exception;
+
+	public HttpInvoker.HttpResponse getRecouvrementDetailHttpResponse(
+			Long recouvrementId)
 		throws Exception;
 
-	public String getDemandeVisas(
-			Integer nestedFieldsDepth, String filterString,
-			Pagination pagination, String sortString)
+	public String getRecouvrementStats() throws Exception;
+
+	public HttpInvoker.HttpResponse getRecouvrementStatsHttpResponse()
 		throws Exception;
 
-	public HttpInvoker.HttpResponse getDemandeVisasHttpResponse(
-			Integer nestedFieldsDepth, String filterString,
-			Pagination pagination, String sortString)
+	public String getRecouvrementStatsGlobal() throws Exception;
+
+	public HttpInvoker.HttpResponse getRecouvrementStatsGlobalHttpResponse()
 		throws Exception;
 
-	public String getDemandeVisasByDate(
-			String dateDebut, String dateFin, Integer nestedFieldsDepth,
-			Pagination pagination, String sortString)
+	public void updateRecouvrement(
+			Long recouvrementId,
+			UpdateRecouvrementRequest updateRecouvrementRequest)
 		throws Exception;
 
-	public HttpInvoker.HttpResponse getDemandeVisasByDateHttpResponse(
-			String dateDebut, String dateFin, Integer nestedFieldsDepth,
-			Pagination pagination, String sortString)
-		throws Exception;
-
-	public String getDemandeVisasByExpert(
-			Long expertId, Integer nestedFieldsDepth, Pagination pagination,
-			String sortString)
-		throws Exception;
-
-	public HttpInvoker.HttpResponse getDemandeVisasByExpertHttpResponse(
-			Long expertId, Integer nestedFieldsDepth, Pagination pagination,
-			String sortString)
-		throws Exception;
-
-	public DataResult validateDemandeExtQuotaVisa(
-			Long demandeExtId, StatutRequest statutRequest)
-		throws Exception;
-
-	public HttpInvoker.HttpResponse validateDemandeExtQuotaVisaHttpResponse(
-			Long demandeExtId, StatutRequest statutRequest)
+	public HttpInvoker.HttpResponse updateRecouvrementHttpResponse(
+			Long recouvrementId,
+			UpdateRecouvrementRequest updateRecouvrementRequest)
 		throws Exception;
 
 	public static class Builder {
@@ -98,8 +81,8 @@ public interface VisaResource {
 			return header("Authorization", "Bearer " + token);
 		}
 
-		public VisaResource build() {
-			return new VisaResourceImpl(this);
+		public RecouvrementResource build() {
+			return new RecouvrementResourceImpl(this);
 		}
 
 		public Builder contextPath(String contextPath) {
@@ -191,11 +174,17 @@ public interface VisaResource {
 
 	}
 
-	public static class VisaResourceImpl implements VisaResource {
+	public static class RecouvrementResourceImpl
+		implements RecouvrementResource {
 
-		public String canSignVisa(Long expertId) throws Exception {
-			HttpInvoker.HttpResponse httpResponse = canSignVisaHttpResponse(
-				expertId);
+		public String getRecouvrementByExpert(
+				String expertFilter, String periodeDebut, String periodeFin,
+				Pagination pagination)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getRecouvrementByExpertHttpResponse(
+					expertFilter, periodeDebut, periodeFin, pagination);
 
 			String content = httpResponse.getContent();
 
@@ -256,7 +245,9 @@ public interface VisaResource {
 			}
 		}
 
-		public HttpInvoker.HttpResponse canSignVisaHttpResponse(Long expertId)
+		public HttpInvoker.HttpResponse getRecouvrementByExpertHttpResponse(
+				String expertFilter, String periodeDebut, String periodeFin,
+				Pagination pagination)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -280,12 +271,31 @@ public interface VisaResource {
 
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
 
+			if (expertFilter != null) {
+				httpInvoker.parameter(
+					"expertFilter", String.valueOf(expertFilter));
+			}
+
+			if (periodeDebut != null) {
+				httpInvoker.parameter(
+					"periodeDebut", String.valueOf(periodeDebut));
+			}
+
+			if (periodeFin != null) {
+				httpInvoker.parameter("periodeFin", String.valueOf(periodeFin));
+			}
+
+			if (pagination != null) {
+				httpInvoker.parameter(
+					"page", String.valueOf(pagination.getPage()));
+				httpInvoker.parameter(
+					"pageSize", String.valueOf(pagination.getPageSize()));
+			}
+
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/canSignVisa/{expertId}");
-
-			httpInvoker.path("expertId", expertId);
+						"/o/ExpertMicroservice/v1.0/oecci/expert/recouvrement/by-expert");
 
 			if ((_builder._login != null) && (_builder._password != null)) {
 				httpInvoker.userNameAndPassword(
@@ -295,13 +305,11 @@ public interface VisaResource {
 			return httpInvoker.invoke();
 		}
 
-		public DataResult createDemandeExtensionQuotaVisa(
-				CreateDmdExtQuotVisaRequest createDmdExtQuotVisaRequest)
+		public String getRecouvrementDetail(Long recouvrementId)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
-				createDemandeExtensionQuotaVisaHttpResponse(
-					createDmdExtQuotVisaRequest);
+				getRecouvrementDetailHttpResponse(recouvrementId);
 
 			String content = httpResponse.getContent();
 
@@ -351,8 +359,7 @@ public interface VisaResource {
 			}
 
 			try {
-				return com.oecci.expert.client.serdes.v1_0.DataResultSerDes.
-					toDTO(content);
+				return content;
 			}
 			catch (Exception e) {
 				_logger.log(
@@ -363,15 +370,312 @@ public interface VisaResource {
 			}
 		}
 
-		public HttpInvoker.HttpResponse
-				createDemandeExtensionQuotaVisaHttpResponse(
-					CreateDmdExtQuotVisaRequest createDmdExtQuotVisaRequest)
+		public HttpInvoker.HttpResponse getRecouvrementDetailHttpResponse(
+				Long recouvrementId)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert/recouvrement/{recouvrementId}");
+
+			httpInvoker.path("recouvrementId", recouvrementId);
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
+		public String getRecouvrementStats() throws Exception {
+			HttpInvoker.HttpResponse httpResponse =
+				getRecouvrementStatsHttpResponse();
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return content;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse getRecouvrementStatsHttpResponse()
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert/recouvrement/stats");
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
+		public String getRecouvrementStatsGlobal() throws Exception {
+			HttpInvoker.HttpResponse httpResponse =
+				getRecouvrementStatsGlobalHttpResponse();
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return content;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse getRecouvrementStatsGlobalHttpResponse()
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/ExpertMicroservice/v1.0/oecci/expert/recouvrement/stats/global");
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
+		public void updateRecouvrement(
+				Long recouvrementId,
+				UpdateRecouvrementRequest updateRecouvrementRequest)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				updateRecouvrementHttpResponse(
+					recouvrementId, updateRecouvrementRequest);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+		}
+
+		public HttpInvoker.HttpResponse updateRecouvrementHttpResponse(
+				Long recouvrementId,
+				UpdateRecouvrementRequest updateRecouvrementRequest)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
 			httpInvoker.body(
-				createDmdExtQuotVisaRequest.toString(), "application/json");
+				updateRecouvrementRequest.toString(), "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(
@@ -395,7 +699,9 @@ public interface VisaResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/visa-quota-exts");
+						"/o/ExpertMicroservice/v1.0/oecci/expert/recouvrement/{recouvrementId}/valider");
+
+			httpInvoker.path("recouvrementId", recouvrementId);
 
 			if ((_builder._login != null) && (_builder._password != null)) {
 				httpInvoker.userNameAndPassword(
@@ -405,509 +711,16 @@ public interface VisaResource {
 			return httpInvoker.invoke();
 		}
 
-		public String getDemandeVisas(
-				Integer nestedFieldsDepth, String filterString,
-				Pagination pagination, String sortString)
-			throws Exception {
-
-			HttpInvoker.HttpResponse httpResponse = getDemandeVisasHttpResponse(
-				nestedFieldsDepth, filterString, pagination, sortString);
-
-			String content = httpResponse.getContent();
-
-			if ((httpResponse.getStatusCode() / 100) != 2) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response content: " + content);
-				_logger.log(
-					Level.WARNING,
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.log(
-					Level.WARNING,
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-
-				Problem.ProblemException problemException = null;
-
-				if (Objects.equals(
-						httpResponse.getContentType(), "application/json")) {
-
-					problemException = new Problem.ProblemException(
-						Problem.toDTO(content));
-				}
-				else {
-					_logger.log(
-						Level.WARNING,
-						"Unable to process content type: " +
-							httpResponse.getContentType());
-
-					Problem problem = new Problem();
-
-					problem.setStatus(
-						String.valueOf(httpResponse.getStatusCode()));
-
-					problemException = new Problem.ProblemException(problem);
-				}
-
-				throw problemException;
-			}
-			else {
-				_logger.fine("HTTP response content: " + content);
-				_logger.fine(
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.fine(
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-			}
-
-			try {
-				return content;
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-		}
-
-		public HttpInvoker.HttpResponse getDemandeVisasHttpResponse(
-				Integer nestedFieldsDepth, String filterString,
-				Pagination pagination, String sortString)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
-
-			if (nestedFieldsDepth != null) {
-				httpInvoker.parameter(
-					"nestedFieldsDepth", String.valueOf(nestedFieldsDepth));
-			}
-
-			if (filterString != null) {
-				httpInvoker.parameter("filter", filterString);
-			}
-
-			if (pagination != null) {
-				httpInvoker.parameter(
-					"page", String.valueOf(pagination.getPage()));
-				httpInvoker.parameter(
-					"pageSize", String.valueOf(pagination.getPageSize()));
-			}
-
-			if (sortString != null) {
-				httpInvoker.parameter("sort", sortString);
-			}
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas");
-
-			if ((_builder._login != null) && (_builder._password != null)) {
-				httpInvoker.userNameAndPassword(
-					_builder._login + ":" + _builder._password);
-			}
-
-			return httpInvoker.invoke();
-		}
-
-		public String getDemandeVisasByDate(
-				String dateDebut, String dateFin, Integer nestedFieldsDepth,
-				Pagination pagination, String sortString)
-			throws Exception {
-
-			HttpInvoker.HttpResponse httpResponse =
-				getDemandeVisasByDateHttpResponse(
-					dateDebut, dateFin, nestedFieldsDepth, pagination,
-					sortString);
-
-			String content = httpResponse.getContent();
-
-			if ((httpResponse.getStatusCode() / 100) != 2) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response content: " + content);
-				_logger.log(
-					Level.WARNING,
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.log(
-					Level.WARNING,
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-
-				Problem.ProblemException problemException = null;
-
-				if (Objects.equals(
-						httpResponse.getContentType(), "application/json")) {
-
-					problemException = new Problem.ProblemException(
-						Problem.toDTO(content));
-				}
-				else {
-					_logger.log(
-						Level.WARNING,
-						"Unable to process content type: " +
-							httpResponse.getContentType());
-
-					Problem problem = new Problem();
-
-					problem.setStatus(
-						String.valueOf(httpResponse.getStatusCode()));
-
-					problemException = new Problem.ProblemException(problem);
-				}
-
-				throw problemException;
-			}
-			else {
-				_logger.fine("HTTP response content: " + content);
-				_logger.fine(
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.fine(
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-			}
-
-			try {
-				return content;
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-		}
-
-		public HttpInvoker.HttpResponse getDemandeVisasByDateHttpResponse(
-				String dateDebut, String dateFin, Integer nestedFieldsDepth,
-				Pagination pagination, String sortString)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
-
-			if (dateDebut != null) {
-				httpInvoker.parameter("dateDebut", String.valueOf(dateDebut));
-			}
-
-			if (dateFin != null) {
-				httpInvoker.parameter("dateFin", String.valueOf(dateFin));
-			}
-
-			if (nestedFieldsDepth != null) {
-				httpInvoker.parameter(
-					"nestedFieldsDepth", String.valueOf(nestedFieldsDepth));
-			}
-
-			if (pagination != null) {
-				httpInvoker.parameter(
-					"page", String.valueOf(pagination.getPage()));
-				httpInvoker.parameter(
-					"pageSize", String.valueOf(pagination.getPageSize()));
-			}
-
-			if (sortString != null) {
-				httpInvoker.parameter("sort", sortString);
-			}
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas/by-date");
-
-			if ((_builder._login != null) && (_builder._password != null)) {
-				httpInvoker.userNameAndPassword(
-					_builder._login + ":" + _builder._password);
-			}
-
-			return httpInvoker.invoke();
-		}
-
-		public String getDemandeVisasByExpert(
-				Long expertId, Integer nestedFieldsDepth, Pagination pagination,
-				String sortString)
-			throws Exception {
-
-			HttpInvoker.HttpResponse httpResponse =
-				getDemandeVisasByExpertHttpResponse(
-					expertId, nestedFieldsDepth, pagination, sortString);
-
-			String content = httpResponse.getContent();
-
-			if ((httpResponse.getStatusCode() / 100) != 2) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response content: " + content);
-				_logger.log(
-					Level.WARNING,
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.log(
-					Level.WARNING,
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-
-				Problem.ProblemException problemException = null;
-
-				if (Objects.equals(
-						httpResponse.getContentType(), "application/json")) {
-
-					problemException = new Problem.ProblemException(
-						Problem.toDTO(content));
-				}
-				else {
-					_logger.log(
-						Level.WARNING,
-						"Unable to process content type: " +
-							httpResponse.getContentType());
-
-					Problem problem = new Problem();
-
-					problem.setStatus(
-						String.valueOf(httpResponse.getStatusCode()));
-
-					problemException = new Problem.ProblemException(problem);
-				}
-
-				throw problemException;
-			}
-			else {
-				_logger.fine("HTTP response content: " + content);
-				_logger.fine(
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.fine(
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-			}
-
-			try {
-				return content;
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-		}
-
-		public HttpInvoker.HttpResponse getDemandeVisasByExpertHttpResponse(
-				Long expertId, Integer nestedFieldsDepth, Pagination pagination,
-				String sortString)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
-
-			if (nestedFieldsDepth != null) {
-				httpInvoker.parameter(
-					"nestedFieldsDepth", String.valueOf(nestedFieldsDepth));
-			}
-
-			if (pagination != null) {
-				httpInvoker.parameter(
-					"page", String.valueOf(pagination.getPage()));
-				httpInvoker.parameter(
-					"pageSize", String.valueOf(pagination.getPageSize()));
-			}
-
-			if (sortString != null) {
-				httpInvoker.parameter("sort", sortString);
-			}
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas/by-expert/{expertId}");
-
-			httpInvoker.path("expertId", expertId);
-
-			if ((_builder._login != null) && (_builder._password != null)) {
-				httpInvoker.userNameAndPassword(
-					_builder._login + ":" + _builder._password);
-			}
-
-			return httpInvoker.invoke();
-		}
-
-		public DataResult validateDemandeExtQuotaVisa(
-				Long demandeExtId, StatutRequest statutRequest)
-			throws Exception {
-
-			HttpInvoker.HttpResponse httpResponse =
-				validateDemandeExtQuotaVisaHttpResponse(
-					demandeExtId, statutRequest);
-
-			String content = httpResponse.getContent();
-
-			if ((httpResponse.getStatusCode() / 100) != 2) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response content: " + content);
-				_logger.log(
-					Level.WARNING,
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.log(
-					Level.WARNING,
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-
-				Problem.ProblemException problemException = null;
-
-				if (Objects.equals(
-						httpResponse.getContentType(), "application/json")) {
-
-					problemException = new Problem.ProblemException(
-						Problem.toDTO(content));
-				}
-				else {
-					_logger.log(
-						Level.WARNING,
-						"Unable to process content type: " +
-							httpResponse.getContentType());
-
-					Problem problem = new Problem();
-
-					problem.setStatus(
-						String.valueOf(httpResponse.getStatusCode()));
-
-					problemException = new Problem.ProblemException(problem);
-				}
-
-				throw problemException;
-			}
-			else {
-				_logger.fine("HTTP response content: " + content);
-				_logger.fine(
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.fine(
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-			}
-
-			try {
-				return com.oecci.expert.client.serdes.v1_0.DataResultSerDes.
-					toDTO(content);
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-		}
-
-		public HttpInvoker.HttpResponse validateDemandeExtQuotaVisaHttpResponse(
-				Long demandeExtId, StatutRequest statutRequest)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			httpInvoker.body(statutRequest.toString(), "application/json");
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port + _builder._contextPath +
-						"/o/ExpertMicroservice/v1.0/oecci/expert/visa-quota-exts/validation/{demandeExtId}");
-
-			httpInvoker.path("demandeExtId", demandeExtId);
-
-			if ((_builder._login != null) && (_builder._password != null)) {
-				httpInvoker.userNameAndPassword(
-					_builder._login + ":" + _builder._password);
-			}
-
-			return httpInvoker.invoke();
-		}
-
-		private VisaResourceImpl(Builder builder) {
+		private RecouvrementResourceImpl(Builder builder) {
 			_builder = builder;
 		}
 
 		private static final Logger _logger = Logger.getLogger(
-			VisaResource.class.getName());
+			RecouvrementResource.class.getName());
 
 		private Builder _builder;
 
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1562637823
+// LIFERAY-REST-BUILDER-HASH:87012647

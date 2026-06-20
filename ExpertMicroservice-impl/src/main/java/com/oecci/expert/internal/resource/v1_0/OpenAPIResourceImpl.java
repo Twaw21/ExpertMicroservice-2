@@ -89,6 +89,8 @@ public class OpenAPIResourceImpl {
 
 			add(Expert_ComptableResourceImpl.class);
 
+			add(RecouvrementResourceImpl.class);
+
 			add(Transfert_ClientResourceImpl.class);
 
 			add(VisaResourceImpl.class);
@@ -98,4 +100,4 @@ public class OpenAPIResourceImpl {
 	};
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1452482356
+// LIFERAY-REST-BUILDER-HASH:654348705

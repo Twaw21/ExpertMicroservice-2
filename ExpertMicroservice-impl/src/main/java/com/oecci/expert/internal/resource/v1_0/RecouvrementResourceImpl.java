@@ -1,4 +1,4 @@
-package com.oecci.expert.internal.resource.v1_0.factory;
+package com.oecci.expert.internal.resource.v1_0;
 
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.object.model.ObjectEntry;
@@ -13,31 +13,18 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.oecci.expert.dto.v1_0.UpdateRecouvrementRequest;
 import com.oecci.expert.resource.v1_0.RecouvrementResource;
-import com.oecci.expert.utils.Constants;
-import com.oecci.expert.utils.DocumentHelper;
-import com.oecci.expert.utils.ObjectEntryHelper;
-import com.oecci.expert.utils.SecurityUtil;
-import com.oecci.expert.utils.UserHelper;
-
-import java.io.File;
-import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.oecci.expert.utils.*;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ServiceScope;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ServiceScope;
+import java.io.File;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * @author OECCI / DiginFactory
@@ -62,8 +49,6 @@ public class RecouvrementResourceImpl extends BaseRecouvrementResourceImpl {
     private static final String ERC_DEMANDE_VISA     = Constants.ERC_DEMANDE_VISA;
 
     // Constantes métier
-    private static final String CLIENT_CATEGORIE_VEP = "vEP";
-    private static final String VISA_STATUT_VISE_KEY = "vISE";
 
 
 
@@ -264,7 +249,7 @@ public class RecouvrementResourceImpl extends BaseRecouvrementResourceImpl {
         // Visas VEP VISÉS → comptage visas et clients distincts
         List<ObjectEntry> visasVise = _objectEntryHelper.searchByFilter(
             techUserId, companyId, groupId, ERC_DEMANDE_VISA,
-            "visaStatut eq '" + VISA_STATUT_VISE_KEY + "'");
+            "visaStatut eq '" + Constants.VISA_STATUT_VISE_KEY + "'");
 
         long visasVepVise = 0L;
         Set<Long> clientsVep = new HashSet<>();
@@ -272,7 +257,7 @@ public class RecouvrementResourceImpl extends BaseRecouvrementResourceImpl {
             long clientId = ObjectEntryHelper.getLong(
                 visa, "r_iDClientDemandeVisa_c_clientId");
             ObjectEntry clientEntry = _objectEntryHelper.getEntry(clientId);
-            if (clientEntry != null && CLIENT_CATEGORIE_VEP.equalsIgnoreCase(
+            if (clientEntry != null && Constants.CLIENT_CATEGORIE_VEP.equalsIgnoreCase(
                     ObjectEntryHelper.getString(clientEntry, "categorieClient"))) {
                 visasVepVise++;
                 clientsVep.add(clientId);
@@ -358,7 +343,7 @@ public class RecouvrementResourceImpl extends BaseRecouvrementResourceImpl {
             ObjectEntry clientEntry = _objectEntryHelper.getEntry(clientId);
             if (clientEntry == null) continue;
 
-            if (!CLIENT_CATEGORIE_VEP.equalsIgnoreCase(
+            if (!Constants.CLIENT_CATEGORIE_VEP.equalsIgnoreCase(
                     ObjectEntryHelper.getString(clientEntry, "categorieClient"))) continue;
 
             long paiementId = ObjectEntryHelper.getLong(visa, "r_iDPayment_c_paiementId");
@@ -380,7 +365,7 @@ public class RecouvrementResourceImpl extends BaseRecouvrementResourceImpl {
             totalPaiementsVepCount++;
 
             String visaStatutKey = ObjectEntryHelper.getString(visa, "visaStatut");
-            if (VISA_STATUT_VISE_KEY.equalsIgnoreCase(visaStatutKey)) {
+            if (Constants.VISA_STATUT_VISE_KEY.equalsIgnoreCase(visaStatutKey)) {
                 retenuMontant += montantTTC;
                 retenuCount++;
             } else {
@@ -521,7 +506,7 @@ public class RecouvrementResourceImpl extends BaseRecouvrementResourceImpl {
             List<ObjectEntry> expertVisas = _objectEntryHelper.searchByFilter(
                 techUserId, companyId, groupId, ERC_DEMANDE_VISA,
                 "r_iDExpert_c_expertComptableId eq '" + expertId + "'"
-                + " and visaStatut eq '" + VISA_STATUT_VISE_KEY + "'");
+                + " and visaStatut eq '" + Constants.VISA_STATUT_VISE_KEY + "'");
 
             long paiementsVepCount = 0L;
             Set<Long> clientsSet = new HashSet<>();
@@ -531,7 +516,7 @@ public class RecouvrementResourceImpl extends BaseRecouvrementResourceImpl {
                 long clientId = ObjectEntryHelper.getLong(
                     visa, "r_iDClientDemandeVisa_c_clientId");
                 ObjectEntry clientEntry = _objectEntryHelper.getEntry(clientId);
-                if (clientEntry != null && CLIENT_CATEGORIE_VEP.equalsIgnoreCase(
+                if (clientEntry != null && Constants.CLIENT_CATEGORIE_VEP.equalsIgnoreCase(
                         ObjectEntryHelper.getString(clientEntry, "categorieClient"))) {
                     paiementsVepCount++;
                     clientsSet.add(clientId);
@@ -635,7 +620,7 @@ public class RecouvrementResourceImpl extends BaseRecouvrementResourceImpl {
         List<ObjectEntry> expertVisas = _objectEntryHelper.searchByFilter(
             techUserId, companyId, groupId, ERC_DEMANDE_VISA,
             "r_iDExpert_c_expertComptableId eq '" + expertId + "'"
-            + " and visaStatut eq '" + VISA_STATUT_VISE_KEY + "'");
+            + " and visaStatut eq '" + Constants.VISA_STATUT_VISE_KEY + "'");
 
         JSONArray visasArray = JSONFactoryUtil.createJSONArray();
         long totalPaiements  = 0L;
@@ -647,7 +632,7 @@ public class RecouvrementResourceImpl extends BaseRecouvrementResourceImpl {
                 visa, "r_iDClientDemandeVisa_c_clientId");
             ObjectEntry clientEntry = _objectEntryHelper.getEntry(clientId);
             if (clientEntry == null) continue;
-            if (!CLIENT_CATEGORIE_VEP.equalsIgnoreCase(
+            if (!Constants.CLIENT_CATEGORIE_VEP.equalsIgnoreCase(
                     ObjectEntryHelper.getString(clientEntry, "categorieClient"))) continue;
 
             clientsSet.add(clientId);
