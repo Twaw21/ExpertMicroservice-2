@@ -6,7 +6,6 @@
 package com.oecci.expert.internal.resource.v1_0;
 
 import com.liferay.petra.function.UnsafeFunction;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -19,12 +18,10 @@ import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
-import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.ActionUtil;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
 import com.oecci.expert.dto.v1_0.CreateDmdExtQuotVisaRequest;
-import com.oecci.expert.dto.v1_0.DataResult;
 import com.oecci.expert.dto.v1_0.StatutRequest;
 import com.oecci.expert.resource.v1_0.VisaResource;
 
@@ -342,7 +339,7 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas/by-expert/{expertId}'  -u 'test@liferay.com:test'
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/visa-quota-exts/demandes-extension-quota-visa'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
 			description = "Demandes de visa par expert comptable"
@@ -364,18 +361,6 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 					@io.swagger.v3.oas.annotations.Parameter(
 							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
 							name = "statut"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "fields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFields"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-							name = "nestedFieldsDepth"
 					)
 			}
 	)
@@ -402,6 +387,54 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	}
 
 	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas/by-expert/{expertId}'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+			description = "Retourne toutes les demandes d extension de quota visa soumises par un expert comptable. Inclut le resume de l expert et son compteur de visas courant ainsi que les compteurs par statut pour les badges de l interface."
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+			value = {
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+							name = "expertId"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "page"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "pageSize"
+					),
+					@io.swagger.v3.oas.annotations.Parameter(
+							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+							name = "statut"
+					)
+			}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+			value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "Visa")}
+	)
+	@javax.ws.rs.GET
+	@javax.ws.rs.Path("/oecci/expert/visa-quota-exts/by-expert/{expertId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Override
+	public Response getDemandesExtensionQuotaVisaByExpert(
+			long expertId,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@QueryParam("statut") String statut,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@QueryParam("page") @DefaultValue("1") int page,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@QueryParam("pageSize") @DefaultValue("20") int pageSize)
+            throws Exception{
+
+		return null;
+	}
+
+    /**
 	 * Invoke this method with the command line:
 	 *
 	 * curl -X 'POST' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/client/visa-quota-exts/validation/{demandeExtId}' -d $'{"motif_refus": ___, "statut": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'

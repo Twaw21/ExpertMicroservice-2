@@ -28,6 +28,10 @@ import javax.annotation.Generated;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -73,7 +77,14 @@ public interface VisaResource {
 			String fields, String nestedFields, Integer nestedFieldsDepth)
 		throws Exception;
 
-	public Response validateDemandeExtQuotaVisa(
+    public Response getDemandesExtensionQuotaVisaByExpert(
+            long expertId,
+            String statut,
+            int page,
+            int pageSize)
+throws Exception;
+
+    public Response validateDemandeExtQuotaVisa(
 			Long demandeExtId, StatutRequest statutRequest)
 		throws Exception;
 

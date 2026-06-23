@@ -579,9 +579,9 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 		// ------------------------------------------------------------------
 		JSONObject statusCounts = JSONFactoryUtil.createJSONObject();
 		statusCounts.put("total",    totalItems);
-		statusCounts.put("eNCOURS",  _countByStatut(allDemandes, "eNCOURS"));
-		statusCounts.put("aCCEPTE",  _countByStatut(allDemandes, "aCCEPTE"));
-		statusCounts.put("rEFUSE",   _countByStatut(allDemandes, "rEFUSE"));
+		statusCounts.put("eNCOURS",  Utils._countByStatut(allDemandes, "extensionQuotatStatus", "eNCOURS"));
+		statusCounts.put("aCCEPTE",  Utils._countByStatut(allDemandes, "extensionQuotatStatus", "aCCEPTE"));
+		statusCounts.put("rEFUSE",   Utils. _countByStatut(allDemandes, "extensionQuotatStatus", "rEFUSE"));
 
 		// ------------------------------------------------------------------
 		// 8. Construction de la réponse paginée
@@ -610,17 +610,262 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 		return Response.status(Response.Status.OK).entity(result).build();
 	}
 
-	// ------------------------------------------------------------------
-// Méthode utilitaire — compte les entrées d'une liste par statut
-// ------------------------------------------------------------------
-	private int _countByStatut(List<ObjectEntry> entries, String statutKey) {
-		int count = 0;
-		for (ObjectEntry e : entries) {
-			if (statutKey.equals(ObjectEntryHelper.getString(e, "extensionQuotatStatus"))) {
-				count++;
+
+	@Override
+	public Response getDemandesExtensionQuotaVisaByExpert(
+			long   expertId,
+			String statut,
+			int    page,
+			int    pageSize)
+			throws Exception {
+
+		_log.info(">> Debut getDemandesExtensionQuotaVisaByExpert — expertId=" + expertId
+				+ " statut=" + statut + " page=" + page + " pageSize=" + pageSize);
+
+		long userId    = contextUser.getUserId();
+		long companyId = contextCompany.getCompanyId();
+		long groupId   = 0;
+
+		JSONObject result = JSONFactoryUtil.createJSONObject();
+
+		// ------------------------------------------------------------------
+		// Validation des parametres
+		// ------------------------------------------------------------------
+		if (expertId <= 0) {
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Parametre expertId manquant ou invalide.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		if (page     < 1)   page     = 1;
+		if (pageSize < 1)   pageSize = 20;
+		if (pageSize > 100) pageSize = 100;
+
+		// ------------------------------------------------------------------
+		// Compte technique
+		// ------------------------------------------------------------------
+		User technicalUser;
+		try {
+			technicalUser = _userHelper.getTechnicalUser(companyId);
+		} catch (Exception e) {
+			_log.error("[getDemandesExtensionQuotaVisaByExpert] Compte technique introuvable : "
+					+ e.getMessage(), e);
+			result.put("code",    Constants.HTTP_INTERNAL_ERROR_CODE);
+			result.put("message", "Compte technique manquant. Contacter l administrateur.");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+		long techUserId = technicalUser.getUserId();
+
+		// ------------------------------------------------------------------
+		// 1. Verifier l existence de l expert
+		// ------------------------------------------------------------------
+		ObjectEntry expertEntry;
+		try {
+			expertEntry = _objectEntryHelper.getEntryOrThrow(expertId);
+		} catch (Exception e) {
+			_log.warn("[getDemandesExtensionQuotaVisaByExpert] Expert introuvable id=" + expertId);
+			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+			result.put("message", "Expert comptable introuvable pour l id : " + expertId + ".");
+			result.put("data",    "");
+			return Response.status(Response.Status.OK).entity(result).build();
+		}
+
+		String expertNom      = ObjectEntryHelper.getString(expertEntry, "nom");
+		String expertPrenoms  = ObjectEntryHelper.getString(expertEntry, "prenoms");
+		String expertEmail    = ObjectEntryHelper.getString(expertEntry, "email");
+		String expertContact  = ObjectEntryHelper.getString(expertEntry, "contact");
+		String expertNomComplet = expertPrenoms + " " + expertNom;
+
+		_log.info("[getDemandesExtensionQuotaVisaByExpert] Expert : " + expertNomComplet);
+
+		// ------------------------------------------------------------------
+		// 2. Configuration quota visa globale
+		// ------------------------------------------------------------------
+		int minLimitVisa = 0;
+		int maxLimitVisa = 0;
+
+		List<ObjectEntry> quotaList = _objectEntryHelper.searchByFilter(
+				techUserId, companyId, groupId, ERC_QUOTAT_VISA_CONFIGURATION, null);
+
+		if (!quotaList.isEmpty()) {
+			minLimitVisa = (int) ObjectEntryHelper.getLong(quotaList.get(0), "minlimitevisa");
+			maxLimitVisa = (int) ObjectEntryHelper.getLong(quotaList.get(0), "maxlimitevisa");
+		}
+
+		_log.info("[getDemandesExtensionQuotaVisaByExpert] Config quota — min=" + minLimitVisa
+				+ " max=" + maxLimitVisa);
+
+		// ------------------------------------------------------------------
+		// 3. Compteur de visas de l expert
+		// ------------------------------------------------------------------
+		int     currentVisaCount = 0;
+		boolean isOnMinConfig    = true;
+		int     applicableLimit  = minLimitVisa;
+		int     remainingVisas   = minLimitVisa;
+		boolean canSign          = minLimitVisa > 0;
+
+		List<ObjectEntry> visaCountList = _objectEntryHelper.searchByFilter(
+				techUserId, companyId, groupId, ERC_EXPERT_VISA_COUNT,
+				ObjectEntryHelper.buildEqFilter(
+						"r_expertVisaCount_c_expertComptableId",
+						String.valueOf(expertId)));
+
+		if (!visaCountList.isEmpty()) {
+			ObjectEntry countEntry = visaCountList.get(0);
+			isOnMinConfig    = ObjectEntryHelper.getBoolean(countEntry, "isOnMinConfig");
+			currentVisaCount = (int) ObjectEntryHelper.getLong(countEntry, "visaCount");
+			applicableLimit  = isOnMinConfig ? minLimitVisa : maxLimitVisa;
+			remainingVisas   = Math.max(0, applicableLimit - currentVisaCount);
+			canSign          = remainingVisas > 0;
+		}
+
+		// ------------------------------------------------------------------
+		// 4. Construction du filtre des demandes de l expert
+		// ------------------------------------------------------------------
+		String baseFilter = ObjectEntryHelper.buildEqFilter(
+				"r_expertDemandeur_c_expertComptableId",
+				String.valueOf(expertId));
+
+		String finalFilter;
+		if (statut != null && !statut.isBlank()) {
+			finalFilter = ObjectEntryHelper.buildAndFilter(
+					baseFilter,
+					ObjectEntryHelper.buildEqFilter("extensionQuotatStatus", statut.trim()));
+		} else {
+			finalFilter = baseFilter;
+		}
+
+		// ------------------------------------------------------------------
+		// 5. Recuperer toutes les demandes de l expert
+		// ------------------------------------------------------------------
+		List<ObjectEntry> allDemandes = _objectEntryHelper.searchByFilter(
+				userId, companyId, groupId,
+				ERC_DEMANDE_EXTENSION_QUOTA_VISA, finalFilter);
+
+		_log.info("[getDemandesExtensionQuotaVisaByExpert] " + allDemandes.size()
+				+ " demande(s) trouvee(s).");
+
+		// ------------------------------------------------------------------
+		// 6. Pagination manuelle
+		// ------------------------------------------------------------------
+		int totalItems = allDemandes.size();
+		int totalPages = (totalItems == 0) ? 1 : (int) Math.ceil((double) totalItems / pageSize);
+		int fromIndex  = (page - 1) * pageSize;
+		int toIndex    = Math.min(fromIndex + pageSize, totalItems);
+
+		List<ObjectEntry> pageDemandes = (fromIndex >= totalItems)
+				? new ArrayList<>()
+				: allDemandes.subList(fromIndex, toIndex);
+
+		// ------------------------------------------------------------------
+		// 7. Serialisation des demandes
+		// ------------------------------------------------------------------
+		JSONArray items = JSONFactoryUtil.createJSONArray();
+
+		for (ObjectEntry demandeEntry : pageDemandes) {
+			try {
+				JSONObject item = JSONFactoryUtil.createJSONObject();
+
+				item.put("id",                    demandeEntry.getObjectEntryId());
+				item.put("code",                  ObjectEntryHelper.getString(demandeEntry, "code"));
+				item.put("extensionQuotatStatus", ObjectEntryHelper.getString(demandeEntry, "extensionQuotatStatus"));
+				item.put("motif",                 ObjectEntryHelper.getString(demandeEntry, "motif"));
+
+				// Dates formatees
+				LocalDate dateCreated = demandeEntry.getCreateDate()
+						.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				item.put("dateCreated",
+						dateCreated.format(DateTimeFormatter.ofPattern("dd MM yyyy")));
+
+				LocalDate dateModified = demandeEntry.getModifiedDate()
+						.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				item.put("dateModified",
+						dateModified.format(DateTimeFormatter.ofPattern("dd MM yyyy")));
+
+				// Label lisible du statut
+				String statutKey = ObjectEntryHelper.getString(demandeEntry, "extensionQuotatStatus");
+				item.put("statutLabel", _extensionStatutToLabel(statutKey));
+
+				items.put(item);
+			} catch (Exception e) {
+				_log.warn("[getDemandesExtensionQuotaVisaByExpert] Erreur enrichissement demande id="
+						+ demandeEntry.getObjectEntryId() + " : " + e.getMessage());
 			}
 		}
-		return count;
+
+		// ------------------------------------------------------------------
+		// 8. Compteurs par statut (pour les badges de l interface expert)
+		// ------------------------------------------------------------------
+		JSONObject statusCounts = JSONFactoryUtil.createJSONObject();
+		statusCounts.put("total",   totalItems);
+		statusCounts.put("eNCOURS", Utils._countByStatut(allDemandes, "extensionQuotatStatus", "eNCOURS"));
+		statusCounts.put("aCCEPTE", Utils._countByStatut(allDemandes, "extensionQuotatStatus", "aCCEPTE"));
+		statusCounts.put("rEFUSE",  Utils._countByStatut(allDemandes, "extensionQuotatStatus", "rEFUSE"));
+
+		// ------------------------------------------------------------------
+		// 9. Resume de l expert et de son quota (pour l en-tete de la vue)
+		// ------------------------------------------------------------------
+		JSONObject expertResume = JSONFactoryUtil.createJSONObject();
+		expertResume.put("id",              expertId);
+		expertResume.put("nomComplet",      expertNomComplet);
+		expertResume.put("email",           expertEmail);
+		expertResume.put("contact",         expertContact);
+
+		JSONObject visaCountData = JSONFactoryUtil.createJSONObject();
+		visaCountData.put("currentVisaCount", currentVisaCount);
+		visaCountData.put("isOnMinConfig",    isOnMinConfig);
+		visaCountData.put("minLimitVisa",     minLimitVisa);
+		visaCountData.put("maxLimitVisa",     maxLimitVisa);
+		visaCountData.put("applicableLimit",  applicableLimit);
+		visaCountData.put("remainingVisas",   remainingVisas);
+		visaCountData.put("canSign",          canSign);
+		expertResume.put("visaCount", visaCountData);
+
+		// ------------------------------------------------------------------
+		// 10. Pagination
+		// ------------------------------------------------------------------
+		JSONObject pagination = JSONFactoryUtil.createJSONObject();
+		pagination.put("page",       page);
+		pagination.put("pageSize",   pageSize);
+		pagination.put("totalItems", totalItems);
+		pagination.put("totalPages", totalPages);
+		pagination.put("hasNext",    page < totalPages);
+		pagination.put("hasPrev",    page > 1);
+
+		// ------------------------------------------------------------------
+		// 11. Reponse
+		// ------------------------------------------------------------------
+		JSONObject data = JSONFactoryUtil.createJSONObject();
+		data.put("expert",       expertResume);
+		data.put("items",        items);
+		data.put("pagination",   pagination);
+		data.put("statusCounts", statusCounts);
+
+		result.put("code",    Constants.HTTP_SUCCESS);
+		result.put("message", items.length() == 0
+				? "Aucune demande d extension de quota visa trouvee pour cet expert."
+				: items.length() + " demande(s) trouvee(s).");
+		result.put("data", data);
+
+		_log.info("[getDemandesExtensionQuotaVisaByExpert] Reponse construite — "
+				+ items.length() + " item(s).");
+		return Response.status(Response.Status.OK).entity(result).build();
+	}
+
+	// ---------------------------------------------------------------------------
+// Helper prive : conversion cle statut → label lisible
+// (a ajouter avec les autres helpers prives de la classe)
+// ---------------------------------------------------------------------------
+	private String _extensionStatutToLabel(String key) {
+		if (key == null) return "";
+		switch (key) {
+			case "eNCOURS": return "En cours";
+			case "aCCEPTE": return "Accepte";
+			case "rEFUSE":  return "Refuse";
+			default:        return key;
+		}
 	}
 
 		@Override

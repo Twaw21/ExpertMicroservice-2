@@ -1,5 +1,6 @@
 package com.oecci.expert.utils;
 
+import com.liferay.object.model.ObjectEntry;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -23,6 +24,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -331,5 +333,18 @@ public class Utils {
         String mail_content = stringWriter.toString();
         
         return mail_content;
+	}
+
+	// ------------------------------------------------------------------
+// Méthode utilitaire — compte les entrées d'une liste par statut
+// ------------------------------------------------------------------
+	public static int _countByStatut(List<ObjectEntry> entries, String field, String statutKey) {
+		int count = 0;
+		for (ObjectEntry e : entries) {
+			if (statutKey.equals(ObjectEntryHelper.getString(e, field))) {
+				count++;
+			}
+		}
+		return count;
 	}
 }
