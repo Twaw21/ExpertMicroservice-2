@@ -56,7 +56,6 @@ public interface VisaResource {
 		throws Exception;
 
 	public Response getDemandesExtensionQuotaVisa(
-			long   ordreExpertId,
 			String statut,
 			int page,
 			int pageSize)
@@ -78,10 +77,10 @@ public interface VisaResource {
 		throws Exception;
 
     public Response getDemandesExtensionQuotaVisaByExpert(
-            long expertId,
+            Long expertId,
             String statut,
-            int page,
-            int pageSize)
+            Integer page,
+            Integer pageSize)
 throws Exception;
 
     public Response validateDemandeExtQuotaVisa(

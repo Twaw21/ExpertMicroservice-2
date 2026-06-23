@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -347,10 +348,6 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	@io.swagger.v3.oas.annotations.Parameters(
 			value = {
 					@io.swagger.v3.oas.annotations.Parameter(
-							in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-							name = "ordreExpertId"
-					),
-					@io.swagger.v3.oas.annotations.Parameter(
 							in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
 							name = "page"
 					),
@@ -373,9 +370,6 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	@Override
 	public Response getDemandesExtensionQuotaVisa(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@javax.validation.constraints.NotNull
-			@QueryParam("ordreExpertId") long   ordreExpertId,
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@QueryParam("statut")        String statut,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@QueryParam("page")          @DefaultValue("1")  int page,
@@ -389,7 +383,7 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/oecci/expert/demande-visas/by-expert/{expertId}'  -u 'test@liferay.com:test'
+	 * curl -X 'GET' 'http://localhost:8080/o/ExpertMicroservice/v1.0/o/oecci/expert/visa-quota-exts/by-expert/{expertId}'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
 			description = "Retourne toutes les demandes d extension de quota visa soumises par un expert comptable. Inclut le resume de l expert et son compteur de visas courant ainsi que les compteurs par statut pour les badges de l interface."
@@ -422,13 +416,15 @@ public abstract class BaseVisaResourceImpl implements VisaResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Override
 	public Response getDemandesExtensionQuotaVisaByExpert(
-			long expertId,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@javax.validation.constraints.NotNull
+			@PathParam("expertId") Long expertId,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@QueryParam("statut") String statut,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@QueryParam("page") @DefaultValue("1") int page,
+			@QueryParam("page") @DefaultValue("1") Integer page,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@QueryParam("pageSize") @DefaultValue("20") int pageSize)
+			@QueryParam("pageSize") @DefaultValue("20") Integer pageSize)
             throws Exception{
 
 		return null;

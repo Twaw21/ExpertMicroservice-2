@@ -504,13 +504,6 @@ paths:
       operationId: getDemandesExtensionQuotaVisa
       description: Retourne la liste paginee des demandes d extension de quota visa adressees a un administrateur de l ordre. Chaque entree est enrichie avec les donnees de l expert demandeur et le compteur de visas courant. Un bloc statusCounts est retourne pour le tableau de bord.
       parameters:
-        - name: ordreExpertId
-          in: query
-          required: true
-          description: Identifiant objectEntryId de l administrateur de l ordre
-          schema:
-            type: integer
-            format: int64
         - name: statut
           in: query
           required: false

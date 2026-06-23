@@ -361,13 +361,12 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 
 	@Override
 	public Response getDemandesExtensionQuotaVisa(
-			long   ordreExpertId,
 			String statut,
 			int page,
 			int pageSize)
 			throws Exception {
 
-		_log.info(">> Début getDemandesExtensionQuotaVisa — ordreExpertId=" + ordreExpertId +
+		_log.info(">> Début getDemandesExtensionQuotaVisa — " +
 				" statut=" + statut + " page=" + page + " pageSize=" + pageSize);
 
 		long userId    = contextUser.getUserId();
@@ -376,15 +375,15 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 
 		JSONObject result = JSONFactoryUtil.createJSONObject();
 
-		// ------------------------------------------------------------------
-		// Validation des paramètres
-		// ------------------------------------------------------------------
-		if (ordreExpertId <= 0) {
-			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
-			result.put("message", "Paramètre ordreExpertId manquant ou invalide.");
-			result.put("data",    "");
-			return Response.status(Response.Status.OK).entity(result).build();
-		}
+//		// ------------------------------------------------------------------
+//		// Validation des paramètres
+//		// ------------------------------------------------------------------
+//		if (ordreExpertId <= 0) {
+//			result.put("code",    Constants.HTTP_ERROR_NOT_FOUND);
+//			result.put("message", "Paramètre ordreExpertId manquant ou invalide.");
+//			result.put("data",    "");
+//			return Response.status(Response.Status.OK).entity(result).build();
+//		}
 
 		if (page < 1)     page     = 1;
 		if (pageSize < 1) pageSize = 20;
@@ -407,7 +406,7 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 		}
 
 		long techUserId = technicalUser.getUserId();
-
+		/*
 		// ------------------------------------------------------------------
 		// 1. Vérifier l'existence de l'administrateur de l'ordre
 		// ------------------------------------------------------------------
@@ -428,7 +427,7 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 		String ordreNom     = ObjectEntryHelper.getString(ordreEntry, "nom");
 		String ordrePrenoms = ObjectEntryHelper.getString(ordreEntry, "prenoms");
 		_log.info("[getDemandesExtensionQuotaVisa] Admin ordre : " + ordrePrenoms + " " + ordreNom);
-
+		*/
 		// ------------------------------------------------------------------
 		// 2. Récupérer la configuration de quota visa globale
 		//    (nécessaire pour enrichir chaque ligne avec les plafonds)
@@ -453,19 +452,20 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 		//    Filtre de base : toutes les demandes adressées à cet admin.
 		//    Filtre optionnel : statut si fourni et non vide.
 		// ------------------------------------------------------------------
-		String baseFilter = ObjectEntryHelper.buildEqFilter(
-				"r_iDExpertCoordinateur_c_expertCoordinateurId",
-				String.valueOf(ordreExpertId));
+//		String baseFilter = ObjectEntryHelper.buildEqFilter(
+//				"r_iDExpertCoordinateur_c_expertCoordinateurId",
+//				ordreExpertId);
 
-		String finalFilter;
+		String finalFilter = null;
 		if (statut != null && !statut.isBlank()) {
-			finalFilter = ObjectEntryHelper.buildAndFilter(
-					baseFilter,
-					ObjectEntryHelper.buildEqFilter("extensionQuotatStatus", statut.trim()));
+			finalFilter = ObjectEntryHelper.buildEqFilter("extensionQuotatStatus", statut.trim());
+//			finalFilter = ObjectEntryHelper.buildAndFilter(
+//					baseFilter,
+//					ObjectEntryHelper.buildEqFilter("extensionQuotatStatus", statut.trim()));
 		}
-		else {
-			finalFilter = baseFilter;
-		}
+//		else {
+//			finalFilter = baseFilter;
+//		}
 
 		// ------------------------------------------------------------------
 		// 4. Récupérer toutes les demandes correspondant au filtre
@@ -613,10 +613,10 @@ public class VisaResourceImpl extends BaseVisaResourceImpl {
 
 	@Override
 	public Response getDemandesExtensionQuotaVisaByExpert(
-			long   expertId,
+			Long   expertId,
 			String statut,
-			int    page,
-			int    pageSize)
+			Integer    page,
+			Integer    pageSize)
 			throws Exception {
 
 		_log.info(">> Debut getDemandesExtensionQuotaVisaByExpert — expertId=" + expertId
